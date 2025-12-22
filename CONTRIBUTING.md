@@ -1,0 +1,4 @@
+- All models require a baseline comparison.
+- Train and evaluation must be separated.
+- Deterministic runs where possible.
+- Explicit assumptions and limitations.
