@@ -162,16 +162,19 @@ def validate_pairwise_dataset(pairwise_df: pd.DataFrame) -> dict:
     Returns:
         Dictionary with validation statistics
     """
-    stats = {}
+    stats: dict[str, int | float | str] = {}
 
     # Count races and pairs
     stats["num_races"] = pairwise_df["race_id"].nunique()
     stats["total_pairs"] = len(pairwise_df)
-    stats["avg_pairs_per_race"] = stats["total_pairs"] / stats["num_races"]
+    avg_pairs_per_race: float = stats["total_pairs"] / stats["num_races"]
+    stats["avg_pairs_per_race"] = avg_pairs_per_race
 
     # Check for balance
-    stats["y_mean"] = pairwise_df["y"].mean()
-    stats["y_balance"] = f"{pairwise_df['y'].sum()} wins / {len(pairwise_df)} total"
+    y_mean: float = pairwise_df["y"].mean()
+    stats["y_mean"] = y_mean
+    y_balance: str = f"{pairwise_df['y'].sum()} wins / {len(pairwise_df)} total"
+    stats["y_balance"] = y_balance
 
     # Check for missing values in key columns
     key_cols = ["race_id", "driver_i", "driver_j", "y"]
@@ -182,14 +185,15 @@ def validate_pairwise_dataset(pairwise_df: pd.DataFrame) -> dict:
                 stats[f"{col}_missing"] = missing
 
     # Average number of drivers per race
-    drivers_per_race = []
+    drivers_per_race: list[int] = []
     for race_id in pairwise_df["race_id"].unique():
         race_pairs = pairwise_df[pairwise_df["race_id"] == race_id]
         # Each driver appears in multiple pairs
         unique_drivers = set(race_pairs["driver_i"].unique()) | set(race_pairs["driver_j"].unique())
         drivers_per_race.append(len(unique_drivers))
 
-    stats["avg_drivers_per_race"] = float(np.mean(np.array(drivers_per_race)))
+    avg_drivers_per_race: float = float(np.mean(np.array(drivers_per_race)))
+    stats["avg_drivers_per_race"] = avg_drivers_per_race
 
     logger.info("Pairwise dataset validation:")
     for key, value in stats.items():

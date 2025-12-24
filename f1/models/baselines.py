@@ -101,8 +101,11 @@ class QualifyingFrequencyBaseline(BaselineModel):
                 wins = (group["finish_position"] == 1).sum()
                 podiums = (group["finish_position"] <= 3).sum()
 
-                self.win_probs[int(float(quali_pos))] = wins / total if total > 0 else 0.0
-                self.podium_probs[int(float(quali_pos))] = podiums / total if total > 0 else 0.0
+                # Convert quali_pos safely using pd.to_numeric
+                quali_pos_numeric = pd.to_numeric(quali_pos, errors="coerce")
+                quali_pos_int = int(float(quali_pos_numeric)) if pd.notna(quali_pos_numeric) else 20
+                self.win_probs[quali_pos_int] = wins / total if total > 0 else 0.0
+                self.podium_probs[quali_pos_int] = podiums / total if total > 0 else 0.0
 
         # Set defaults for unseen positions
         if self.win_probs:

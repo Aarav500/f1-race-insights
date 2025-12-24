@@ -273,13 +273,14 @@ def validate_probabilities(predictions: pd.DataFrame, tolerance: float = 1e-6) -
     Returns:
         Dictionary with validation results
     """
-    results: dict[str, bool | list[str]] = {"valid": True, "issues": []}
+    results: dict[str, bool | list[str] | float] = {"valid": True, "issues": []}
+    issues: list[str] = []
 
     # Check win_prob bounds
     if "win_prob" in predictions.columns:
         if (predictions["win_prob"] < 0).any() or (predictions["win_prob"] > 1).any():
             results["valid"] = False
-            results["issues"].append("win_prob has values outside [0, 1]")
+            issues.append("win_prob has values outside [0, 1]")
 
         # Check sum to 1 within races
         if "race_id" in predictions.columns and not np.allclose(
@@ -287,14 +288,14 @@ def validate_probabilities(predictions: pd.DataFrame, tolerance: float = 1e-6) -
         ):
             max_diff = np.abs(race_sums - 1.0).max()
             results["valid"] = False
-            results["issues"].append(f"win_prob does not sum to 1 (max diff: {max_diff:.6f})")
+            issues.append(f"win_prob does not sum to 1 (max diff: {max_diff:.6f})")
 
     # Check podium_prob bounds
     if "podium_prob" in predictions.columns and (
         (predictions["podium_prob"] < 0).any() or (predictions["podium_prob"] > 1).any()
     ):
         results["valid"] = False
-        results["issues"].append("podium_prob has values outside [0, 1]")
+        issues.append("podium_prob has values outside [0, 1]")
 
     # Check win_prob <= podium_prob (winning implies podium)
     if (
@@ -303,12 +304,15 @@ def validate_probabilities(predictions: pd.DataFrame, tolerance: float = 1e-6) -
         and (predictions["win_prob"] > predictions["podium_prob"] + tolerance).any()
     ):
         results["valid"] = False
-        results["issues"].append("Some win_prob > podium_prob")
+        issues.append("Some win_prob > podium_prob")
+
+    # Assign issues list to results
+    results["issues"] = issues
 
     if results["valid"]:
         logger.info("✓ All probability validations passed")
     else:
-        for issue in results["issues"]:
+        for issue in issues:
             logger.warning(f"✗ {issue}")
 
     return results

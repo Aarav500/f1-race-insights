@@ -371,7 +371,7 @@ def _predict_nbt_tlf(
         predictions = calibrate_nbt_tlf_scores(scores_df, method="none")
     else:
         # Simple softmax
-        scores_arr = scores_df["score"].values
+        scores_arr = np.asarray(scores_df["score"].values)
         exp_scores = np.exp(scores_arr - scores_arr.max())
         win_probs = exp_scores / exp_scores.sum()
 

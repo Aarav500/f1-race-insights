@@ -145,7 +145,7 @@ class NBTTLFModel(nn.Module):
         combined = torch.cat(features, dim=1)
 
         # Compute score
-        score = self.score_network(combined)
+        score: torch.Tensor = self.score_network(combined)
         return score
 
     def forward(

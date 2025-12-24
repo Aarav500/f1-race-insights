@@ -121,6 +121,9 @@ def prepare_features(
     else:
         raise ValueError(f"Unknown task: {task}")
 
+    # Ensure y is np.ndarray
+    y = np.asarray(y)
+
     logger.info(f"Prepared features: X shape={X.shape}, y shape={y.shape}")
     logger.info(f"Feature columns ({len(feature_cols)}): {feature_cols[:10]}...")
 

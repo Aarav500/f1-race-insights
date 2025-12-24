@@ -1,4 +1,4 @@
-"""Walk-forward backtesting framework for F1race predictions.
+"""Walk-forward backtesting framework for F1 race predictions.
 
 Implements temporal cross-validation where models are trained on past data
 and tested on future races, respecting chronological order to prevent leakage.
@@ -131,15 +131,19 @@ class WalkForwardBacktest:
             # Extract probabilities or values
             if isinstance(predictions, pd.DataFrame):
                 if task == "win":
-                    return predictions["win_prob"].tolist()
+                    return list(map(float, predictions["win_prob"].tolist()))
                 elif task == "podium":
-                    return predictions["podium_prob"].tolist()
+                    return list(map(float, predictions["podium_prob"].tolist()))
                 elif task == "finish":
-                    return predictions.get(
+                    series_result = predictions.get(
                         "expected_finish", predictions["finish_position"]
-                    ).tolist()
+                    )
+                    return list(map(float, series_result.tolist()))
+                else:
+                    # Fallback for unknown task
+                    return list(map(float, predictions.iloc[:, 0].tolist()))
             else:
-                return predictions.tolist()
+                return list(map(float, predictions.tolist()))
         else:
             raise ValueError("Model must have predict method")
 
@@ -187,16 +191,16 @@ def create_model_trainer(model_type: str, model_params: dict | None = None):
             Trained model
         """
         if model_type == "quali_freq":
-            from f1.models.baselines import QualifyingFrequencyBaseline
+            from f1.models.baselines import BaselineModel, QualifyingFrequencyBaseline
 
-            model = QualifyingFrequencyBaseline()
+            model: BaselineModel = QualifyingFrequencyBaseline()
             model.fit(train_data)
             return model
 
         elif model_type == "elo":
-            from f1.models.baselines import EloBaseline
+            from f1.models.baselines import BaselineModel, EloBaseline
 
-            model = EloBaseline(**model_params)
+            model: BaselineModel = EloBaseline(**model_params)
             model.fit(train_data)
             return model
 
