@@ -1,0 +1,136 @@
+name: Deploy to EC2
+
+# Deploy the application to EC2 instance via SSH
+# Triggers after images are published to GHCR or manually
+on:
+  workflow_dispatch:  # Allow manual trigger
+  workflow_run:
+    workflows: ["Publish Docker Images"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    # Only run if the publish workflow succeeded (or if manually triggered)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Bootstrap Docker prerequisites on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'ENDSSH'
+          set -e
+          
+          echo "Checking Docker prerequisites..."
+          
+          # Check if Docker is installed
+          if ! command -v docker &> /dev/null; then
+            echo "Docker not found. Installing Docker..."
+            sudo apt-get update -qq
+            sudo apt-get install -y docker.io
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            echo "Docker installed successfully"
+          else
+            echo "Docker already installed: $(docker --version)"
+          fi
+          
+          # Check if Docker Compose plugin is installed
+          if ! docker compose version &> /dev/null; then
+            echo "Docker Compose plugin not found. Installing..."
+            sudo apt-get update -qq
+            sudo apt-get install -y docker-compose-plugin
+            echo "Docker Compose plugin installed successfully"
+          else
+            echo "Docker Compose already installed: $(docker compose version)"
+          fi
+          
+          # Add user to docker group if not already a member
+          if ! groups | grep -q docker; then
+            echo "Adding user to docker group..."
+            sudo usermod -aG docker $USER
+            echo "User added to docker group (will take effect on next login)"
+          else
+            echo "User already in docker group"
+          fi
+          
+          # Verify Docker is working
+          # Use sudo for verification if user not in docker group yet
+          if groups | grep -q docker; then
+            echo "Verifying Docker access..."
+            docker ps > /dev/null 2>&1 || sudo docker ps > /dev/null
+            echo "Docker verification successful"
+          else
+            echo "Verifying Docker with sudo (group membership requires re-login)..."
+            sudo docker ps > /dev/null
+            echo "Docker verification successful (running as sudo)"
+          fi
+          
+          echo "Docker prerequisites check complete"
+          ENDSSH
+
+      - name: Create deployment directory on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "sudo mkdir -p /opt/f1-race-insights/deploy && \
+             sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /opt/f1-race-insights"
+
+      - name: Copy deployment files to EC2
+        run: |
+          # Copy deploy scripts and configuration
+          scp -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no -r \
+            deploy/* \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/opt/f1-race-insights/deploy/
+
+      - name: Create .env.prod on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "echo '${{ secrets.PROD_ENV_FILE_B64 }}' | base64 -d > /opt/f1-race-insights/deploy/.env.prod"
+
+      - name: Validate .env.prod on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "test -s /opt/f1-race-insights/deploy/.env.prod && \
+             grep -q '^DOCKER_REGISTRY=' /opt/f1-race-insights/deploy/.env.prod && \
+             grep -q '^S3_BUCKET=' /opt/f1-race-insights/deploy/.env.prod && \
+             echo 'Validation passed: .env.prod file exists and contains required variables' || \
+             (echo 'Validation failed: .env.prod file is missing or incomplete' && exit 1)"
+
+      - name: Login to GitHub Container Registry on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+
+      - name: Run deployment script
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "cd /opt/f1-race-insights && bash deploy/ec2_deploy.sh"
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "docker compose -f /opt/f1-race-insights/deploy/docker-compose.prod.yml ps"
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/ec2_key

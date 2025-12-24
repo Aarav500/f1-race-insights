@@ -1,0 +1,66 @@
+# Systemd service file for F1 Race Insights API
+# Place in: /etc/systemd/system/f1-api.service
+# Enable: sudo systemctl enable f1-api
+# Start: sudo systemctl start f1-api
+
+# TODO: Update paths and user as needed
+# TODO: Fill in environment variables or use EnvironmentFile
+
+[Unit]
+Description=F1 Race Insights API
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/f1-race-insights
+
+# Environment variables (option 1: inline)
+# TODO: Fill in actual values
+# Environment="ENV=prod"
+# Environment="DATABASE_URL=postgresql://user:pass@localhost:5432/f1db"
+# Environment="S3_BUCKET=<CHANGE-ME>"
+# Environment="AWS_REGION=<CHANGE-ME>"
+
+# Environment variables (option 2: file - recommended)
+# TODO: Create /etc/f1-api/.env with production values
+EnvironmentFile=/etc/f1-api/.env
+
+# Python virtual environment (if not using Docker)
+# Environment="PATH=/home/ubuntu/f1-race-insights/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+
+# Start command
+# Option 1: Docker Compose
+ExecStart=/usr/local/bin/docker-compose up
+
+# Option 2: Direct uvicorn (if not using Docker)
+# ExecStart=/home/ubuntu/f1-race-insights/.venv/bin/uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+# Stop command
+ExecStop=/usr/local/bin/docker-compose down
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Resource limits (adjust based on instance size)
+LimitNOFILE=65536
+MemoryLimit=2G
+CPUQuota=200%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=f1-api
+
+# Security (optional hardening)
+# NoNewPrivileges=true
+# PrivateTmp=true
+# ProtectSystem=strict
+# ProtectHome=true
+# ReadWritePaths=/home/ubuntu/f1-race-insights/data /home/ubuntu/f1-race-insights/models
+
+[Install]
+WantedBy=multi-user.target
