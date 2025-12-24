@@ -167,7 +167,7 @@ def validate_pairwise_dataset(pairwise_df: pd.DataFrame) -> dict:
     # Count races and pairs
     stats["num_races"] = pairwise_df["race_id"].nunique()
     stats["total_pairs"] = len(pairwise_df)
-    avg_pairs_per_race: float = stats["total_pairs"] / stats["num_races"]
+    avg_pairs_per_race: float = float(stats["total_pairs"]) / float(stats["num_races"])
     stats["avg_pairs_per_race"] = avg_pairs_per_race
 
     # Check for balance

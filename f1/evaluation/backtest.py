@@ -191,18 +191,18 @@ def create_model_trainer(model_type: str, model_params: dict | None = None):
             Trained model
         """
         if model_type == "quali_freq":
-            from f1.models.baselines import BaselineModel, QualifyingFrequencyBaseline
+            from f1.models.baselines import QualifyingFrequencyBaseline
 
-            model: BaselineModel = QualifyingFrequencyBaseline()
-            model.fit(train_data)
-            return model
+            baseline_model = QualifyingFrequencyBaseline()
+            baseline_model.fit(train_data)
+            return baseline_model
 
         elif model_type == "elo":
-            from f1.models.baselines import BaselineModel, EloBaseline
+            from f1.models.baselines import EloBaseline
 
-            model: BaselineModel = EloBaseline(**model_params)
-            model.fit(train_data)
-            return model
+            baseline_model = EloBaseline(**model_params)
+            baseline_model.fit(train_data)
+            return baseline_model
 
         elif model_type in ["xgb", "lgbm", "cat", "lr", "rf"]:
             from f1.models.train import create_model, prepare_features
