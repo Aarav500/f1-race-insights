@@ -2,7 +2,6 @@
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -37,7 +36,7 @@ class Settings(BaseSettings):
     )
 
     # Database (Optional)
-    database_url: Optional[str] = Field(
+    database_url: str | None = Field(
         default=None, description="Database connection URL (PostgreSQL, SQLite, etc.)"
     )
 

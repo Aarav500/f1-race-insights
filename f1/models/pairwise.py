@@ -4,7 +4,6 @@ Converts race results into pairwise comparisons where each pair (driver_i, drive
 represents a head-to-head comparison with outcome y=1 if driver_i beat driver_j.
 """
 
-from typing import Union
 import logging
 
 import numpy as np
@@ -163,7 +162,7 @@ def validate_pairwise_dataset(pairwise_df: pd.DataFrame) -> dict:
     Returns:
         Dictionary with validation statistics
     """
-    stats: dict[str, Union[int, float, str]] = {}
+    stats: dict[str, int | float | str] = {}
 
     # Count races and pairs
     stats["num_races"] = pairwise_df["race_id"].nunique()

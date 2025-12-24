@@ -3,7 +3,7 @@
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -57,7 +57,7 @@ class DataCache:
     """Singleton cache for feature data."""
 
     _instance = None
-    _features: Optional[pd.DataFrame] = None
+    _features: pd.DataFrame | None = None
 
     def __new__(cls):
         if cls._instance is None:

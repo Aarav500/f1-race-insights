@@ -5,7 +5,7 @@ and recomputing predictions to see how outcomes would change.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -95,7 +95,7 @@ def compute_counterfactual(
     request: CounterfactualRequest,
     race_data: pd.DataFrame,
     model_name: str,
-    model_dir: Optional[str] = "models",
+    model_dir: str | None = "models",
 ) -> CounterfactualResponse:
     """Compute counterfactual prediction.
 

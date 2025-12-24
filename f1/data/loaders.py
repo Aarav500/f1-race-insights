@@ -1,6 +1,5 @@
 """FastF1 data loaders with caching."""
 
-from typing import Optional
 import logging
 from pathlib import Path
 
@@ -34,7 +33,7 @@ def get_season_schedule(year: int) -> pd.DataFrame:
     return df
 
 
-def get_race_results(year: int, round_number: int) -> Optional[pd.DataFrame]:
+def get_race_results(year: int, round_number: int) -> pd.DataFrame | None:
     """Fetch race results for a specific race.
 
     Args:
@@ -69,7 +68,7 @@ def get_race_results(year: int, round_number: int) -> Optional[pd.DataFrame]:
         return None
 
 
-def get_qualifying_results(year: int, round_number: int) -> Optional[pd.DataFrame]:
+def get_qualifying_results(year: int, round_number: int) -> pd.DataFrame | None:
     """Fetch qualifying results for a specific race.
 
     Args:

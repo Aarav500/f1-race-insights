@@ -8,7 +8,6 @@ Implements standard metrics for assessing prediction quality:
 - ECE: Expected Calibration Error
 """
 
-from typing import Optional
 import logging
 
 import numpy as np
@@ -133,7 +132,7 @@ def compute_metrics(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     task: str = "classification",
-    metric_names: Optional[list[str]] = None,
+    metric_names: list[str] | None = None,
 ) -> dict[str, float]:
     """Compute all relevant metrics for a task.
 
