@@ -3,13 +3,11 @@
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import JSONResponse
 
 from api.core.config import Settings
-from api.deps import get_config, get_data_cache, get_model_cache, DataCache, ModelCache
+from api.deps import DataCache, ModelCache, get_config, get_data_cache, get_model_cache
 from f1.analysis.counterfactuals import compute_counterfactual
 from f1.models.registry import predict_race
 from f1.schemas import CounterfactualRequest, CounterfactualResponse, PredictionResponse
@@ -21,14 +19,13 @@ router = APIRouter(prefix="/api/f1", tags=["f1"])
 
 @router.get("/races")
 async def get_available_races(
-    data_cache: DataCache = Depends(get_data_cache),
-    config: Settings = Depends(get_config)
+    data_cache: DataCache = Depends(get_data_cache), config: Settings = Depends(get_config)
 ):
     """Get list of available races with metadata.
-    
+
     Returns:
         List of race information dicts with race_id, season, round, etc.
-        
+
     Example:
         GET /api/f1/races
     """
@@ -36,30 +33,32 @@ async def get_available_races(
         # Load features
         features_path = Path(config.data_dir) / "features" / "features.parquet"
         features = data_cache.get_features(features_path)
-        
+
         # Get unique races with metadata
-        races = features.groupby('race_id').agg({
-            'season': 'first',
-            'round': 'first',
-            'race_date': 'first'
-        }).reset_index()
-        
+        races = (
+            features.groupby("race_id")
+            .agg({"season": "first", "round": "first", "race_date": "first"})
+            .reset_index()
+        )
+
         # Convert to list of dicts
         race_list = []
         for _, row in races.iterrows():
-            race_list.append({
-                'race_id': row['race_id'],
-                'season': int(row['season']),
-                'round': int(row['round']),
-                'date': int(row['race_date']) if 'race_date' in row else None,
-            })
-        
+            race_list.append(
+                {
+                    "race_id": row["race_id"],
+                    "season": int(row["season"]),
+                    "round": int(row["round"]),
+                    "date": int(row["race_date"]) if "race_date" in row else None,
+                }
+            )
+
         # Sort by season and round
-        race_list.sort(key=lambda x: (x['season'], x['round']))
-        
+        race_list.sort(key=lambda x: (x["season"], x["round"]))
+
         logger.info(f"Found {len(race_list)} available races")
         return {"races": race_list, "count": len(race_list)}
-        
+
     except Exception as e:
         logger.error(f"Failed to load races: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -68,30 +67,29 @@ async def get_available_races(
 @router.get("/reports/backtest")
 async def get_backtest_report(config: Settings = Depends(get_config)):
     """Get backtest report if available.
-    
+
     Returns:
         Backtest results JSON
-        
+
     Example:
         GET /api/f1/reports/backtest
     """
     try:
         # Look for backtest.json in reports directory
         report_path = Path(config.reports_dir) / "backtest.json"
-        
+
         if not report_path.exists():
             raise HTTPException(
-                status_code=404,
-                detail="Backtest report not found. Run: python scripts/backtest.py"
+                status_code=404, detail="Backtest report not found. Run: python scripts/backtest.py"
             )
-        
+
         # Read and return the JSON
-        with open(report_path, 'r') as f:
+        with open(report_path) as f:
             report_data = json.load(f)
-        
+
         logger.info(f"Serving backtest report from {report_path}")
         return report_data
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -105,17 +103,17 @@ async def predict_race_endpoint(
     model: str = Query("xgb", description="Model name to use for prediction"),
     data_cache: DataCache = Depends(get_data_cache),
     model_cache: ModelCache = Depends(get_model_cache),
-    config: Settings = Depends(get_config)
+    config: Settings = Depends(get_config),
 ):
     """Generate race predictions for all drivers.
-    
+
     Args:
         race_id: Race identifier (e.g., '2024_Monaco' or '2024_01')
         model: Model name (xgb, lgbm, cat, lr, rf, quali_freq, elo, nbt_tlf)
-        
+
     Returns:
         PredictionResponse with win/podium probabilities and expected finish
-        
+
     Example:
         GET /api/f1/predict/race/2024_01?model=xgb
     """
@@ -123,18 +121,15 @@ async def predict_race_endpoint(
         # Load features
         features_path = Path(config.data_dir) / "features" / "features.parquet"
         features = data_cache.get_features(features_path)
-        
+
         # Generate predictions
         logger.info(f"Generating predictions for {race_id} using {model}")
         response = predict_race(
-            race_id=race_id,
-            model_name=model,
-            race_data=features,
-            model_dir=Path(config.model_dir)
+            race_id=race_id, model_name=model, race_data=features, model_dir=Path(config.model_dir)
         )
-        
+
         return response
-        
+
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except FileNotFoundError as e:
@@ -152,19 +147,19 @@ async def explain_prediction_endpoint(
     top_k: int = Query(10, description="Number of top features to return"),
     data_cache: DataCache = Depends(get_data_cache),
     model_cache: ModelCache = Depends(get_model_cache),
-    config: Settings = Depends(get_config)
+    config: Settings = Depends(get_config),
 ):
     """Explain prediction for a specific driver.
-    
+
     Args:
         race_id: Race identifier
         driver_id: Driver to explain (e.g., 'VER', 'HAM')
         model: Model name
         top_k: Number of top features to show
-        
+
     Returns:
         ExplainResponse with feature impacts
-        
+
     Example:
         GET /api/f1/explain/race/2024_01?driver_id=VER&model=xgb
     """
@@ -172,10 +167,10 @@ async def explain_prediction_endpoint(
         # Load features
         features_path = Path(config.data_dir) / "features" / "features.parquet"
         features = data_cache.get_features(features_path)
-        
+
         # Import explain function
         from f1.analysis.explain import explain_prediction
-        
+
         # Generate explanation
         logger.info(f"Generating explanation for {driver_id} in {race_id} using {model}")
         response = explain_prediction(
@@ -184,11 +179,11 @@ async def explain_prediction_endpoint(
             model_name=model,
             race_data=features,
             model_dir=config.model_dir,
-            top_k=top_k
+            top_k=top_k,
         )
-        
+
         return response
-        
+
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except FileNotFoundError as e:
@@ -204,17 +199,17 @@ async def counterfactual_endpoint(
     model: str = Query("xgb", description="Model name"),
     data_cache: DataCache = Depends(get_data_cache),
     model_cache: ModelCache = Depends(get_model_cache),
-    config: Settings = Depends(get_config)
+    config: Settings = Depends(get_config),
 ):
     """Compute counterfactual prediction with modified features.
-    
+
     Args:
         request: CounterfactualRequest with race_id, driver_id, and changes
         model: Model name
-        
+
     Returns:
         CounterfactualResponse with baseline, counterfactual, and delta
-        
+
     Example:
         POST /api/f1/counterfactual?model=xgb
         Body: {
@@ -227,18 +222,15 @@ async def counterfactual_endpoint(
         # Load features
         features_path = Path(config.data_dir) / "features" / "features.parquet"
         features = data_cache.get_features(features_path)
-        
+
         # Compute counterfactual
         logger.info(f"Computing counterfactual for {request.driver_id} in {request.race_id}")
         response = compute_counterfactual(
-            request=request,
-            race_data=features,
-            model_name=model,
-            model_dir=config.model_dir
+            request=request, race_data=features, model_name=model, model_dir=config.model_dir
         )
-        
+
         return response
-        
+
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except FileNotFoundError as e:

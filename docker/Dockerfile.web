@@ -1,31 +1,31 @@
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps
 
-# Set working directory to /app/web to match source structure
-WORKDIR /app/web
+# Set working directory to /app (build context is project root)
+WORKDIR /app
 
 # Copy package files from web/ directory
-# Note: Context is project root, so we copy from web/
-COPY web/package.json web/package-lock.json ./
+# Context is project root, so we copy from web/
+COPY web/package.json web/package-lock.json ./web/
 
-# Install dependencies using lockfile
+# Change to web directory and install dependencies
+WORKDIR /app/web
 RUN npm ci --only=production
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
 
-# Set working directory to match deps stage
-WORKDIR /app/web
+# Set working directory to /app
+WORKDIR /app
 
 # Copy dependencies from deps stage
-COPY --from=deps /app/web/node_modules ./node_modules
+COPY --from=deps /app/web ./web
 
-# Copy application code from web/ directory
-COPY web/ ./
+# Copy application code from web/ directory to /app/web
+COPY web/ ./web/
 
-# Build Next.js application
-# Note: We do NOT set NEXT_PUBLIC_API_BASE_URL here
-# The API URL is configured at runtime via environment variables
+# Change to web directory and build
+WORKDIR /app/web
 RUN npm run build
 
 # Stage 3: Runner

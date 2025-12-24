@@ -1,9 +1,7 @@
 """Application configuration management."""
 
-import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -11,7 +9,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables.
-    
+
     All settings have sensible defaults for local development.
     Override via environment variables or .env file.
     """
@@ -26,34 +24,20 @@ class Settings(BaseSettings):
     log_level: str = Field(default="info", description="Log level")
 
     # Data Storage Directories
-    data_dir: str = Field(
-        default="./data",
-        description="Root data directory"
-    )
-    cache_dir: str = Field(
-        default="./data/cache",
-        description="Cache directory for processed data"
-    )
-    model_dir: str = Field(
-        default="./models",
-        description="Model artifacts directory"
-    )
-    reports_dir: str = Field(
-        default="./reports",
-        description="Reports output directory"
-    )
+    data_dir: str = Field(default="./data", description="Root data directory")
+    cache_dir: str = Field(default="./data/cache", description="Cache directory for processed data")
+    model_dir: str = Field(default="./models", description="Model artifacts directory")
+    reports_dir: str = Field(default="./reports", description="Reports output directory")
 
     # FastF1 Configuration
     fastf1_cache_enabled: bool = Field(default=True, description="Enable FastF1 cache")
     fastf1_cache_dir: str = Field(
-        default="./data/fastf1_cache",
-        description="FastF1 cache directory"
+        default="./data/fastf1_cache", description="FastF1 cache directory"
     )
 
     # Database (Optional)
-    database_url: Optional[str] = Field(
-        default=None,
-        description="Database connection URL (PostgreSQL, SQLite, etc.)"
+    database_url: str | None = Field(
+        default=None, description="Database connection URL (PostgreSQL, SQLite, etc.)"
     )
 
     # ML Configuration
@@ -64,19 +48,14 @@ class Settings(BaseSettings):
     # Model Training
     train_test_split: float = Field(default=0.2, description="Train/test split ratio")
     validation_split: float = Field(default=0.2, description="Validation split ratio")
-    early_stopping_rounds: int = Field(
-        default=50,
-        description="Early stopping patience"
-    )
+    early_stopping_rounds: int = Field(default=50, description="Early stopping patience")
 
     # Feature Engineering
     enable_feature_selection: bool = Field(
-        default=True,
-        description="Enable automatic feature selection"
+        default=True, description="Enable automatic feature selection"
     )
     feature_importance_threshold: float = Field(
-        default=0.01,
-        description="Feature importance threshold for selection"
+        default=0.01, description="Feature importance threshold for selection"
     )
 
     # Backtesting
@@ -125,16 +104,16 @@ class Settings(BaseSettings):
         return self.env == "prod"
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance.
-    
+
     Returns:
         Settings instance with configuration loaded from environment
     """
     settings = Settings()
-    
+
     # Ensure directories exist (safe to call multiple times)
     settings.ensure_directories()
-    
+
     return settings

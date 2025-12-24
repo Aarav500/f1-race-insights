@@ -32,6 +32,7 @@ reports/
 **/*.pkl
 **/*.joblib
 **/*.pt
+**/*.pth
 **/*.h5
 **/*.onnx
 

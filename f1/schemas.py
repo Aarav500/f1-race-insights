@@ -1,7 +1,7 @@
 """Pydantic schemas for F1 race predictions and analysis."""
 
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -19,13 +19,13 @@ class PredictionResponse(BaseModel):
 
     race_id: str = Field(..., description="Race identifier (e.g., '2024_Monaco')")
     model_name: str = Field(..., description="Name of the model used for prediction")
-    win_prob: Dict[str, float] = Field(
+    win_prob: dict[str, float] = Field(
         ..., description="Win probability for each driver (driver -> probability)"
     )
-    podium_prob: Dict[str, float] = Field(
+    podium_prob: dict[str, float] = Field(
         ..., description="Podium probability for each driver (driver -> probability)"
     )
-    expected_finish: Dict[str, float] = Field(
+    expected_finish: dict[str, float] = Field(
         ..., description="Expected finishing position for each driver (driver -> position)"
     )
     generated_at: datetime = Field(
@@ -53,7 +53,7 @@ class ExplainResponse(BaseModel):
     race_id: str = Field(..., description="Race identifier")
     driver_id: str = Field(..., description="Driver identifier (e.g., 'VER', 'HAM')")
     model_name: str = Field(..., description="Name of the model used")
-    top_features: List[FeatureImpact] = Field(
+    top_features: list[FeatureImpact] = Field(
         ..., description="Top features influencing the prediction, ordered by absolute impact"
     )
 
@@ -79,7 +79,7 @@ class CounterfactualRequest(BaseModel):
 
     race_id: str = Field(..., description="Race identifier")
     driver_id: str = Field(..., description="Driver identifier")
-    changes: Dict[str, Any] = Field(
+    changes: dict[str, Any] = Field(
         ..., description="Feature changes to apply (feature_name -> new_value)"
     )
 
@@ -110,7 +110,7 @@ class CounterfactualResponse(BaseModel):
     driver_id: str = Field(..., description="Driver identifier")
     baseline: PredictionOutcome = Field(..., description="Original prediction")
     counterfactual: PredictionOutcome = Field(..., description="Prediction with changes applied")
-    delta: Dict[str, float] = Field(
+    delta: dict[str, float] = Field(
         ...,
         description="Difference between counterfactual and baseline (positive = improvement)",
     )
