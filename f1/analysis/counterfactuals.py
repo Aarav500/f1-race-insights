@@ -122,8 +122,9 @@ def compute_counterfactual(
 
     # Get baseline prediction
     logger.info(f"Computing baseline for {driver_id} in {race_id}")
+    model_path = Path(model_dir) if model_dir is not None else Path("models")
     baseline_response = predict_race(
-        race_id=race_id, model_name=model_name, race_data=race_df, model_dir=Path(model_dir)
+        race_id=race_id, model_name=model_name, race_data=race_df, model_dir=model_path
     )
 
     # Apply deltas
@@ -133,7 +134,7 @@ def compute_counterfactual(
     # Get counterfactual prediction
     logger.info(f"Computing counterfactual for {driver_id}")
     counterfactual_response = predict_race(
-        race_id=race_id, model_name=model_name, race_data=modified_df, model_dir=Path(model_dir)
+        race_id=race_id, model_name=model_name, race_data=modified_df, model_dir=model_path
     )
 
     # Extract predictions for this driver
@@ -179,9 +180,9 @@ def sanity_test_qualifying_improvement():
             "driver_id": ["VER", "HAM", "LEC"],
             "quali_position": [3, 1, 2],
             "driver_rolling_avg_finish": [2.0, 2.5, 3.0],
-            "driver_rolling_avg_points": [20, 18, 15],
+            "driver_rolling_avg_points": [20.0, 18.0, 15.0],
             "constructor_rolling_avg_finish": [1.5, 2.0, 2.5],
-            "constructor_rolling_avg_points": [450, 400, 380],
+            "constructor_rolling_avg_points": [450.0, 400.0, 380.0],
             "driver_rolling_dnf_rate": [0.05, 0.08, 0.10],
             "constructor_rolling_dnf_rate": [0.03, 0.05, 0.07],
             "finish_position": [1, 2, 3],
@@ -204,9 +205,9 @@ def sanity_test_qualifying_degradation():
             "driver_id": ["VER", "HAM", "LEC"],
             "quali_position": [1, 2, 3],
             "driver_rolling_avg_finish": [2.0, 2.5, 3.0],
-            "driver_rolling_avg_points": [20, 18, 15],
+            "driver_rolling_avg_points": [20.0, 18.0, 15.0],
             "constructor_rolling_avg_finish": [1.5, 2.0, 2.5],
-            "constructor_rolling_avg_points": [450, 400, 380],
+            "constructor_rolling_avg_points": [450.0, 400.0, 380.0],
             "driver_rolling_dnf_rate": [0.05, 0.08, 0.10],
             "constructor_rolling_dnf_rate": [0.03, 0.05, 0.07],
             "finish_position": [1, 2, 3],

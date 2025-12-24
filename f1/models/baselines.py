@@ -63,7 +63,7 @@ class BaselineModel(ABC):
         Returns:
             Loaded model instance
         """
-        model = joblib.load(filepath)
+        model: BaselineModel = joblib.load(filepath)
         logger.info(f"Model loaded from {filepath}")
         return model
 
@@ -101,13 +101,13 @@ class QualifyingFrequencyBaseline(BaselineModel):
                 wins = (group["finish_position"] == 1).sum()
                 podiums = (group["finish_position"] <= 3).sum()
 
-                self.win_probs[int(quali_pos)] = wins / total if total > 0 else 0.0
-                self.podium_probs[int(quali_pos)] = podiums / total if total > 0 else 0.0
+                self.win_probs[int(float(quali_pos))] = wins / total if total > 0 else 0.0
+                self.podium_probs[int(float(quali_pos))] = podiums / total if total > 0 else 0.0
 
         # Set defaults for unseen positions
         if self.win_probs:
-            self.default_win_prob = np.mean(list(self.win_probs.values()))
-            self.default_podium_prob = np.mean(list(self.podium_probs.values()))
+            self.default_win_prob = float(np.mean(list(self.win_probs.values())))
+            self.default_podium_prob = float(np.mean(list(self.podium_probs.values())))
 
         logger.info(f"Trained on {len(train_df)} samples")
         logger.info(f"Learned probabilities for positions 1-{max(self.win_probs.keys())}")
@@ -126,7 +126,7 @@ class QualifyingFrequencyBaseline(BaselineModel):
         predictions = []
 
         for _, row in df.iterrows():
-            quali_pos = int(row["quali_position"]) if pd.notna(row["quali_position"]) else 20
+            quali_pos = int(float(row["quali_position"])) if pd.notna(row["quali_position"]) else 20
 
             win_prob = self.win_probs.get(quali_pos, self.default_win_prob)
             podium_prob = self.podium_probs.get(quali_pos, self.default_podium_prob)
@@ -319,7 +319,8 @@ class EloBaseline(BaselineModel):
             ratings = race_pred_df["combined_rating"].values
 
             # Softmax for win probability
-            exp_ratings = np.exp((ratings - ratings.max()) / 100)  # Temperature scaling
+            ratings_array = np.asarray(ratings)
+            exp_ratings = np.exp((ratings_array - ratings_array.max()) / 100)  # Temperature scaling
             win_probs = exp_ratings / exp_ratings.sum()
 
             # Podium probability (approximate as top-3 in softmax)

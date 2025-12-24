@@ -40,7 +40,9 @@ class SinusoidalPositionalEncoding(nn.Module):
         Returns:
             Positional encodings [batch_size, d_model]
         """
-        return self.pe[x.long()]
+        # Narrow type from Tensor | Module to Tensor for indexing
+        pe: torch.Tensor = self.pe  # type: ignore[assignment]
+        return pe[x.long()]
 
 
 class NBTTLFModel(nn.Module):
@@ -258,7 +260,7 @@ class NBTTLFTrainer:
         self.device = device
         self.optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
         self.criterion = nn.BCELoss()
-        self.history = {"train_loss": [], "val_loss": []}
+        self.history: dict[str, list[float]] = {"train_loss": [], "val_loss": []}
 
     def train_epoch(self, train_loader: DataLoader) -> float:
         """Train for one epoch."""
@@ -469,7 +471,7 @@ def predict_race(
     pred_df = pd.DataFrame(predictions)
 
     # Convert scores to probabilities via softmax
-    scores = pred_df["score"].values
+    scores = np.asarray(pred_df["score"].values)
     exp_scores = np.exp(scores - scores.max())
     win_probs = exp_scores / exp_scores.sum()
     podium_probs = np.minimum(win_probs * 3, 0.95)  # Heuristic

@@ -71,8 +71,8 @@ def time_based_split(
 
 
 def prepare_features(
-    df: pd.DataFrame, task: str, feature_cols: list[str] = None
-) -> tuple[np.ndarray, np.ndarray]:
+    df: pd.DataFrame, task: str, feature_cols: list[str] | None = None
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """Prepare features and labels for training.
 
     Args:
@@ -81,7 +81,7 @@ def prepare_features(
         feature_cols: List of feature column names (auto-detect if None)
 
     Returns:
-        Tuple of (X, y) arrays
+        Tuple of (X, y, feature_cols) where X is features array, y is labels array, and feature_cols is list of feature names
     """
     # Auto-detect feature columns if not provided
     if feature_cols is None:

@@ -73,7 +73,7 @@ def create_pairwise_comparisons(
                     y_ij = 1 if finish_i < finish_j else 0
 
                     # Build pairwise row
-                    pair_row = create_pair_features(driver_i, driver_j, y_ij, race_id)
+                    pair_row = create_pair_features(driver_i, driver_j, y_ij, str(race_id))
                     pairwise_data.append(pair_row)
 
     pairwise_df = pd.DataFrame(pairwise_data)
@@ -133,8 +133,8 @@ def create_pair_features(driver_i: dict, driver_j: dict, y: int, race_id: str) -
 
     for col in feature_cols:
         if col in driver_i and col in driver_j:
-            val_i = driver_i[col] if pd.notna(driver_i[col]) else 0
-            val_j = driver_j[col] if pd.notna(driver_j[col]) else 0
+            val_i: float = float(driver_i[col]) if pd.notna(driver_i[col]) else 0.0
+            val_j: float = float(driver_j[col]) if pd.notna(driver_j[col]) else 0.0
 
             # Delta: positive means driver_i is better on this metric
             # For position features (lower is better), flip sign
@@ -146,9 +146,9 @@ def create_pair_features(driver_i: dict, driver_j: dict, y: int, race_id: str) -
     # Individual features (both drivers)
     for col in feature_cols:
         if col in driver_i:
-            pair_features[f"{col}_i"] = driver_i[col] if pd.notna(driver_i[col]) else 0
+            pair_features[f"{col}_i"] = float(driver_i[col]) if pd.notna(driver_i[col]) else 0.0
         if col in driver_j:
-            pair_features[f"{col}_j"] = driver_j[col] if pd.notna(driver_j[col]) else 0
+            pair_features[f"{col}_j"] = float(driver_j[col]) if pd.notna(driver_j[col]) else 0.0
 
     return pair_features
 
@@ -189,7 +189,7 @@ def validate_pairwise_dataset(pairwise_df: pd.DataFrame) -> dict:
         unique_drivers = set(race_pairs["driver_i"].unique()) | set(race_pairs["driver_j"].unique())
         drivers_per_race.append(len(unique_drivers))
 
-    stats["avg_drivers_per_race"] = np.mean(drivers_per_race)
+    stats["avg_drivers_per_race"] = float(np.mean(np.array(drivers_per_race)))
 
     logger.info("Pairwise dataset validation:")
     for key, value in stats.items():

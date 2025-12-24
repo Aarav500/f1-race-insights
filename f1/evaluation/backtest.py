@@ -154,11 +154,11 @@ class WalkForwardBacktest:
             List of actual outcomes
         """
         if task == "win":
-            return (test_data["finish_position"] == 1).astype(int).tolist()
+            return (test_data["finish_position"] == 1).astype(float).tolist()
         elif task == "podium":
-            return (test_data["finish_position"] <= 3).astype(int).tolist()
+            return (test_data["finish_position"] <= 3).astype(float).tolist()
         elif task == "finish":
-            return test_data["finish_position"].tolist()
+            return test_data["finish_position"].astype(float).tolist()
         else:
             raise ValueError(f"Unknown task: {task}")
 
@@ -204,7 +204,7 @@ def create_model_trainer(model_type: str, model_params: dict | None = None):
             from f1.models.train import create_model, prepare_features
 
             # Prepare features
-            X_train, y_train = prepare_features(train_data, task)
+            X_train, y_train, feature_cols = prepare_features(train_data, task)
 
             # Create and train model
             model = create_model(model_type, task, **model_params)
@@ -217,7 +217,7 @@ def create_model_trainer(model_type: str, model_params: dict | None = None):
                     self.features = features
 
                 def predict(self, data):
-                    X, _ = prepare_features(data, task, self.features)
+                    X, _, _ = prepare_features(data, task, self.features)
                     probs = (
                         self.model.predict_proba(X)
                         if hasattr(self.model, "predict_proba")

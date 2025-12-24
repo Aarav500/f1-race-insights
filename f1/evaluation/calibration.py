@@ -37,8 +37,9 @@ class ProbabilityCalibrator:
             true_outcomes: True binary outcomes [n_samples]
         """
         if self.method == "isotonic":
-            self.calibrator.fit(scores, true_outcomes)
-            logger.info("Isotonic calibrator fitted")
+            if self.calibrator is not None:
+                self.calibrator.fit(scores, true_outcomes)
+                logger.info("Isotonic calibrator fitted")
         elif self.method == "sigmoid":
             # Platt scaling: fit logistic regression on scores
             from sklearn.linear_model import LogisticRegression
@@ -57,17 +58,19 @@ class ProbabilityCalibrator:
             Calibrated probabilities [n_samples]
         """
         if self.method == "none" or self.calibrator is None:
-            return np.clip(scores, 0, 1)
+            return np.asarray(np.clip(scores, 0, 1))
 
         if self.method == "isotonic":
-            return self.calibrator.transform(scores)
+            result = self.calibrator.transform(scores)
+            return np.asarray(result)
         elif self.method == "sigmoid":
-            return self.calibrator.predict_proba(scores.reshape(-1, 1))[:, 1]
+            result = self.calibrator.predict_proba(scores.reshape(-1, 1))[:, 1]
+            return np.asarray(result)
 
-        return scores
+        return np.asarray(scores)
 
 
-def normalize_race_probabilities(race_probs: pd.DataFrame, prob_cols: list) -> pd.DataFrame:
+def normalize_race_probabilities(race_probs: pd.DataFrame, prob_cols: list[str]) -> pd.DataFrame:
     """Normalize probabilities to sum to 1 within a race.
 
     Args:
@@ -114,11 +117,11 @@ def calibrate_tree_model_predictions(
     ):
         # Fit calibrator on validation data
         calibrator = ProbabilityCalibrator(method)
-        y_true = (validation_df["finish_position"] == 1).astype(int).values
-        y_pred = validation_df["win_prob"].values
+        y_true = np.asarray((validation_df["finish_position"] == 1).astype(int).values)
+        y_pred = np.asarray(validation_df["win_prob"].values)
 
         calibrator.fit(y_pred, y_true)
-        calibrated["win_prob"] = calibrator.transform(predictions["win_prob"].values)
+        calibrated["win_prob"] = calibrator.transform(np.asarray(predictions["win_prob"].values))
 
     # Ensure bounded [0, 1]
     if "win_prob" in predictions.columns:
@@ -131,11 +134,11 @@ def calibrate_tree_model_predictions(
         and "podium_prob" in validation_df.columns
     ):
         calibrator = ProbabilityCalibrator(method)
-        y_true = (validation_df["finish_position"] <= 3).astype(int).values
-        y_pred = validation_df["podium_prob"].values
+        y_true = np.asarray((validation_df["finish_position"] <= 3).astype(int).values)
+        y_pred = np.asarray(validation_df["podium_prob"].values)
 
         calibrator.fit(y_pred, y_true)
-        calibrated["podium_prob"] = calibrator.transform(predictions["podium_prob"].values)
+        calibrated["podium_prob"] = calibrator.transform(np.asarray(predictions["podium_prob"].values))
 
     if "podium_prob" in predictions.columns:
         calibrated["podium_prob"] = np.clip(calibrated["podium_prob"], 0, 1)
@@ -174,7 +177,7 @@ def calibrate_nbt_tlf_scores(
     if "race_id" in calibrated.columns:
 
         def softmax_within_race(group):
-            scores = group[score_col].values
+            scores = np.asarray(group[score_col].values)
             # Softmax: exp(scores) / sum(exp(scores))
             exp_scores = np.exp(scores - scores.max())  # Subtract max for numerical stability
             win_probs = exp_scores / exp_scores.sum()
@@ -218,20 +221,20 @@ def calibrate_nbt_tlf_scores(
 
         # Fit isotonic regression
         win_calibrator = ProbabilityCalibrator(method)
-        y_true_win = (val_with_probs["finish_position"] == 1).astype(int).values
-        y_pred_win = val_with_probs["win_prob_raw"].values
+        y_true_win = np.asarray((val_with_probs["finish_position"] == 1).astype(int).values)
+        y_pred_win = np.asarray(val_with_probs["win_prob_raw"].values)
 
         win_calibrator.fit(y_pred_win, y_true_win)
-        calibrated["win_prob"] = win_calibrator.transform(calibrated["win_prob_raw"].values)
+        calibrated["win_prob"] = win_calibrator.transform(np.asarray(calibrated["win_prob_raw"].values))
 
         # Calibrate podium probabilities
         podium_calibrator = ProbabilityCalibrator(method)
-        y_true_podium = (val_with_probs["finish_position"] <= 3).astype(int).values
-        y_pred_podium = val_with_probs["podium_prob_raw"].values
+        y_true_podium = np.asarray((val_with_probs["finish_position"] <= 3).astype(int).values)
+        y_pred_podium = np.asarray(val_with_probs["podium_prob_raw"].values)
 
         podium_calibrator.fit(y_pred_podium, y_true_podium)
         calibrated["podium_prob"] = podium_calibrator.transform(
-            calibrated["podium_prob_raw"].values
+            np.asarray(calibrated["podium_prob_raw"].values)
         )
     elif validation_df is not None and method != "none":
         logger.warning("Validation data missing finish_position, skipping calibration")
@@ -270,7 +273,7 @@ def validate_probabilities(predictions: pd.DataFrame, tolerance: float = 1e-6) -
     Returns:
         Dictionary with validation results
     """
-    results = {"valid": True, "issues": []}
+    results: dict[str, bool | list[str]] = {"valid": True, "issues": []}
 
     # Check win_prob bounds
     if "win_prob" in predictions.columns:
