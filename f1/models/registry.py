@@ -218,9 +218,13 @@ def predict_race(
         raise ValueError(f"Unknown model type: {model_type}")
 
     # Apply calibration if requested
-    if calibrate and model_type in ["baseline", "zoo"]:
-        if "win_prob" in predictions.columns and "podium_prob" in predictions.columns:
-            predictions = calibrate_tree_model_predictions(predictions, method="none")
+    if (
+        calibrate
+        and model_type in ["baseline", "zoo"]
+        and "win_prob" in predictions.columns
+        and "podium_prob" in predictions.columns
+    ):
+        predictions = calibrate_tree_model_predictions(predictions, method="none")
 
     # Convert to PredictionResponse
     response = _predictions_to_response(race_id, model_name, predictions)
@@ -330,7 +334,6 @@ def _predict_nbt_tlf(
     Returns:
         DataFrame with predictions
     """
-    trainer = model_info["trainer"]
     model = model_info["model"]
     config = model_info["config"]
 

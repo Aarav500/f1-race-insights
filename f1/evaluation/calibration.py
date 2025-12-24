@@ -80,7 +80,7 @@ def normalize_race_probabilities(race_probs: pd.DataFrame, prob_cols: list) -> p
     race_probs = race_probs.copy()
 
     for col in prob_cols:
-        if col in race_probs.columns:
+        if col in race_probs.columns:  # noqa: SIM102
             total = race_probs[col].sum()
             if total > 0:
                 race_probs[col] = race_probs[col] / total
@@ -107,29 +107,37 @@ def calibrate_tree_model_predictions(
     calibrated = predictions.copy()
 
     # Calibrate win probabilities
+    if (
+        "win_prob" in predictions.columns
+        and validation_df is not None
+        and "win_prob" in validation_df.columns
+    ):
+        # Fit calibrator on validation data
+        calibrator = ProbabilityCalibrator(method)
+        y_true = (validation_df["finish_position"] == 1).astype(int).values
+        y_pred = validation_df["win_prob"].values
+
+        calibrator.fit(y_pred, y_true)
+        calibrated["win_prob"] = calibrator.transform(predictions["win_prob"].values)
+
+    # Ensure bounded [0, 1]
     if "win_prob" in predictions.columns:
-        if validation_df is not None and "win_prob" in validation_df.columns:
-            # Fit calibrator on validation data
-            calibrator = ProbabilityCalibrator(method)
-            y_true = (validation_df["finish_position"] == 1).astype(int).values
-            y_pred = validation_df["win_prob"].values
-
-            calibrator.fit(y_pred, y_true)
-            calibrated["win_prob"] = calibrator.transform(predictions["win_prob"].values)
-
-        # Ensure bounded [0, 1]
         calibrated["win_prob"] = np.clip(calibrated["win_prob"], 0, 1)
 
     # Calibrate podium probabilities
+    if (
+        "podium_prob" in predictions.columns
+        and validation_df is not None
+        and "podium_prob" in validation_df.columns
+    ):
+        calibrator = ProbabilityCalibrator(method)
+        y_true = (validation_df["finish_position"] <= 3).astype(int).values
+        y_pred = validation_df["podium_prob"].values
+
+        calibrator.fit(y_pred, y_true)
+        calibrated["podium_prob"] = calibrator.transform(predictions["podium_prob"].values)
+
     if "podium_prob" in predictions.columns:
-        if validation_df is not None and "podium_prob" in validation_df.columns:
-            calibrator = ProbabilityCalibrator(method)
-            y_true = (validation_df["finish_position"] <= 3).astype(int).values
-            y_pred = validation_df["podium_prob"].values
-
-            calibrator.fit(y_pred, y_true)
-            calibrated["podium_prob"] = calibrator.transform(predictions["podium_prob"].values)
-
         calibrated["podium_prob"] = np.clip(calibrated["podium_prob"], 0, 1)
 
     # Normalize within races to ensure probabilities sum to 1
@@ -193,40 +201,42 @@ def calibrate_nbt_tlf_scores(
         calibrated["podium_prob_raw"] = np.minimum(calibrated["win_prob_raw"] * 3, 0.95)
 
     # Step 2: Calibrate using validation data (optional isotonic regression)
-    if validation_df is not None and method != "none":
-        # Calibrate win probabilities
-        if "finish_position" in validation_df.columns:
-            # Compute raw probabilities for validation
-            val_with_probs = validation_df.copy()
+    if (
+        validation_df is not None
+        and method != "none"
+        and "finish_position" in validation_df.columns
+    ):
+        # Compute raw probabilities for validation
+        val_with_probs = validation_df.copy()
 
-            if "race_id" in val_with_probs.columns:
-                val_with_probs = (
-                    val_with_probs.groupby("race_id", group_keys=False)
-                    .apply(softmax_within_race)
-                    .reset_index(drop=True)
-                )
-
-            # Fit isotonic regression
-            win_calibrator = ProbabilityCalibrator(method)
-            y_true_win = (val_with_probs["finish_position"] == 1).astype(int).values
-            y_pred_win = val_with_probs["win_prob_raw"].values
-
-            win_calibrator.fit(y_pred_win, y_true_win)
-            calibrated["win_prob"] = win_calibrator.transform(calibrated["win_prob_raw"].values)
-
-            # Calibrate podium probabilities
-            podium_calibrator = ProbabilityCalibrator(method)
-            y_true_podium = (val_with_probs["finish_position"] <= 3).astype(int).values
-            y_pred_podium = val_with_probs["podium_prob_raw"].values
-
-            podium_calibrator.fit(y_pred_podium, y_true_podium)
-            calibrated["podium_prob"] = podium_calibrator.transform(
-                calibrated["podium_prob_raw"].values
+        if "race_id" in val_with_probs.columns:  # noqa: SIM102
+            val_with_probs = (
+                val_with_probs.groupby("race_id", group_keys=False)
+                .apply(softmax_within_race)
+                .reset_index(drop=True)
             )
-        else:
-            logger.warning("Validation data missing finish_position, skipping calibration")
-            calibrated["win_prob"] = calibrated["win_prob_raw"]
-            calibrated["podium_prob"] = calibrated["podium_prob_raw"]
+
+        # Fit isotonic regression
+        win_calibrator = ProbabilityCalibrator(method)
+        y_true_win = (val_with_probs["finish_position"] == 1).astype(int).values
+        y_pred_win = val_with_probs["win_prob_raw"].values
+
+        win_calibrator.fit(y_pred_win, y_true_win)
+        calibrated["win_prob"] = win_calibrator.transform(calibrated["win_prob_raw"].values)
+
+        # Calibrate podium probabilities
+        podium_calibrator = ProbabilityCalibrator(method)
+        y_true_podium = (val_with_probs["finish_position"] <= 3).astype(int).values
+        y_pred_podium = val_with_probs["podium_prob_raw"].values
+
+        podium_calibrator.fit(y_pred_podium, y_true_podium)
+        calibrated["podium_prob"] = podium_calibrator.transform(
+            calibrated["podium_prob_raw"].values
+        )
+    elif validation_df is not None and method != "none":
+        logger.warning("Validation data missing finish_position, skipping calibration")
+        calibrated["win_prob"] = calibrated["win_prob_raw"]
+        calibrated["podium_prob"] = calibrated["podium_prob_raw"]
     else:
         # No calibration, use raw probabilities
         calibrated["win_prob"] = calibrated["win_prob_raw"]
@@ -269,24 +279,28 @@ def validate_probabilities(predictions: pd.DataFrame, tolerance: float = 1e-6) -
             results["issues"].append("win_prob has values outside [0, 1]")
 
         # Check sum to 1 within races
-        if "race_id" in predictions.columns:
-            race_sums = predictions.groupby("race_id")["win_prob"].sum()
-            if not np.allclose(race_sums, 1.0, atol=tolerance):
-                max_diff = np.abs(race_sums - 1.0).max()
-                results["valid"] = False
-                results["issues"].append(f"win_prob does not sum to 1 (max diff: {max_diff:.6f})")
+        if "race_id" in predictions.columns and not np.allclose(
+            race_sums := predictions.groupby("race_id")["win_prob"].sum(), 1.0, atol=tolerance
+        ):
+            max_diff = np.abs(race_sums - 1.0).max()
+            results["valid"] = False
+            results["issues"].append(f"win_prob does not sum to 1 (max diff: {max_diff:.6f})")
 
     # Check podium_prob bounds
-    if "podium_prob" in predictions.columns:
-        if (predictions["podium_prob"] < 0).any() or (predictions["podium_prob"] > 1).any():
-            results["valid"] = False
-            results["issues"].append("podium_prob has values outside [0, 1]")
+    if "podium_prob" in predictions.columns and (
+        (predictions["podium_prob"] < 0).any() or (predictions["podium_prob"] > 1).any()
+    ):
+        results["valid"] = False
+        results["issues"].append("podium_prob has values outside [0, 1]")
 
     # Check win_prob <= podium_prob (winning implies podium)
-    if "win_prob" in predictions.columns and "podium_prob" in predictions.columns:
-        if (predictions["win_prob"] > predictions["podium_prob"] + tolerance).any():
-            results["valid"] = False
-            results["issues"].append("Some win_prob > podium_prob")
+    if (
+        "win_prob" in predictions.columns
+        and "podium_prob" in predictions.columns
+        and (predictions["win_prob"] > predictions["podium_prob"] + tolerance).any()
+    ):
+        results["valid"] = False
+        results["issues"].append("Some win_prob > podium_prob")
 
     if results["valid"]:
         logger.info("✓ All probability validations passed")

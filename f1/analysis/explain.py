@@ -119,7 +119,6 @@ def _explain_tree_model(
         ]
 
     # Prepare data
-    X_race = race_df[feature_cols].fillna(0)
     X_driver = driver_df[feature_cols].fillna(0)
 
     try:
@@ -150,7 +149,7 @@ def _explain_tree_model(
         feature_impacts.sort(key=lambda x: x.impact, reverse=True)
 
         logger.info(f"SHAP analysis complete: {len(feature_impacts)} features")
-        return feature_impacts
+        return feature_impacts[:top_k]
 
     except Exception as e:
         logger.warning(f"SHAP failed, using feature importance: {e}")
@@ -225,7 +224,7 @@ def _explain_linear_ensemble(
         feature_impacts.sort(key=lambda x: x.impact, reverse=True)
 
         logger.info(f"Permutation importance complete: {len(feature_impacts)} features")
-        return feature_impacts
+        return feature_impacts[:top_k]
 
     except Exception as e:
         logger.warning(f"Permutation importance failed: {e}")
@@ -245,7 +244,6 @@ def _explain_nbt_tlf(model_info: dict, driver_df: pd.DataFrame, top_k: int) -> l
     Returns:
         List of FeatureImpact
     """
-    trainer = model_info["trainer"]
     model = model_info["model"]
     config = model_info["config"]
 
@@ -317,7 +315,7 @@ def _explain_nbt_tlf(model_info: dict, driver_df: pd.DataFrame, top_k: int) -> l
     feature_impacts.sort(key=lambda x: x.impact, reverse=True)
 
     logger.info(f"NBT-TLF ablation complete: {len(feature_impacts)} components")
-    return feature_impacts
+    return feature_impacts[:top_k]
 
 
 def _explain_baseline(model_name: str, driver_df: pd.DataFrame) -> list[FeatureImpact]:

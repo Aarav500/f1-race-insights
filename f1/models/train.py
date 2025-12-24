@@ -310,10 +310,7 @@ def main():
 
     # Load data
     logger.info(f"Loading data from {args.data}")
-    if args.data.endswith(".parquet"):
-        df = pd.read_parquet(args.data)
-    else:
-        df = pd.read_csv(args.data)
+    df = pd.read_parquet(args.data) if args.data.endswith(".parquet") else pd.read_csv(args.data)
 
     logger.info(f"Loaded {len(df)} samples")
 

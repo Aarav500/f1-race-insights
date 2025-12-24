@@ -69,9 +69,8 @@ def extract_qualifying_features(qual_results: pd.DataFrame) -> pd.DataFrame:
 
     # Convert Q1/Q2/Q3 times to seconds if they're timedelta
     for col in ["Q1", "Q2", "Q3"]:
-        if col in df.columns:
-            if pd.api.types.is_timedelta64_dtype(df[col]):
-                df[col] = df[col].dt.total_seconds()
+        if col in df.columns and pd.api.types.is_timedelta64_dtype(df[col]):
+            df[col] = df[col].dt.total_seconds()
 
     # Use best qualifying time (Q3 if available, else Q2, else Q1)
     df["best_quali_time"] = df["Q3"].fillna(df["Q2"]).fillna(df["Q1"])
@@ -178,7 +177,7 @@ def compute_rolling_driver_form(
         driver_races = df[df["driver_id"] == driver].sort_values("race_index").copy()
 
         # For each race, calculate form using ONLY prior races
-        for idx, row in driver_races.iterrows():
+        for _idx, row in driver_races.iterrows():
             current_race_idx = row["race_index"]
 
             # Get strictly prior races (race_index < current_race_idx)
@@ -240,7 +239,7 @@ def compute_rolling_constructor_form(
     rolling_features = []
 
     # Group by (team, race) to get all drivers for that team in that race
-    for (year, round_num), race_data in df.groupby(["year", "round"]):
+    for (_year, _round_num), race_data in df.groupby(["year", "round"]):
         current_race = race_data.iloc[0]
         current_race_idx = current_race["race_index"]
 

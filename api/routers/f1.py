@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from api.core.config import Settings
-from api.deps import DataCache, ModelCache, get_config, get_data_cache, get_model_cache
+from api.deps import DataCache, get_config, get_data_cache
 from f1.analysis.counterfactuals import compute_counterfactual
 from f1.models.registry import predict_race
 from f1.schemas import CounterfactualRequest, CounterfactualResponse, PredictionResponse
@@ -61,7 +61,7 @@ async def get_available_races(
 
     except Exception as e:
         logger.error(f"Failed to load races: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/reports/backtest")
@@ -94,7 +94,7 @@ async def get_backtest_report(config: Settings = Depends(get_config)):
         raise
     except Exception as e:
         logger.error(f"Failed to load backtest report: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/predict/race/{race_id}", response_model=PredictionResponse)
@@ -102,7 +102,6 @@ async def predict_race_endpoint(
     race_id: str,
     model: str = Query("xgb", description="Model name to use for prediction"),
     data_cache: DataCache = Depends(get_data_cache),
-    model_cache: ModelCache = Depends(get_model_cache),
     config: Settings = Depends(get_config),
 ):
     """Generate race predictions for all drivers.
@@ -131,12 +130,12 @@ async def predict_race_endpoint(
         return response
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=f"Model or data not found: {e}")
+        raise HTTPException(status_code=404, detail=f"Model or data not found: {e}") from e
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/explain/race/{race_id}")
@@ -146,7 +145,6 @@ async def explain_prediction_endpoint(
     model: str = Query("xgb", description="Model name"),
     top_k: int = Query(10, description="Number of top features to return"),
     data_cache: DataCache = Depends(get_data_cache),
-    model_cache: ModelCache = Depends(get_model_cache),
     config: Settings = Depends(get_config),
 ):
     """Explain prediction for a specific driver.
@@ -185,12 +183,12 @@ async def explain_prediction_endpoint(
         return response
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=f"Model or data not found: {e}")
+        raise HTTPException(status_code=404, detail=f"Model or data not found: {e}") from e
     except Exception as e:
         logger.error(f"Explanation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/counterfactual", response_model=CounterfactualResponse)
@@ -198,7 +196,6 @@ async def counterfactual_endpoint(
     request: CounterfactualRequest,
     model: str = Query("xgb", description="Model name"),
     data_cache: DataCache = Depends(get_data_cache),
-    model_cache: ModelCache = Depends(get_model_cache),
     config: Settings = Depends(get_config),
 ):
     """Compute counterfactual prediction with modified features.
@@ -232,9 +229,9 @@ async def counterfactual_endpoint(
         return response
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=f"Model or data not found: {e}")
+        raise HTTPException(status_code=404, detail=f"Model or data not found: {e}") from e
     except Exception as e:
         logger.error(f"Counterfactual failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

@@ -119,7 +119,6 @@ def test_delta_features():
 def test_no_leakage_rolling_features():
     """Test that rolling features don't include current race data."""
     # Create multiple races to test temporal ordering
-    races = []
 
     # Race 1: D1 finishes 1st, D2 finishes 2nd
     race1 = pd.DataFrame(

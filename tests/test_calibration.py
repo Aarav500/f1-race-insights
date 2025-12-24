@@ -203,7 +203,7 @@ def test_win_prob_less_than_podium_prob():
     calibrated = calibrate_nbt_tlf_scores(scores_df, method="none")
 
     # Validate
-    results = validate_probabilities(calibrated)
+    validate_probabilities(calibrated)
     # Note: Validation might flag issues due to numerical precision
     # but the constraint should be satisfied
 

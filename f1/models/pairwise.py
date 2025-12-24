@@ -73,7 +73,7 @@ def create_pairwise_comparisons(
                     y_ij = 1 if finish_i < finish_j else 0
 
                     # Build pairwise row
-                    pair_row = create_pair_features(driver_i, driver_j, y_ij, race_id, race_data)
+                    pair_row = create_pair_features(driver_i, driver_j, y_ij, race_id)
                     pairwise_data.append(pair_row)
 
     pairwise_df = pd.DataFrame(pairwise_data)
@@ -84,9 +84,7 @@ def create_pairwise_comparisons(
     return pairwise_df
 
 
-def create_pair_features(
-    driver_i: dict, driver_j: dict, y: int, race_id: str, race_data: pd.DataFrame
-) -> dict:
+def create_pair_features(driver_i: dict, driver_j: dict, y: int, race_id: str) -> dict:
     """Create feature row for a pairwise comparison.
 
     Args:
@@ -94,7 +92,6 @@ def create_pair_features(
         driver_j: Features for driver j
         y: 1 if driver_i beat driver_j, 0 otherwise
         race_id: Race identifier
-        race_data: Full race data for context
 
     Returns:
         Dictionary with pairwise features

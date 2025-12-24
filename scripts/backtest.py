@@ -249,7 +249,7 @@ def main():
     if not df.empty and "auc" in df.columns:
         df_sorted = df.sort_values("auc", ascending=False)
         print("\nTop Models by AUC:")
-        for idx, row in df_sorted.head(3).iterrows():
+        for _idx, row in df_sorted.head(3).iterrows():
             print(f"  {row['model']:12s}: {row['auc']:.4f}")
     print("=" * 60)
 

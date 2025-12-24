@@ -57,10 +57,7 @@ def apply_deltas(race_data: pd.DataFrame, driver_id: str, changes: dict[str, Any
                     new_val = current * (1 - delta)
                 else:
                     # For avg finish, lower is better; for points, higher is better
-                    if "finish" in col:
-                        new_val = current * (1 - delta)  # delta>0 improves (lowers)
-                    else:  # points
-                        new_val = current * (1 + delta)  # delta>0 improves (raises)
+                    new_val = current * (1 - delta) if "finish" in col else current * (1 + delta)
                 new_val = max(0, new_val)
                 modified_data.loc[driver_mask, col] = new_val
                 logger.debug(f"{col}: {current:.3f} -> {new_val:.3f}")
@@ -78,10 +75,7 @@ def apply_deltas(race_data: pd.DataFrame, driver_id: str, changes: dict[str, Any
                 if "dnf_rate" in col:
                     new_val = current * (1 - delta)
                 else:
-                    if "finish" in col:
-                        new_val = current * (1 - delta)
-                    else:
-                        new_val = current * (1 + delta)
+                    new_val = current * (1 - delta) if "finish" in col else current * (1 + delta)
                 new_val = max(0, new_val)
                 modified_data.loc[driver_mask, col] = new_val
 
@@ -192,15 +186,6 @@ def sanity_test_qualifying_improvement():
             "constructor_rolling_dnf_rate": [0.03, 0.05, 0.07],
             "finish_position": [1, 2, 3],
         }
-    )
-
-    # Create baseline request
-    from f1.schemas import CounterfactualRequest
-
-    request = CounterfactualRequest(
-        race_id="2024_01",
-        driver_id="VER",
-        changes={"qualifying_position_delta": -2},  # Improve from P3 to P1
     )
 
     # Would need trained model - skip for now in test

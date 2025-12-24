@@ -197,7 +197,7 @@ class EloBaseline(BaselineModel):
         new_driver_ratings = {}
         new_constructor_ratings = {}
 
-        for i, (idx_i, driver_i) in enumerate(results.iterrows()):
+        for i, (_idx_i, driver_i) in enumerate(results.iterrows()):
             driver_id_i = driver_i["driver_id"]
             team_i = driver_i.get("team", "Unknown")
 
@@ -209,7 +209,7 @@ class EloBaseline(BaselineModel):
             constructor_rating_change = 0.0
 
             # Compare with all other drivers
-            for j, (idx_j, driver_j) in enumerate(results.iterrows()):
+            for j, (_idx_j, driver_j) in enumerate(results.iterrows()):
                 if i == j:
                     continue
 
