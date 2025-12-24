@@ -1,23 +1,26 @@
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps
 
-WORKDIR /app
+# Set working directory to /app/web to match source structure
+WORKDIR /app/web
 
-# Copy package files
-COPY web/package.json web/package-lock.json* ./
+# Copy package files from web/ directory
+# Note: Context is project root, so we copy from web/
+COPY web/package.json web/package-lock.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies using lockfile
+RUN npm ci --only=production
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
 
-WORKDIR /app
+# Set working directory to match deps stage
+WORKDIR /app/web
 
 # Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/web/node_modules ./node_modules
 
-# Copy application code
+# Copy application code from web/ directory
 COPY web/ ./
 
 # Build Next.js application
@@ -37,10 +40,10 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy built application
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy built application from builder stage
+COPY --from=builder /app/web/public ./public
+COPY --from=builder /app/web/.next/standalone ./
+COPY --from=builder /app/web/.next/static ./.next/static
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app

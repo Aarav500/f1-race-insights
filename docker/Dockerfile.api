@@ -46,6 +46,13 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
 
 # Copy application code
+# Note: .dockerignore excludes:
+#   - Virtual environments (.venv/, venv/, ENV/, env/)
+#   - Python caches (__pycache__/, *.pyc)
+#   - Data/model artifacts (data/, models/, reports/, **/*.parquet, **/*.pkl, **/*.pt, **/*.joblib)
+#   - Web build artifacts (web/node_modules/, web/.next/)
+#   - Git and CI/CD files (.git/, .github/)
+# This ensures the image is minimal and production-ready
 COPY --chown=appuser:appuser . /app
 
 # Switch to non-root user

@@ -31,7 +31,7 @@ def test_health_endpoint(api_client):
     assert response.status_code == 200, f"Health check failed: {response.text}"
     data = response.json()
     assert data["status"] == "ok", f"Health status not ok: {data}"
-    
+
     print("✓ Health endpoint returns ok")
 
 
@@ -151,6 +151,6 @@ def test_backtest_script_on_fixtures(fixture_dir, tmp_path):
 
 if __name__ == '__main__':
     print("Running smoke tests...\n")
-    
+
     # Run with pytest
     pytest.main([__file__, "-v", "-s"])

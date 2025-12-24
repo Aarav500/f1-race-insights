@@ -26,12 +26,21 @@ env/
 data/
 models/
 reports/
-*.parquet
-*.pkl
-*.joblib
-*.pt
-*.h5
-*.onnx
+
+# Heavy model and data files (exclude from all subdirectories)
+**/*.parquet
+**/*.pkl
+**/*.joblib
+**/*.pt
+**/*.h5
+**/*.onnx
+
+# Web/Node.js (for multi-service projects)
+web/node_modules/
+web/.next/
+web/.DS_Store
+node_modules/
+.next/
 
 # Git
 .git/
