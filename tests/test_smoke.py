@@ -5,6 +5,7 @@ Fast integration tests using minimal fixture data.
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -98,7 +99,7 @@ def test_backtest_script_on_fixtures(fixture_dir, tmp_path):
     output_dir.mkdir()
 
     cmd = [
-        "python",
+        sys.executable,
         "-m",
         "scripts.backtest",
         "--data",

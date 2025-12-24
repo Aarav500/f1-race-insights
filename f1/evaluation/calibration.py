@@ -6,6 +6,7 @@ Calibrates model outputs to well-calibrated probabilities:
 """
 
 import logging
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -95,7 +96,7 @@ def normalize_race_probabilities(race_probs: pd.DataFrame, prob_cols: list[str])
 
 
 def calibrate_tree_model_predictions(
-    predictions: pd.DataFrame, validation_df: pd.DataFrame | None = None, method: str = "isotonic"
+    predictions: pd.DataFrame, validation_df: Optional[pd.DataFrame] = None, method: str = "isotonic"
 ) -> pd.DataFrame:
     """Calibrate predictions from tree-based models.
 
@@ -151,12 +152,16 @@ def calibrate_tree_model_predictions(
             .reset_index(drop=True)
         )
 
+    # Ensure win_prob <= podium_prob after normalization
+    if "win_prob" in calibrated.columns and "podium_prob" in calibrated.columns:
+        calibrated["podium_prob"] = np.maximum(calibrated["podium_prob"], calibrated["win_prob"])
+
     return calibrated
 
 
 def calibrate_nbt_tlf_scores(
     scores_df: pd.DataFrame,
-    validation_df: pd.DataFrame | None = None,
+    validation_df: Optional[pd.DataFrame] = None,
     score_col: str = "score",
     method: str = "isotonic",
 ) -> pd.DataFrame:
@@ -249,9 +254,6 @@ def calibrate_nbt_tlf_scores(
     calibrated["win_prob"] = np.clip(calibrated["win_prob"], 0, 1)
     calibrated["podium_prob"] = np.clip(calibrated["podium_prob"], 0, 1)
 
-    # Ensure win_prob <= podium_prob
-    calibrated["podium_prob"] = np.maximum(calibrated["podium_prob"], calibrated["win_prob"])
-
     # Step 3: Normalize to ensure sum to 1 within each race
     if "race_id" in calibrated.columns:
         calibrated = (
@@ -259,6 +261,9 @@ def calibrate_nbt_tlf_scores(
             .apply(lambda x: normalize_race_probabilities(x, ["win_prob", "podium_prob"]))
             .reset_index(drop=True)
         )
+
+    # Ensure win_prob <= podium_prob after normalization
+    calibrated["podium_prob"] = np.maximum(calibrated["podium_prob"], calibrated["win_prob"])
 
     return calibrated
 
@@ -273,7 +278,7 @@ def validate_probabilities(predictions: pd.DataFrame, tolerance: float = 1e-6) -
     Returns:
         Dictionary with validation results
     """
-    results: dict[str, bool | list[str] | float] = {"valid": True, "issues": []}
+    results: dict[str, Union[bool, list][str] | float] = {"valid": True, "issues": []}
     issues: list[str] = []
 
     # Check win_prob bounds

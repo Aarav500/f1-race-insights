@@ -4,6 +4,7 @@ PyTorch implementation of a neural ranking model for F1 race predictions using
 embeddings and pairwise comparisons.
 """
 
+from typing import Optional, Union
 import json
 import logging
 from pathlib import Path
@@ -40,7 +41,7 @@ class SinusoidalPositionalEncoding(nn.Module):
         Returns:
             Positional encodings [batch_size, d_model]
         """
-        # Narrow type from Tensor | Module to Tensor for indexing
+        # Narrow type from Union[Tensor, Module] to Tensor for indexing
         pe: torch.Tensor = self.pe  # type: ignore[assignment]
         return pe[x.long()]
 
@@ -115,7 +116,7 @@ class NBTTLFModel(nn.Module):
         constructor_idx: torch.Tensor,
         track_idx: torch.Tensor,
         race_idx: torch.Tensor,
-        numeric_features: torch.Tensor | None = None,
+        numeric_features: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Compute score for a driver-constructor-track-time combination.
 
@@ -156,8 +157,8 @@ class NBTTLFModel(nn.Module):
         constructor_j_idx: torch.Tensor,
         track_idx: torch.Tensor,
         race_idx: torch.Tensor,
-        numeric_features_i: torch.Tensor | None = None,
-        numeric_features_j: torch.Tensor | None = None,
+        numeric_features_i: Optional[torch.Tensor] = None,
+        numeric_features_j: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Forward pass for pairwise comparison.
 
@@ -198,7 +199,7 @@ class PairwiseDataset(Dataset):
         driver_to_idx: dict[str, int],
         constructor_to_idx: dict[str, int],
         track_to_idx: dict[str, int],
-        numeric_feature_cols: list[str] | None = None,
+        numeric_feature_cols: Optional[list[str]] = None,
     ):
         self.df = pairwise_df.reset_index(drop=True)
         self.driver_to_idx = driver_to_idx
@@ -349,7 +350,7 @@ class NBTTLFTrainer:
     def fit(
         self,
         train_loader: DataLoader,
-        val_loader: DataLoader | None = None,
+        val_loader: Optional[DataLoader] = None,
         epochs: int = 50,
         patience: int = 5,
     ):

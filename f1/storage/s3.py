@@ -4,6 +4,7 @@ Provides cloud storage capabilities for production deployments.
 Safely no-ops if not configured (no AWS credentials required by default).
 """
 
+from typing import Optional
 import logging
 import os
 from pathlib import Path
@@ -21,7 +22,7 @@ class S3Storage:
     """
 
     def __init__(
-        self, bucket: str | None = None, prefix: str | None = None, region: str | None = None
+        self, bucket: Optional[str] = None, prefix: Optional[str] = None, region: Optional[str] = None
     ):
         """Initialize S3 storage.
 
@@ -79,7 +80,7 @@ class S3Storage:
             return f"{self.prefix.rstrip('/')}/{path}"
         return path
 
-    def upload_file(self, local_path: Path, s3_key: str | None = None, **kwargs) -> bool:
+    def upload_file(self, local_path: Path, s3_key: Optional[str] = None, **kwargs) -> bool:
         """Upload file to S3.
 
         Args:
@@ -145,7 +146,7 @@ class S3Storage:
             return False
 
     def upload_model_artifact(
-        self, model_path: Path, model_name: str, version: str | None = None
+        self, model_path: Path, model_name: str, version: Optional[str] = None
     ) -> bool:
         """Upload model artifact to S3.
 
@@ -166,8 +167,8 @@ class S3Storage:
         self,
         model_name: str,
         local_dir: Path,
-        version: str | None = None,
-        filename: str | None = None,
+        version: Optional[str] = None,
+        filename: Optional[str] = None,
     ) -> bool:
         """Download model artifact from S3.
 
@@ -205,7 +206,7 @@ class S3Storage:
 
         return self.upload_file(report_path, s3_key)
 
-    def list_models(self, model_name: str | None = None) -> list[str]:
+    def list_models(self, model_name: Optional[str] = None) -> list[str]:
         """List available models in S3.
 
         Args:

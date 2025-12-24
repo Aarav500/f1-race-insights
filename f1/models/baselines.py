@@ -5,6 +5,7 @@ Provides simple baseline models with a common interface:
 - predict(df): Generate predictions
 """
 
+from typing import Union
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path

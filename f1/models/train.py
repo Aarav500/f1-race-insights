@@ -9,7 +9,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import joblib
 import numpy as np
@@ -71,7 +71,7 @@ def time_based_split(
 
 
 def prepare_features(
-    df: pd.DataFrame, task: str, feature_cols: list[str] | None = None
+    df: pd.DataFrame, task: str, feature_cols: Optional[list[str]] = None
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """Prepare features and labels for training.
 
