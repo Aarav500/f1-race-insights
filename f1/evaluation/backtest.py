@@ -191,16 +191,16 @@ def create_model_trainer(model_type: str, model_params: dict | None = None):
             Trained model
         """
         if model_type == "quali_freq":
-            from f1.models.baselines import QualifyingFrequencyBaseline
+            from f1.models.baselines import BaselineModel, QualifyingFrequencyBaseline
 
-            baseline_model = QualifyingFrequencyBaseline()
+            baseline_model: BaselineModel = QualifyingFrequencyBaseline()
             baseline_model.fit(train_data)
             return baseline_model
 
         elif model_type == "elo":
-            from f1.models.baselines import EloBaseline
+            from f1.models.baselines import BaselineModel, EloBaseline
 
-            baseline_model = EloBaseline(**model_params)
+            baseline_model: BaselineModel = EloBaseline(**model_params)
             baseline_model.fit(train_data)
             return baseline_model
 
