@@ -64,6 +64,7 @@ jobs:
   publish-web:
     name: Build and Push Web Image
     runs-on: ubuntu-latest
+    needs: publish-api  # Run sequentially to avoid disk space exhaustion
     permissions:
       contents: read
       packages: write
