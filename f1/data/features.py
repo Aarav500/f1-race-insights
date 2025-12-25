@@ -80,7 +80,7 @@ def extract_qualifying_features(qual_results: pd.DataFrame) -> pd.DataFrame:
         ["race_id", "year", "round", "Abbreviation", "Position", "TeamName", "best_quali_time"]
     ].copy()
     features.rename(
-        index={}, columns={"Abbreviation": "driver_id", "Position": "quali_position", "TeamName": "team"}, inplace=True
+        columns={"Abbreviation": "driver_id", "Position": "quali_position", "TeamName": "team"}, inplace=True
     )
 
     # Calculate delta to pole (pole = position 1)
@@ -126,7 +126,6 @@ def extract_race_features(race_results: pd.DataFrame) -> pd.DataFrame:
         ]
     ].copy()
     features.rename(
-        index={},
         columns={
             "Abbreviation": "driver_id",
             "Position": "finish_position",
@@ -303,7 +302,7 @@ def build_feature_table(
 
     # Get team mapping from race results for any missing team data
     team_mapping = race_results[["year", "round", "Abbreviation", "TeamName"]].drop_duplicates()
-    team_mapping.rename(index={}, columns={"Abbreviation": "driver_id", "TeamName": "team"}, inplace=True)
+    team_mapping.rename(columns={"Abbreviation": "driver_id", "TeamName": "team"}, inplace=True)
 
     # Ensure qual_features has team column (it should already have it from extract_qualifying_features)
     # But merge to be safe in case of any data inconsistencies
@@ -365,7 +364,7 @@ def build_feature_table(
     # Add race date if available in raw data
     if "EventDate" in race_results.columns:
         race_dates = race_results[["year", "round", "EventDate"]].drop_duplicates()
-        race_dates.rename(index={}, columns={"EventDate": "race_date"}, inplace=True)
+        race_dates.rename(columns={"EventDate": "race_date"}, inplace=True)
         features = features.merge(race_dates, on=["year", "round"], how="left")
 
     # Add season and round

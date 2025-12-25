@@ -194,8 +194,11 @@ def predict_race(
         ValueError: If race_id not found in race_data
         FileNotFoundError: If model not found
     """
-    # Filter to specific race
-    race_df = race_data[race_data["race_id"] == race_id].copy()
+    # Filter to specific race - ensure DataFrame not Series
+    race_df: pd.DataFrame = race_data[race_data["race_id"] == race_id].copy()
+    if len(race_df) == 1:
+        # Even with one row, ensure it's treated as DataFrame
+        race_df = race_df.iloc[:1]
 
     if race_df.empty:
         raise ValueError(f"Race {race_id} not found in data")
