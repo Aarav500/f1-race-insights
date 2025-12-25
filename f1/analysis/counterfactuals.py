@@ -115,7 +115,7 @@ def compute_counterfactual(
     changes = request.changes
 
     # Filter to specific race
-    race_df = race_data[race_data["race_id"] == race_id].copy()
+    race_df: pd.DataFrame = race_data[race_data["race_id"] == race_id].copy()
 
     if race_df.empty:
         raise ValueError(f"Race {race_id} not found")
@@ -129,7 +129,7 @@ def compute_counterfactual(
 
     # Apply deltas
     logger.info(f"Applying changes: {changes}")
-    modified_df = apply_deltas(race_df, driver_id, changes)
+    modified_df: pd.DataFrame = apply_deltas(race_df, driver_id, changes)
 
     # Get counterfactual prediction
     logger.info(f"Computing counterfactual for {driver_id}")

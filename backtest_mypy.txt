@@ -1,0 +1,3 @@
+﻿f1\evaluation\backtest.py:164: error: Name "result" already defined on line 161  [no-redef]
+f1\evaluation\backtest.py:167: error: Name "result" already defined on line 161  [no-redef]
+Found 2 errors in 1 file (checked 1 source file)

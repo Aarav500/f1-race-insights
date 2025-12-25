@@ -157,12 +157,16 @@ class WalkForwardBacktest:
         Returns:
             List of actual outcomes
         """
+        result: list[float]
         if task == "win":
-            return (test_data["finish_position"] == 1).astype(float).tolist()
+            result = (test_data["finish_position"] == 1).astype(float).tolist()
+            return result
         elif task == "podium":
-            return (test_data["finish_position"] <= 3).astype(float).tolist()
+            result = (test_data["finish_position"] <= 3).astype(float).tolist()
+            return result
         elif task == "finish":
-            return test_data["finish_position"].astype(float).tolist()
+            result = test_data["finish_position"].astype(float).tolist()
+            return result
         else:
             raise ValueError(f"Unknown task: {task}")
 

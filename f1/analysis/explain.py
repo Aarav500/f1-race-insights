@@ -45,8 +45,8 @@ def explain_prediction(
     from pathlib import Path
 
     # Filter to race and driver
-    race_df = race_data[race_data["race_id"] == race_id].copy()
-    driver_df = race_df[race_df["driver_id"] == driver_id].copy()
+    race_df: pd.DataFrame = race_data[race_data["race_id"] == race_id].copy()
+    driver_df: pd.DataFrame = race_df[race_df["driver_id"] == driver_id].copy()
 
     if driver_df.empty:
         raise ValueError(f"Driver {driver_id} not found in race {race_id}")

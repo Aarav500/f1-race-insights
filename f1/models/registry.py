@@ -206,7 +206,7 @@ def predict_race(
 
     # Generate predictions based on model type
     if model_type == "baseline":
-        predictions = _predict_baseline(model_info["model"], race_df)
+        predictions: pd.DataFrame = _predict_baseline(model_info["model"], race_df)
 
     elif model_type == "zoo":
         predictions = _predict_zoo(model_info, race_df, task)
