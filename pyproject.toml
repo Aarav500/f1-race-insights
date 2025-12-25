@@ -100,6 +100,7 @@ module = [
     "f1.data.*",
     "f1.evaluation.*",
     "f1.analysis.*",
+    "f1.models.*",
 ]
 ignore_errors = true
 
