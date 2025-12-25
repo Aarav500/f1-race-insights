@@ -50,7 +50,7 @@ def create_pairwise_comparisons(
         # Filter out DNFs if requested
         if not include_dnf:
             # Assume DNF if finish_position is NaN or > 20
-            race_data = race_data[
+            race_data = race_data.loc[
                 race_data["finish_position"].notna() & (race_data["finish_position"] <= 20)
             ]
 
