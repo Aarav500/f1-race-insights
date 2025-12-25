@@ -29,9 +29,17 @@ jobs:
 
       - name: Free disk space
         run: |
+          echo "Disk usage before cleanup:"
           df -h
-          docker system prune -af || true
-          docker builder prune -af || true
+          echo "Removing large packages..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -af || true
+          sudo docker system prune -af || true
+          sudo docker builder prune -af || true
+          echo "Disk usage after cleanup:"
           df -h
 
       - name: Log in to GitHub Container Registry
