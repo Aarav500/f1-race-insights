@@ -421,6 +421,24 @@ main() {
     # Parse arguments
     parse_arguments "$@"
 
+    # Run CI gate to ensure all checks pass before deployment
+    log_step "Running CI Gate checks..."
+    CI_GATE_SCRIPT="${PROJECT_ROOT}/scripts/ci_gate.sh"
+    
+    if [ -f "$CI_GATE_SCRIPT" ]; then
+        if bash "$CI_GATE_SCRIPT"; then
+            log_success "CI Gate passed - proceeding with deployment"
+        else
+            log_error "CI Gate failed - deployment blocked"
+            log_error "Fix type checking, linting, or test failures before deploying"
+            exit 1
+        fi
+    else
+        log_warning "CI Gate script not found at $CI_GATE_SCRIPT"
+        log_warning "Skipping CI checks (not recommended for production)"
+    fi
+    echo ""
+
     # Run deployment steps
     check_prerequisites
     create_backup
