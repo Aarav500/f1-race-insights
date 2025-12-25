@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import Optional
 
 import fastf1
 import pandas as pd
@@ -33,7 +34,7 @@ def get_season_schedule(year: int) -> pd.DataFrame:
     return df
 
 
-def get_race_results(year: int, round_number: int) -> pd.DataFrame | None:
+def get_race_results(year: int, round_number: int) -> Optional[pd.DataFrame]:
     """Fetch race results for a specific race.
 
     Args:
@@ -68,7 +69,7 @@ def get_race_results(year: int, round_number: int) -> pd.DataFrame | None:
         return None
 
 
-def get_qualifying_results(year: int, round_number: int) -> pd.DataFrame | None:
+def get_qualifying_results(year: int, round_number: int) -> Optional[pd.DataFrame]:
     """Fetch qualifying results for a specific race.
 
     Args:

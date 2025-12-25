@@ -9,6 +9,7 @@ Implements standard metrics for assessing prediction quality:
 """
 
 import logging
+from typing import Optional
 
 import numpy as np
 from sklearn.metrics import log_loss, mean_absolute_error, roc_auc_score
@@ -132,7 +133,7 @@ def compute_metrics(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     task: str = "classification",
-    metric_names: list[str] | None = None,
+    metric_names: Optional[list[str]] = None,
 ) -> dict[str, float]:
     """Compute all relevant metrics for a task.
 

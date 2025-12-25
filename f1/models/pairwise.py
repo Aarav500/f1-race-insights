@@ -5,6 +5,7 @@ represents a head-to-head comparison with outcome y=1 if driver_i beat driver_j.
 """
 
 import logging
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -162,7 +163,7 @@ def validate_pairwise_dataset(pairwise_df: pd.DataFrame) -> dict:
     Returns:
         Dictionary with validation statistics
     """
-    stats: dict[str, int | float | str] = {}
+    stats: dict[str, Union[int, float, str]] = {}
 
     # Count races and pairs
     stats["num_races"] = pairwise_df["race_id"].nunique()

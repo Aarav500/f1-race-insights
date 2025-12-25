@@ -5,7 +5,7 @@ and tested on future races, respecting chronological order to prevent leakage.
 """
 
 import logging
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -167,7 +167,7 @@ class WalkForwardBacktest:
             raise ValueError(f"Unknown task: {task}")
 
 
-def create_model_trainer(model_type: str, model_params: dict | None = None):
+def create_model_trainer(model_type: str, model_params: Optional[dict] = None):
     """Create a model trainer function for a specific model type.
 
     Args:
