@@ -1,12 +1,12 @@
 'use client'
 
-import { use, useState } from 'react'
+import { useState } from 'react'
 import { postCounterfactual, CounterfactualResponse } from '@/utils/api'
 import { ArrowLeft, Loader2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
-export default function CounterfactualPage({ params }: { params: Promise<{ raceId: string; driver Id: string }> }) {
-    const { raceId, driverId } = use(params)
+export default function CounterfactualPage({ params }: { params: { raceId: string; driverId: string } }) {
+    const { raceId, driverId } = params
     const [model, setModel] = useState('xgb')
     const [changes, setChanges] = useState({
         qualifying_position_delta: 0,

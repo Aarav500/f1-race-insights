@@ -10,7 +10,7 @@ COPY web/package.json web/package-lock.json ./web/
 
 # Change to web directory and install dependencies
 WORKDIR /app/web
-RUN npm ci --only=production
+RUN npm ci
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
@@ -44,6 +44,10 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder /app/web/public ./public
 COPY --from=builder /app/web/.next/standalone ./
 COPY --from=builder /app/web/.next/static ./.next/static
+
+# Install only production dependencies for runtime
+COPY --from=builder /app/web/package*.json ./
+RUN npm ci --only=production && npm cache clean --force
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app

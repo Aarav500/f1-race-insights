@@ -107,7 +107,7 @@ export default function RaceExplorerPage() {
                                 <YAxis label={{ value: 'Probability (%)', angle: -90, position: 'insideLeft' }} />
                                 <Tooltip />
                                 <Legend />
-                                <Bar data Key="winProb" fill="#E10600" name="Win Probability" />
+                                <Bar dataKey="winProb" fill="#E10600" name="Win Probability" />
                                 <Bar dataKey="podiumProb" fill="#15151E" name="Podium Probability" />
                             </BarChart>
                         </ResponsiveContainer>
