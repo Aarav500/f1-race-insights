@@ -46,7 +46,7 @@ def explain_prediction(
 
     # Filter to race and driver
     race_df = race_data[race_data["race_id"] == race_id].copy()
-    driver_df = race_df[race_df["driver_id"] == driver_id]
+    driver_df = race_df[race_df["driver_id"] == driver_id].copy()
 
     if driver_df.empty:
         raise ValueError(f"Driver {driver_id} not found in race {race_id}")

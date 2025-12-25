@@ -90,7 +90,7 @@ def extract_qualifying_features(qual_results: pd.DataFrame) -> pd.DataFrame:
     features["quali_delta_to_pole"] = features["best_quali_time"] - features["pole_time"]
 
     # Calculate delta to teammate
-    team_times = df.groupby(["race_id", "TeamName"])["best_quali_time"].transform(
+    team_times: pd.Series = df.groupby(["race_id", "TeamName"])["best_quali_time"].transform(
         lambda x: x.min() if len(x) > 1 else np.nan
     )
     features["quali_delta_to_teammate"] = df["best_quali_time"] - team_times

@@ -111,7 +111,7 @@ def compute_ece(y_true: np.ndarray, y_pred: np.ndarray, n_bins: int = 10) -> flo
     for bin_idx in range(n_bins):
         # Get samples in this bin
         mask = bin_indices == bin_idx
-        n_samples_in_bin = np.sum(mask)
+        n_samples_in_bin: int = int(np.sum(mask))
 
         if n_samples_in_bin == 0:
             continue

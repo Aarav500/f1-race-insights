@@ -127,7 +127,7 @@ def prepare_features(
     logger.info(f"Prepared features: X shape={X.shape}, y shape={y.shape}")
     logger.info(f"Feature columns ({len(feature_cols)}): {feature_cols[:10]}...")
 
-    return X, y, feature_cols
+    return np.asarray(X), y, feature_cols
 
 
 def create_model(model_name: str, task: str, seed: int = 42) -> Any:
