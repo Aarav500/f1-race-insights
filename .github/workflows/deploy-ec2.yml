@@ -90,12 +90,109 @@ jobs:
           chmod 600 "${HOME}/.ssh/ec2_key"
           echo "SSH key written and permissions set"
           
-          # Add host to known_hosts
+          # Add host to known_hosts with retry logic
           echo "Scanning host: ${{ secrets.EC2_HOST }}"
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> "${HOME}/.ssh/known_hosts" 2>&1
-          echo "Host added to known_hosts"
           
+          # Retry ssh-keyscan up to 5 times with exponential backoff
+          RETRY_COUNT=0
+          MAX_RETRIES=5
+          BACKOFF_DELAY=2
+          KEYSCAN_SUCCESS=false
+          STDERR_FILE="/tmp/ssh-keyscan-err.txt"
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "Attempt $RETRY_COUNT of $MAX_RETRIES: Running ssh-keyscan..."
+            
+            # Run ssh-keyscan with explicit port and timeout
+            if ssh-keyscan -p 22 -T 10 -H "${{ secrets.EC2_HOST }}" >> "${HOME}/.ssh/known_hosts" 2>"$STDERR_FILE"; then
+              echo "✓ ssh-keyscan succeeded on attempt $RETRY_COUNT"
+              KEYSCAN_SUCCESS=true
+              break
+            else
+              KEYSCAN_EXIT_CODE=$?
+              echo "✗ ssh-keyscan failed on attempt $RETRY_COUNT (exit code: $KEYSCAN_EXIT_CODE)"
+              
+              if [ -s "$STDERR_FILE" ]; then
+                echo "=== ssh-keyscan stderr ==="
+                cat "$STDERR_FILE"
+                echo "========================="
+              fi
+              
+              # Exponential backoff if not the last attempt
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "Waiting ${BACKOFF_DELAY}s before retry..."
+                sleep $BACKOFF_DELAY
+                BACKOFF_DELAY=$((BACKOFF_DELAY * 2))
+              fi
+            fi
+          done
+          
+          # Check if keyscan ultimately succeeded
+          if [ "$KEYSCAN_SUCCESS" != "true" ]; then
+            echo "ERROR: ssh-keyscan failed after $MAX_RETRIES attempts"
+            echo "Please check:"
+            echo "  - EC2 host is reachable from GitHub Actions runners"
+            echo "  - Security group allows SSH (port 22) from GitHub's IP ranges"
+            echo "  - Consider using self-hosted runner or AWS SSM instead"
+            exit 1
+          fi
+          
+          echo "Host added to known_hosts"
           echo "SSH setup complete"
+
+      - name: Network diagnostics
+        shell: bash
+        run: |
+          echo "=== Network Diagnostics ==="
+          echo "Target host: ${{ secrets.EC2_HOST }}"
+          
+          # DNS Resolution
+          echo ""
+          echo "1. DNS Resolution:"
+          if command -v getent &> /dev/null; then
+            RESOLVED_IP=$(getent hosts "${{ secrets.EC2_HOST }}" | awk '{ print $1 }')
+          elif command -v nslookup &> /dev/null; then
+            RESOLVED_IP=$(nslookup "${{ secrets.EC2_HOST }}" | grep -A1 'Name:' | tail -n1 | awk '{ print $2 }')
+          else
+            echo "   Warning: No DNS lookup tool available (getent/nslookup)"
+            RESOLVED_IP=""
+          fi
+          
+          if [ -n "$RESOLVED_IP" ]; then
+            echo "   Resolved to: $RESOLVED_IP"
+            
+            # Check if IP is private
+            if echo "$RESOLVED_IP" | grep -qE '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)'; then
+              echo "   ⚠️  WARNING: Host resolves to PRIVATE IP address"
+              echo "   GitHub-hosted runners cannot reach private networks"
+              echo "   Solutions:"
+              echo "     - Use self-hosted runner on same VPC (preferred)"
+              echo "     - Use AWS SSM Session Manager instead of SSH"
+              echo "     - Assign public IP and configure security group"
+            else
+              echo "   ✓ Host resolves to public IP"
+            fi
+          else
+            echo "   Could not resolve IP address"
+          fi
+          
+          # TCP Connectivity Test
+          echo ""
+          echo "2. TCP Connectivity Test (port 22):"
+          if timeout 5 bash -c "</dev/tcp/${{ secrets.EC2_HOST }}/22" 2>/dev/null; then
+            echo "   ✓ Port 22 is reachable"
+          else
+            TCP_EXIT=$?
+            echo "   ✗ Cannot connect to port 22 (exit code: $TCP_EXIT)"
+            echo "   Possible causes:"
+            echo "     - Security group doesn't allow SSH from GitHub Actions IPs"
+            echo "     - Host is on private network (VPC)"
+            echo "     - Firewall blocking connection"
+            echo "   Will attempt ssh-keyscan anyway with retries..."
+          fi
+          
+          echo "=============================="
 
       - name: Bootstrap Docker prerequisites on EC2
         run: |
