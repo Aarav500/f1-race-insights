@@ -144,6 +144,8 @@ jobs:
             --comment "Deploy f1-race-insights from GitHub Actions" \
             --parameters 'commands=[
               "set -euo pipefail",
+              "export GHCR_USERNAME='\''${{ secrets.GHCR_USERNAME }}'\''",
+              "export GHCR_TOKEN='\''${{ secrets.GHCR_TOKEN }}'\''",
               "echo \"=== Diagnostics ===\"",
               "whoami",
               "uname -a",
@@ -179,7 +181,10 @@ jobs:
               "sudo git reset --hard origin/main",
               "echo \"git HEAD: $(git rev-parse HEAD)\"",
               "echo \"\"",
-              "echo \"=== Restarting services ===\"",
+              "echo \"=== Logging in to GHCR ===\"",
+              "if [ -n \"$GHCR_USERNAME\" ] && [ -n \"$GHCR_TOKEN\" ]; then echo \"GHCR credentials provided, logging in...\"; echo \"$GHCR_TOKEN\" | sudo docker login ghcr.io -u \"$GHCR_USERNAME\" --password-stdin; else echo \"GHCR credentials not provided, skipping login (assuming public images)\"; fi",
+              "echo \"\"",
+              "echo \"=== Pulling images ===\"",
               "sudo docker compose pull",
               "sudo docker compose up -d --remove-orphans",
               "echo \"\"",

@@ -2,10 +2,7 @@ version: '3.8'
 
 services:
   api:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
-    image: f1-api:latest
+    image: ghcr.io/aarav500/f1-race-insights/api:latest
     container_name: f1-race-insights-api
     ports:
       - "8000:8000"
@@ -20,8 +17,6 @@ services:
       # S3 bucket for data storage (optional, configure if needed)
       - S3_BUCKET=${S3_BUCKET:-}
     volumes:
-      # Development: mount repo for live reload (comment out for production)
-      - .:/app
       # Persistent FastF1 cache across restarts
       - fastf1-cache:/app/data/fastf1_cache
       # Persistent data cache
@@ -50,23 +45,13 @@ services:
           memory: 512M
 
   web:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.web
-      args:
-        - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
-    image: f1-web:latest
+    image: ghcr.io/aarav500/f1-race-insights/web:latest
     container_name: f1-race-insights-web
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://api:8000
-      - NODE_ENV=development
-    volumes:
-      # Development: mount web directory for live reload
-      - ./web:/app
-      - /app/node_modules # Prevents overwriting node_modules from host
-      - /app/.next # Prevents overwriting build artifacts from host
+      - NODE_ENV=production
     healthcheck:
       test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
       interval: 30s
