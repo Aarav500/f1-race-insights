@@ -22,16 +22,60 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Debug environment
+        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
-          chmod 600 ~/.ssh/ec2_key
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "=== Environment Debug Info ==="
+          echo "User: $(whoami)"
+          echo "User ID: $(id)"
+          echo "Current directory: $(pwd)"
+          echo "HOME: ${HOME}"
+          echo "Listing HOME directory:"
+          ls -la "${HOME}" || echo "Cannot list HOME"
+          echo "Listing /home:"
+          ls -la /home || echo "Cannot list /home"
+          echo "Disk usage:"
+          df -h
+
+      - name: Free disk space
+        shell: bash
+        run: |
+          echo "=== Cleaning up Docker resources ==="
+          docker system prune -af || true
+          docker builder prune -af || true
+          echo "Disk usage after cleanup:"
+          df -h
+
+      - name: Setup SSH key
+        shell: bash
+        run: |
+          # Ensure HOME is set and writable
+          if [ -z "${HOME}" ] || [ ! -w "${HOME}" ]; then
+            echo "HOME is not set or not writable, using fallback"
+            if [ -w "/home/runner" ]; then
+              export HOME="/home/runner"
+            else
+              export HOME="/tmp"
+            fi
+            echo "Using HOME=${HOME}"
+          fi
+          
+          # Create SSH directory with explicit permissions
+          mkdir -p "${HOME}/.ssh"
+          chmod 700 "${HOME}/.ssh"
+          
+          # Write SSH key and set permissions
+          echo "${{ secrets.EC2_SSH_KEY }}" > "${HOME}/.ssh/ec2_key"
+          chmod 600 "${HOME}/.ssh/ec2_key"
+          
+          # Add host to known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> "${HOME}/.ssh/known_hosts"
+          
+          echo "SSH setup complete"
 
       - name: Bootstrap Docker prerequisites on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'ENDSSH'
           set -e
           
@@ -85,7 +129,7 @@ jobs:
 
       - name: Create deployment directory on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "sudo mkdir -p /opt/f1-race-insights/deploy && \
              sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /opt/f1-race-insights"
@@ -93,19 +137,19 @@ jobs:
       - name: Copy deployment files to EC2
         run: |
           # Copy deploy scripts and configuration
-          scp -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no -r \
+          scp -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no -r \
             deploy/* \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/opt/f1-race-insights/deploy/
 
       - name: Create .env.prod on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "echo '${{ secrets.PROD_ENV_FILE_B64 }}' | base64 -d > /opt/f1-race-insights/deploy/.env.prod"
 
       - name: Validate .env.prod on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "test -s /opt/f1-race-insights/deploy/.env.prod && \
              grep -q '^DOCKER_REGISTRY=' /opt/f1-race-insights/deploy/.env.prod && \
@@ -115,7 +159,7 @@ jobs:
 
       - name: Login to GitHub Container Registry on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
 
@@ -136,16 +180,16 @@ jobs:
 
       - name: Run deployment script
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "cd /opt/f1-race-insights && bash deploy/ec2_deploy.sh"
 
       - name: Verify deployment
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no \
+          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "docker compose -f /opt/f1-race-insights/deploy/docker-compose.prod.yml ps"
 
       - name: Cleanup SSH key
         if: always()
-        run: rm -f ~/.ssh/ec2_key
+        run: rm -f "${HOME}/.ssh/ec2_key"
