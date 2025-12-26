@@ -1,6 +1,6 @@
 name: Deploy to EC2
 
-# Deploy the application to EC2 instance via SSH
+# Deploy the application to EC2 instance via AWS SSM
 # Triggers after images are published to GHCR or manually
 on:
   workflow_dispatch:  # Allow manual trigger
@@ -46,357 +46,6 @@ jobs:
           echo "Disk usage after cleanup:"
           df -h
 
-      - name: Validate secrets
-        shell: bash
-        run: |
-          echo "Validating required secrets..."
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then
-            echo "Error: EC2_HOST secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
-            echo "Error: EC2_SSH_KEY secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.EC2_USER }}" ]; then
-            echo "Error: EC2_USER secret is not set"
-            exit 1
-          fi
-          echo "All required secrets are configured"
-
-      - name: Network diagnostics
-        shell: bash
-        run: |
-          echo "=== Network Diagnostics ==="
-          echo "Target host: ${{ secrets.EC2_HOST }}"
-          
-          # DNS Resolution
-          echo ""
-          echo "1. DNS Resolution:"
-          RESOLVED_IP=""
-          if command -v getent &> /dev/null; then
-            echo "   Using getent for DNS lookup..."
-            RESOLVED_IP=$(getent hosts "${{ secrets.EC2_HOST }}" 2>&1 | awk '{ print $1 }' | head -n1)
-          elif command -v nslookup &> /dev/null; then
-            echo "   Using nslookup for DNS lookup..."
-            RESOLVED_IP=$(nslookup "${{ secrets.EC2_HOST }}" 2>&1 | grep -A1 'Name:' | tail -n1 | awk '{ print $2 }')
-          else
-            echo "   Warning: No DNS lookup tool available (getent/nslookup)"
-          fi
-          
-          if [ -n "$RESOLVED_IP" ] && echo "$RESOLVED_IP" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "   Resolved to: $RESOLVED_IP"
-            
-            # Check if IP is private
-            if echo "$RESOLVED_IP" | grep -qE '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)'; then
-              echo ""
-              echo "   ⚠️  WARNING: Host resolves to PRIVATE IP address: $RESOLVED_IP"
-              echo "   ⚠️  GitHub-hosted runners cannot reach private networks"
-              echo ""
-              echo "   Required Solutions (choose one):"
-              echo "     1. [PREFERRED] Use self-hosted runner in same VPC"
-              echo "        - Add 'runs-on: self-hosted' to this job"
-              echo "     2. [PREFERRED] Use AWS SSM Session Manager instead of SSH"
-              echo "        - Replace SSH with aws ssm start-session"
-              echo "     3. Assign public Elastic IP and open security group"
-              echo "        - Not recommended for production (SSH publicly exposed)"
-              echo ""
-              echo "   This workflow will fail unless connectivity is established."
-              echo "   Proceeding with diagnostics to confirm..."
-            else
-              echo "   ✓ Host resolves to public IP"
-            fi
-          else
-            echo "   ⚠️  Could not resolve to valid IP address"
-            echo "   DNS response: $RESOLVED_IP"
-          fi
-          
-          # TCP Connectivity Test
-          echo ""
-          echo "2. TCP Connectivity Test (SSH port 22):"
-          TCP_TEST_RESULT="failed"
-          
-          if timeout 5 bash -c "echo 2>/dev/null >/dev/tcp/${{ secrets.EC2_HOST }}/22" 2>/dev/null; then
-            echo "   ✓ Port 22 is reachable"
-            TCP_TEST_RESULT="success"
-          else
-            TCP_EXIT=$?
-            echo "   ✗ Cannot connect to port 22 (exit code: $TCP_EXIT)"
-            echo ""
-            echo "   Common causes:"
-            echo "     - Host is on private network (VPC) without public IP"
-            echo "     - Security group doesn't allow SSH from GitHub Actions IP ranges"
-            echo "     - Network ACL or firewall blocking connection"
-            echo "     - EC2 instance is stopped or terminated"
-            echo ""
-            echo "   Next steps:"
-            echo "     - If private IP: Use self-hosted runner or AWS SSM"
-            echo "     - If public IP: Update security group to allow GitHub IPs"
-            echo "       (See: https://api.github.com/meta for GitHub IP ranges)"
-          fi
-          
-          # Ping test (optional, many hosts block ICMP)
-          echo ""
-          echo "3. ICMP Ping Test (optional diagnostic):"
-          if ping -c 3 -W 5 "${{ secrets.EC2_HOST }}" &> /dev/null; then
-            echo "   ✓ Host responds to ping"
-          else
-            echo "   ✗ Host does not respond to ping (may be blocked by firewall)"
-          fi
-          
-          echo ""
-          echo "==============================="
-          echo "Network diagnostics complete"
-          
-          # Determine if we should fail early
-          if [ -n "$RESOLVED_IP" ] && echo "$RESOLVED_IP" | grep -qE '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)'; then
-            if [ "$TCP_TEST_RESULT" = "failed" ]; then
-              echo ""
-              echo "❌ FATAL: Host is private AND port 22 is unreachable"
-              echo "❌ GitHub-hosted runner cannot connect to this host"
-              echo ""
-              echo "Please implement one of the solutions:"
-              echo "  1. Switch to self-hosted runner (add to .github/workflows/deploy-ec2.yml):"
-              echo "     jobs:"
-              echo "       deploy:"
-              echo "         runs-on: self-hosted"
-              echo ""
-              echo "  2. Use AWS SSM instead of SSH (preferred for private hosts):"
-              echo "     - Install AWS CLI and configure credentials"
-              echo "     - Replace SSH commands with: aws ssm start-session --target <instance-id>"
-              echo ""
-              exit 1
-            fi
-          fi
-
-      - name: Setup SSH key
-        shell: bash
-        run: |
-          # Ensure HOME is set and writable
-          if [ -z "${HOME}" ] || [ ! -w "${HOME}" ]; then
-            echo "HOME is not set or not writable, using fallback"
-            if [ -w "/home/runner" ]; then
-              export HOME="/home/runner"
-            else
-              export HOME="/tmp"
-            fi
-            echo "Using HOME=${HOME}"
-          fi
-          
-          # Create SSH directory with explicit permissions
-          echo "Creating SSH directory..."
-          mkdir -p "${HOME}/.ssh"
-          chmod 700 "${HOME}/.ssh"
-          echo "SSH directory created: ${HOME}/.ssh"
-          
-          # Write SSH key (using printf to preserve exact content)
-          echo "Writing SSH key..."
-          printf "%s" "${{ secrets.EC2_SSH_KEY }}" > "${HOME}/.ssh/ec2_key"
-          chmod 600 "${HOME}/.ssh/ec2_key"
-          echo "SSH key written and permissions set"
-          
-          echo "SSH key setup complete"
-
-      - name: Scan SSH host keys with retry
-        shell: bash
-        run: |
-          echo "=== SSH Host Key Scanning ==="
-          echo "Scanning host: ${{ secrets.EC2_HOST }}"
-          
-          # Configuration
-          SSH_HOST="${{ secrets.EC2_HOST }}"
-          SSH_PORT="${{ secrets.EC2_PORT || 22 }}"
-          RETRY_COUNT=0
-          MAX_RETRIES=5
-          BACKOFF_DELAY=2
-          KEYSCAN_SUCCESS=false
-          STDERR_FILE="/tmp/ssh-keyscan-stderr.txt"
-          STDOUT_FILE="/tmp/ssh-keyscan-stdout.txt"
-          
-          # Ensure known_hosts file exists
-          touch "${HOME}/.ssh/known_hosts"
-          chmod 644 "${HOME}/.ssh/known_hosts"
-          
-          # Retry loop with exponential backoff
-          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-            echo ""
-            echo "Attempt $RETRY_COUNT of $MAX_RETRIES:"
-            echo "  Running: ssh-keyscan -p $SSH_PORT -T 10 -H $SSH_HOST"
-            
-            # Run ssh-keyscan with explicit port and timeout
-            # -p: port number
-            # -T: timeout in seconds
-            # -H: hash the hostname in known_hosts
-            # -v: verbose output (to stderr)
-            if ssh-keyscan -p "$SSH_PORT" -T 10 -H "$SSH_HOST" > "$STDOUT_FILE" 2> "$STDERR_FILE"; then
-              KEYSCAN_EXIT_CODE=0
-            else
-              KEYSCAN_EXIT_CODE=$?
-            fi
-            
-            # Check if we got any keys
-            if [ $KEYSCAN_EXIT_CODE -eq 0 ] && [ -s "$STDOUT_FILE" ]; then
-              echo "  ✓ ssh-keyscan succeeded (exit code: 0)"
-              
-              # Show what keys were found
-              KEY_COUNT=$(wc -l < "$STDOUT_FILE")
-              echo "  ✓ Received $KEY_COUNT host key(s)"
-              
-              # Append to known_hosts
-              cat "$STDOUT_FILE" >> "${HOME}/.ssh/known_hosts"
-              echo "  ✓ Keys added to known_hosts"
-              
-              KEYSCAN_SUCCESS=true
-              break
-            else
-              echo "  ✗ ssh-keyscan failed (exit code: $KEYSCAN_EXIT_CODE)"
-              
-              # Show stderr if available
-              if [ -s "$STDERR_FILE" ]; then
-                echo ""
-                echo "  === ssh-keyscan stderr output ==="
-                sed 's/^/  /' "$STDERR_FILE"
-                echo "  ================================="
-              fi
-              
-              # Show stdout if available (might be empty)
-              if [ -s "$STDOUT_FILE" ]; then
-                echo ""
-                echo "  === ssh-keyscan stdout output ==="
-                sed 's/^/  /' "$STDOUT_FILE"
-                echo "  =================================="
-              else
-                echo "  (no host keys received)"
-              fi
-              
-              # Clean up for next attempt
-              rm -f "$STDOUT_FILE" "$STDERR_FILE"
-              
-              # Exponential backoff if not the last attempt
-              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                echo "  ⏳ Waiting ${BACKOFF_DELAY}s before retry..."
-                sleep $BACKOFF_DELAY
-                BACKOFF_DELAY=$((BACKOFF_DELAY * 2))
-              fi
-            fi
-          done
-          
-          # Final check
-          echo ""
-          if [ "$KEYSCAN_SUCCESS" = "true" ]; then
-            echo "✅ SSH host key scanning completed successfully"
-            echo "   Host keys saved to: ${HOME}/.ssh/known_hosts"
-          else
-            echo "❌ ERROR: ssh-keyscan failed after $MAX_RETRIES attempts"
-            echo ""
-            echo "Troubleshooting steps:"
-            echo "  1. Verify host is reachable (see network diagnostics above)"
-            echo "  2. Check EC2 security group allows SSH from GitHub Actions IPs"
-            echo "  3. Verify EC2 instance is running and SSH daemon is active"
-            echo "  4. Review stderr output above for specific error messages"
-            echo ""
-            echo "Alternative deployment methods:"
-            echo "  - Use self-hosted runner on same VPC (recommended for private hosts)"
-            echo "  - Use AWS SSM Session Manager instead of SSH (no open ports needed)"
-            echo "  - Use AWS CodeDeploy for automated deployments"
-            echo ""
-            exit 1
-          fi
-          
-          # Cleanup temp files
-          rm -f "$STDOUT_FILE" "$STDERR_FILE"
-
-      - name: Bootstrap Docker prerequisites on EC2
-        run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'ENDSSH'
-          set -e
-          
-          echo "Checking Docker prerequisites..."
-          
-          # Check if Docker is installed
-          if ! command -v docker &> /dev/null; then
-            echo "Docker not found. Installing Docker..."
-            sudo apt-get update -qq
-            sudo apt-get install -y docker.io
-            sudo systemctl enable docker
-            sudo systemctl start docker
-            echo "Docker installed successfully"
-          else
-            echo "Docker already installed: $(docker --version)"
-          fi
-          
-          # Check if Docker Compose plugin is installed
-          if ! docker compose version &> /dev/null; then
-            echo "Docker Compose plugin not found. Installing..."
-            sudo apt-get update -qq
-            sudo apt-get install -y docker-compose-plugin
-            echo "Docker Compose plugin installed successfully"
-          else
-            echo "Docker Compose already installed: $(docker compose version)"
-          fi
-          
-          # Add user to docker group if not already a member
-          if ! groups | grep -q docker; then
-            echo "Adding user to docker group..."
-            sudo usermod -aG docker $USER
-            echo "User added to docker group (will take effect on next login)"
-          else
-            echo "User already in docker group"
-          fi
-          
-          # Verify Docker is working
-          # Use sudo for verification if user not in docker group yet
-          if groups | grep -q docker; then
-            echo "Verifying Docker access..."
-            docker ps > /dev/null 2>&1 || sudo docker ps > /dev/null
-            echo "Docker verification successful"
-          else
-            echo "Verifying Docker with sudo (group membership requires re-login)..."
-            sudo docker ps > /dev/null
-            echo "Docker verification successful (running as sudo)"
-          fi
-          
-          echo "Docker prerequisites check complete"
-          ENDSSH
-
-      - name: Create deployment directory on EC2
-        run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "sudo mkdir -p /opt/f1-race-insights/deploy && \
-             sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /opt/f1-race-insights"
-
-      - name: Copy deployment files to EC2
-        run: |
-          # Copy deploy scripts and configuration
-          scp -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no -r \
-            deploy/* \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/opt/f1-race-insights/deploy/
-
-      - name: Create .env.prod on EC2
-        run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "echo '${{ secrets.PROD_ENV_FILE_B64 }}' | base64 -d > /opt/f1-race-insights/deploy/.env.prod"
-
-      - name: Validate .env.prod on EC2
-        run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "test -s /opt/f1-race-insights/deploy/.env.prod && \
-             grep -q '^DOCKER_REGISTRY=' /opt/f1-race-insights/deploy/.env.prod && \
-             grep -q '^S3_BUCKET=' /opt/f1-race-insights/deploy/.env.prod && \
-             echo 'Validation passed: .env.prod file exists and contains required variables' || \
-             (echo 'Validation failed: .env.prod file is missing or incomplete' && exit 1)"
-
-      - name: Login to GitHub Container Registry on EC2
-        run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -412,18 +61,189 @@ jobs:
       - name: Run CI Gate
         run: bash scripts/ci_gate.sh
 
-      - name: Run deployment script
-        run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "cd /opt/f1-race-insights && bash deploy/ec2_deploy.sh"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Verify deployment
+      - name: SSM Preflight Check
+        shell: bash
         run: |
-          ssh -i "${HOME}/.ssh/ec2_key" -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "docker compose -f /opt/f1-race-insights/deploy/docker-compose.prod.yml ps"
+          echo "=== SSM Preflight Check ==="
+          echo "Verifying EC2 instance is SSM-managed..."
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          echo ""
+          
+          # Query SSM for this specific instance
+          INSTANCE_INFO=$(aws ssm describe-instance-information \
+            --filters "Key=InstanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --output json)
+          
+          # Check if instance was found
+          INSTANCE_COUNT=$(echo "$INSTANCE_INFO" | jq '.InstanceInformationList | length')
+          
+          if [ "$INSTANCE_COUNT" -eq 0 ]; then
+            echo "❌ ERROR: Instance ${{ secrets.EC2_INSTANCE_ID }} is not registered with SSM"
+            echo ""
+            echo "Possible causes:"
+            echo "  1. SSM Agent is not installed or not running on the EC2 instance"
+            echo "  2. EC2 instance does not have an IAM instance profile with SSM permissions"
+            echo "     Required policy: AmazonSSMManagedInstanceCore"
+            echo "  3. Instance is in a private subnet without VPC endpoints for SSM"
+            echo "     Required endpoints: ssm, ec2messages, ssmmessages"
+            echo "  4. Instance ID is incorrect"
+            echo ""
+            echo "To fix:"
+            echo "  - Attach IAM role with AmazonSSMManagedInstanceCore policy to EC2 instance"
+            echo "  - Ensure SSM Agent is running: sudo systemctl status amazon-ssm-agent"
+            echo "  - Wait a few minutes for instance to register with SSM"
+            exit 1
+          fi
+          
+          # Extract instance details
+          PING_STATUS=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PingStatus')
+          PLATFORM_TYPE=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PlatformType')
+          PLATFORM_NAME=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PlatformName')
+          PLATFORM_VERSION=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PlatformVersion')
+          AGENT_VERSION=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].AgentVersion')
+          
+          echo "✅ Instance found in SSM"
+          echo "   Platform: $PLATFORM_TYPE - $PLATFORM_NAME $PLATFORM_VERSION"
+          echo "   SSM Agent Version: $AGENT_VERSION"
+          echo "   Ping Status: $PING_STATUS"
+          echo ""
+          
+          # Verify instance is online
+          if [ "$PING_STATUS" != "Online" ]; then
+            echo "❌ ERROR: Instance ping status is '$PING_STATUS' (expected 'Online')"
+            echo ""
+            echo "The instance is registered with SSM but not responding to pings."
+            echo "This usually means:"
+            echo "  - SSM Agent is stopped or crashed"
+            echo "  - Instance is stopped/stopping/terminated"
+            echo "  - Network connectivity issues preventing SSM communication"
+            echo ""
+            exit 1
+          fi
+          
+          echo "✅ SSM preflight check passed - instance is online and ready"
 
-      - name: Cleanup SSH key
-        if: always()
-        run: rm -f "${HOME}/.ssh/ec2_key"
+      - name: Deploy via SSM Send-Command
+        shell: bash
+        run: |
+          echo "=== Deploying via AWS SSM ==="
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          echo ""
+          
+          # Send command to EC2 instance
+          COMMAND_OUTPUT=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy f1-race-insights from GitHub Actions" \
+            --parameters 'commands=[
+              "set -euo pipefail",
+              "echo \"Starting deployment...\"",
+              "cd /opt/f1-race-insights",
+              "echo \"Fetching latest code from main branch...\"",
+              "git fetch origin main",
+              "git reset --hard origin/main",
+              "echo \"Pulling latest Docker images...\"",
+              "docker compose pull",
+              "echo \"Starting services...\"",
+              "docker compose up -d --remove-orphans",
+              "echo \"Deployment complete!\""
+            ]' \
+            --output json)
+          
+          # Extract command ID
+          COMMAND_ID=$(echo "$COMMAND_OUTPUT" | jq -r '.Command.CommandId')
+          
+          if [ -z "$COMMAND_ID" ] || [ "$COMMAND_ID" = "null" ]; then
+            echo "❌ ERROR: Failed to send SSM command"
+            echo "Response:"
+            echo "$COMMAND_OUTPUT"
+            exit 1
+          fi
+          
+          echo "✅ SSM command sent successfully"
+          echo "   Command ID: $COMMAND_ID"
+          echo ""
+          
+          # Save command ID for next step
+          echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
+
+      - name: Wait for SSM Command Completion
+        shell: bash
+        run: |
+          echo "=== Waiting for SSM Command to Complete ==="
+          echo "Command ID: $COMMAND_ID"
+          echo ""
+          echo "This may take several minutes while:"
+          echo "  - Git fetches the latest code"
+          echo "  - Docker pulls the latest images"
+          echo "  - Docker Compose restarts services"
+          echo ""
+          
+          # Wait for command to finish (timeout: 600 seconds = 10 minutes)
+          if aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}"; then
+            echo "✅ SSM command execution completed"
+          else
+            EXIT_CODE=$?
+            echo "❌ ERROR: aws ssm wait command-executed failed (exit code: $EXIT_CODE)"
+            echo ""
+            echo "This usually means:"
+            echo "  - Command timed out (>10 minutes)"
+            echo "  - Command was cancelled"
+            echo "  - AWS CLI encountered an error"
+            echo ""
+            echo "Proceeding to check command status for details..."
+          fi
+
+      - name: Verify SSM Command Status
+        shell: bash
+        run: |
+          echo "=== Verifying SSM Command Status ==="
+          echo "Command ID: $COMMAND_ID"
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          echo ""
+          
+          # Get command invocation details
+          INVOCATION_OUTPUT=$(aws ssm list-command-invocations \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --output json)
+          
+          # Extract status
+          STATUS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].Status')
+          STATUS_DETAILS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].StatusDetails // "N/A"')
+          
+          echo "Command Status: $STATUS"
+          echo "Status Details: $STATUS_DETAILS"
+          echo ""
+          
+          # Check if status is Success
+          if [ "$STATUS" = "Success" ]; then
+            echo "✅ Deployment completed successfully!"
+            echo ""
+            echo "=== Command Output ==="
+            echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
+            echo ""
+            exit 0
+          else
+            echo "❌ ERROR: Deployment failed with status: $STATUS"
+            echo ""
+            echo "=== Command Standard Output ==="
+            echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
+            echo ""
+            echo "=== Command Standard Error ==="
+            echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorContent // "No error output available"'
+            echo ""
+            echo "=== Full Invocation Details ==="
+            echo "$INVOCATION_OUTPUT" | jq '.'
+            echo ""
+            exit 1
+          fi
