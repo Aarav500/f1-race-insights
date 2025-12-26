@@ -9,8 +9,6 @@ services:
     container_name: f1-race-insights-api
     ports:
       - "8000:8000"
-    env_file:
-      - .env # Load environment variables from .env file
     environment:
       - API_HOST=0.0.0.0
       - API_PORT=8000
@@ -19,8 +17,8 @@ services:
       - MODEL_DIR=/app/models
       - CACHE_DIR=/app/data/cache
       - FASTF1_CACHE=/app/data/fastf1_cache
-      # Database connection (if using postgres)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-f1user}:${POSTGRES_PASSWORD:-f1password}@db:5432/${POSTGRES_DB:-f1db}
+      # S3 bucket for data storage (optional, configure if needed)
+      - S3_BUCKET=${S3_BUCKET:-}
     volumes:
       # Development: mount repo for live reload (comment out for production)
       - .:/app
@@ -39,8 +37,6 @@ services:
       retries: 3
       start_period: 5s
     restart: unless-stopped
-    depends_on:
-      - db
     networks:
       - f1-network
     # Resource limits (adjust based on your needs)
@@ -83,34 +79,8 @@ services:
     networks:
       - f1-network
 
-  # Optional PostgreSQL database for future persistence
-  db:
-    image: postgres:15-alpine
-    container_name: f1-race-insights-db
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-f1user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-f1password}
-      - POSTGRES_DB=${POSTGRES_DB:-f1db}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-f1user}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - f1-network
-    # Uncomment to disable database (if not needed)
-    # profiles:
-    #   - with-db
-
-    # Named volumes for data persistence
+# Named volumes for data persistence
 volumes:
-  postgres-data:
-    name: f1-postgres-data
   fastf1-cache:
     name: f1-fastf1-cache
   data-cache:
