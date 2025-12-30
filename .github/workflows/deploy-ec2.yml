@@ -212,11 +212,12 @@ jobs:
           # Save command ID for next step
           echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
 
-      - name: Wait for SSM Command Completion
+      - name: Poll SSM Command Status
         shell: bash
         run: |
-          echo "=== Waiting for SSM Command to Complete ==="
+          echo "=== Polling SSM Command Status ==="
           echo "Command ID: $COMMAND_ID"
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
           echo ""
           echo "This may take several minutes while:"
           echo "  - Git fetches the latest code"
@@ -224,64 +225,80 @@ jobs:
           echo "  - Docker Compose restarts services"
           echo ""
           
-          # Wait for command to finish (timeout: 600 seconds = 10 minutes)
-          if aws ssm wait command-executed \
-            --command-id "$COMMAND_ID" \
-            --instance-id "${{ secrets.EC2_INSTANCE_ID }}"; then
-            echo "✅ SSM command execution completed"
-          else
-            EXIT_CODE=$?
-            echo "❌ ERROR: aws ssm wait command-executed failed (exit code: $EXIT_CODE)"
-            echo ""
-            echo "This usually means:"
-            echo "  - Command timed out (>10 minutes)"
-            echo "  - Command was cancelled"
-            echo "  - AWS CLI encountered an error"
-            echo ""
-            echo "Proceeding to check command status for details..."
-          fi
-
-      - name: Verify SSM Command Status
-        shell: bash
-        run: |
-          echo "=== Verifying SSM Command Status ==="
-          echo "Command ID: $COMMAND_ID"
-          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          # Terminal states
+          TERMINAL_STATES=("Success" "Failed" "TimedOut" "Cancelled")
+          # Non-terminal states: Pending, InProgress, Delayed
+          
+          # Poll for up to 60 iterations (60 x 10s = 10 minutes)
+          MAX_POLLS=60
+          POLL_INTERVAL=10
+          POLL_COUNT=0
+          
+          while [ $POLL_COUNT -lt $MAX_POLLS ]; do
+            POLL_COUNT=$((POLL_COUNT + 1))
+            
+            # Get command invocation details
+            INVOCATION_OUTPUT=$(aws ssm list-command-invocations \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --output json)
+            
+            # Extract status
+            STATUS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].Status')
+            
+            echo "[Poll $POLL_COUNT/$MAX_POLLS] Current Status: $STATUS"
+            
+            # Check if we've reached a terminal state
+            IS_TERMINAL=false
+            for terminal_state in "${TERMINAL_STATES[@]}"; do
+              if [ "$STATUS" = "$terminal_state" ]; then
+                IS_TERMINAL=true
+                break
+              fi
+            done
+            
+            if [ "$IS_TERMINAL" = true ]; then
+              echo ""
+              echo "=== Terminal state reached: $STATUS ==="
+              echo ""
+              
+              if [ "$STATUS" = "Success" ]; then
+                echo "✅ Deployment completed successfully!"
+                echo ""
+                echo "=== Command Output ==="
+                echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
+                echo ""
+                exit 0
+              else
+                echo "❌ ERROR: Deployment failed with status: $STATUS"
+                echo ""
+                STATUS_DETAILS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].StatusDetails // "N/A"')
+                echo "Status Details: $STATUS_DETAILS"
+                echo ""
+                echo "=== Command Standard Output ==="
+                echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
+                echo ""
+                echo "=== Command Standard Error ==="
+                echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorContent // "No error output available"'
+                echo ""
+                exit 1
+              fi
+            fi
+            
+            # Non-terminal state (Pending, InProgress, or Delayed) - continue polling
+            if [ $POLL_COUNT -lt $MAX_POLLS ]; then
+              sleep $POLL_INTERVAL
+            fi
+          done
+          
+          # If we've exhausted all polls without reaching a terminal state
           echo ""
-          
-          # Get command invocation details
-          INVOCATION_OUTPUT=$(aws ssm list-command-invocations \
-            --command-id "$COMMAND_ID" \
-            --details \
-            --output json)
-          
-          # Extract status
-          STATUS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].Status')
-          STATUS_DETAILS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].StatusDetails // "N/A"')
-          
-          echo "Command Status: $STATUS"
-          echo "Status Details: $STATUS_DETAILS"
+          echo "❌ ERROR: Polling timeout reached after $((MAX_POLLS * POLL_INTERVAL)) seconds"
+          echo "Last known status: $STATUS"
           echo ""
-          
-          # Check if status is Success
-          if [ "$STATUS" = "Success" ]; then
-            echo "✅ Deployment completed successfully!"
-            echo ""
-            echo "=== Command Output ==="
-            echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
-            echo ""
-            exit 0
-          else
-            echo "❌ ERROR: Deployment failed with status: $STATUS"
-            echo ""
-            echo "=== Command Standard Output ==="
-            echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
-            echo ""
-            echo "=== Command Standard Error ==="
-            echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorContent // "No error output available"'
-            echo ""
-            echo "=== Full Invocation Details ==="
-            echo "$INVOCATION_OUTPUT" | jq '.'
-            echo ""
-            exit 1
-          fi
+          echo "The command is still in a non-terminal state. This may indicate:"
+          echo "  - The deployment is taking longer than expected"
+          echo "  - The EC2 instance is experiencing performance issues"
+          echo "  - There may be a hung process on the instance"
+          echo ""
+          exit 1
