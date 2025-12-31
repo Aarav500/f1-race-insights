@@ -1,0 +1,98 @@
+Status: Success
+Response Code: 0
+
+================================================================================
+STDOUT:
+================================================================================
+=== docker status ===
+NAMES                  IMAGE                                          STATUS
+f1-race-insights-web   4fa777de3d20                                   Up 5 hours (healthy)
+f1-race-insights-api   ghcr.io/aarav500/f1-race-insights/api:latest   Up 17 hours (healthy)
+=== web curl ===
+HTTP/1.1 200 OK
+Vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding
+x-nextjs-cache: HIT
+X-Powered-By: Next.js
+Cache-Control: s-maxage=31536000, stale-while-revalidate
+=== api curl ===
+HTTP/1.1 200 OK
+date: Wed, 31 Dec 2025 10:46:15 GMT
+server: uvicorn
+content-length: 944
+content-type: text/html; charset=utf-8
+=== web logs (last 50 lines) ===
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Network:      http://0.0.0.0:3000
+
+ ✓ Starting...
+ ✓ Ready in 395ms
+Error: An unsupported type was passed to use(): [object Object]
+    at Object.use (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:40426)
+    at t.use (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:109308)
+    at f (/app/.next/server/app/race/[raceId]/page.js:1:3236)
+    at nj (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:46252)
+    at nM (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47572)
+    at nL (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64547)
+    at nI (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47011)
+    at nM (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47718)
+    at nM (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:61547)
+    at nL (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64547) {
+  digest: '2160836452'
+}
+=== api logs (last 50 lines) ===
+{"timestamp": "2025-12-31 10:38:50,393", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905590416, "duration_ms": 0.93, "status_code": 200}
+{"timestamp": "2025-12-31 10:38:50,393", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:42810 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:39:20,745", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905813712}
+{"timestamp": "2025-12-31 10:39:20,746", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905813712, "duration_ms": 0.6, "status_code": 200}
+{"timestamp": "2025-12-31 10:39:20,746", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:41354 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:39:51,092", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905669264}
+{"timestamp": "2025-12-31 10:39:51,092", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905669264, "duration_ms": 0.57, "status_code": 200}
+{"timestamp": "2025-12-31 10:39:51,092", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:37360 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:40:21,438", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502906919632}
+{"timestamp": "2025-12-31 10:40:21,438", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502906919632, "duration_ms": 0.54, "status_code": 200}
+{"timestamp": "2025-12-31 10:40:21,439", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:47740 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:40:51,775", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905525648}
+{"timestamp": "2025-12-31 10:40:51,776", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905525648, "duration_ms": 0.54, "status_code": 200}
+{"timestamp": "2025-12-31 10:40:51,776", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:41588 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:41:22,128", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905530448}
+{"timestamp": "2025-12-31 10:41:22,129", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905530448, "duration_ms": 0.56, "status_code": 200}
+{"timestamp": "2025-12-31 10:41:22,129", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:44736 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:41:52,490", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905529168}
+{"timestamp": "2025-12-31 10:41:52,491", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905529168, "duration_ms": 0.55, "status_code": 200}
+{"timestamp": "2025-12-31 10:41:52,491", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:36380 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:42:22,842", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502906087248}
+{"timestamp": "2025-12-31 10:42:22,842", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502906087248, "duration_ms": 0.54, "status_code": 200}
+{"timestamp": "2025-12-31 10:42:22,843", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:45138 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:42:53,184", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502906091024}
+{"timestamp": "2025-12-31 10:42:53,184", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502906091024, "duration_ms": 0.54, "status_code": 200}
+{"timestamp": "2025-12-31 10:42:53,184", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:32910 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:43:23,535", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502906077776}
+{"timestamp": "2025-12-31 10:43:23,536", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502906077776, "duration_ms": 0.63, "status_code": 200}
+{"timestamp": "2025-12-31 10:43:23,536", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:55018 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:43:53,868", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502906092496}
+{"timestamp": "2025-12-31 10:43:53,869", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502906092496, "duration_ms": 0.55, "status_code": 200}
+{"timestamp": "2025-12-31 10:43:53,869", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:43960 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:44:24,245", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502907162960}
+{"timestamp": "2025-12-31 10:44:24,246", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502907162960, "duration_ms": 0.68, "status_code": 200}
+{"timestamp": "2025-12-31 10:44:24,246", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:41178 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:44:50,676", "level": "INFO", "logger": "api.request", "message": "HEAD /docs", "request_id": 140502905515280}
+{"timestamp": "2025-12-31 10:44:50,677", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905515280, "duration_ms": 1.19, "status_code": 200}
+{"timestamp": "2025-12-31 10:44:50,677", "level": "INFO", "logger": "uvicorn.access", "message": "172.18.0.1:58262 - \"HEAD /docs HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:44:54,750", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905506320}
+{"timestamp": "2025-12-31 10:44:54,750", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905506320, "duration_ms": 0.56, "status_code": 200}
+{"timestamp": "2025-12-31 10:44:54,750", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:41324 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:45:25,166", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905507216}
+{"timestamp": "2025-12-31 10:45:25,167", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905507216, "duration_ms": 0.5, "status_code": 200}
+{"timestamp": "2025-12-31 10:45:25,167", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:41114 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:45:55,571", "level": "INFO", "logger": "api.request", "message": "GET /health", "request_id": 140502905825488}
+{"timestamp": "2025-12-31 10:45:55,572", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905825488, "duration_ms": 0.6, "status_code": 200}
+{"timestamp": "2025-12-31 10:45:55,572", "level": "INFO", "logger": "uvicorn.access", "message": "127.0.0.1:51182 - \"GET /health HTTP/1.1\" 200"}
+{"timestamp": "2025-12-31 10:46:16,485", "level": "INFO", "logger": "api.request", "message": "HEAD /docs", "request_id": 140502905893776}
+{"timestamp": "2025-12-31 10:46:16,486", "level": "INFO", "logger": "api.request", "message": "Response 200", "request_id": 140502905893776, "duration_ms": 1.14, "status_code": 200}
+{"timestamp": "2025-12-31 10:46:16,486", "level": "INFO", "logger": "uvicorn.access", "message": "172.18.0.1:40028 - \"HEAD /docs HTTP/1.1\" 200"}
+
+
+================================================================================
+STDERR:
+================================================================================

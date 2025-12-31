@@ -1,12 +1,12 @@
 'use client'
 
-import { use, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getExplanation, getRacePrediction, ExplainResponse, PredictionResponse } from '@/utils/api'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function ExplainPage({ params }: { params: Promise<{ raceId: string }> }) {
-    const { raceId } = use(params)
+export default function ExplainPage({ params }: { params: { raceId: string } }) {
+    const { raceId } = params
     const [model, setModel] = useState('xgb')
     const [driverId, setDriverId] = useState('VER')
     const [drivers, setDrivers] = useState<string[]>([])

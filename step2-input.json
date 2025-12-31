@@ -1,0 +1,18 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Parameters": {
+        "commands": [
+            "echo '=== Web Root ==='",
+            "curl -sS -o /dev/null -w '%{http_code}\\n' http://127.0.0.1:3000/",
+            "echo '=== API Docs ==='",
+            "curl -sS -o /dev/null -w '%{http_code}\\n' http://127.0.0.1:8000/docs",
+            "echo '=== API Endpoints ==='",
+            "curl -sS -o /dev/null -w '/ - %{http_code}\\n' http://127.0.0.1:8000/",
+            "curl -sS -o /dev/null -w '/health - %{http_code}\\n' http://127.0.0.1:8000/health",
+            "curl -sS -o /dev/null -w '/openapi.json - %{http_code}\\n' http://127.0.0.1:8000/openapi.json"
+        ]
+    }
+}

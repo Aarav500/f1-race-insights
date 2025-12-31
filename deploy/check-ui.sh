@@ -1,0 +1,61 @@
+set -euo pipefail
+cd /opt/f1-race-insights
+
+echo "=== docker status ==="
+docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}"
+
+echo "=== local curls ==="
+curl -sS -I http://127.0.0.1:3000/ | head -n 20 || true
+curl -sS -I http://127.0.0.1:8000/docs | head -n 20 || true
+
+echo "=== web/api logs tail ==="
+docker logs --tail 200 f1-race-insights-web || true
+docker logs --tail 200 f1-race-insights-api || true
+
+echo "=== install headless chromium + playwright and run scripted checks ==="
+if ! command -v node >/dev/null 2>&1; then
+  dnf -y install nodejs npm || true
+fi
+mkdir -p /tmp/ui-check && cd /tmp/ui-check
+npm init -y
+npm i playwright
+npx playwright install --with-deps chromium
+
+cat > check.mjs <<'EOF'
+import { chromium } from 'playwright';
+const base = process.env.WEB_URL || 'http://127.0.0.1:3000';
+const pages = [
+  '/',
+  '/race-explorer',
+  '/backtest',
+  '/counterfactual/2024_01/VER'  // adjust if needed based on app routes
+];
+const browser = await chromium.launch();
+const page = await browser.newPage();
+const consoleLogs = [];
+page.on('console', (msg) => consoleLogs.push({type: msg.type(), text: msg.text()}));
+const reqFails = [];
+page.on('requestfailed', (req) => reqFails.push({url: req.url(), err: req.failure()?.errorText}));
+const responses = [];
+page.on('response', (res) => { if (res.status() >= 400) responses.push({url: res.url(), status: res.status()}); });
+
+for (const p of pages) {
+  console.log(`\n=== VISIT ${base}${p} ===`);
+  await page.goto(`${base}${p}`, { waitUntil: 'networkidle', timeout: 120000 }).catch(e => console.log('goto error:', e.message));
+  await page.waitForTimeout(2000);
+  console.log('title:', await page.title().catch(()=> 'n/a'));
+}
+
+console.log('\n=== CONSOLE (last 200) ===');
+consoleLogs.slice(-200).forEach(x => console.log(`${x.type}: ${x.text}`));
+
+console.log('\n=== REQUEST FAILURES ===');
+reqFails.forEach(x => console.log(`${x.err} :: ${x.url}`));
+
+console.log('\n=== 4xx/5xx RESPONSES ===');
+responses.forEach(x => console.log(`${x.status} :: ${x.url}`));
+
+await browser.close();
+EOF
+
+node check.mjs || true

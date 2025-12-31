@@ -1,13 +1,13 @@
 'use client'
 
-import { use, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getRacePrediction, PredictionResponse } from '@/utils/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function RacePage({ params }: { params: Promise<{ raceId: string }> }) {
-    const { raceId } = use(params)
+export default function RacePage({ params }: { params: { raceId: string } }) {
+    const { raceId } = params
     const [model, setModel] = useState('xgb')
     const [prediction, setPrediction] = useState<PredictionResponse | null>(null)
     const [loading, setLoading] = useState(true)

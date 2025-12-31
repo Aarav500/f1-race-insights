@@ -1,0 +1,36 @@
+﻿=== Host ===
+ip-172-31-77-28.ec2.internal
+root
+Wed Dec 31 04:41:16 UTC 2025
+
+=== Public endpoint from instance metadata ===
+
+=== Listening ports on host ===
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                  
+LISTEN 0      4096         0.0.0.0:8000       0.0.0.0:*    users:(("docker-proxy",pid=746248,fd=4))
+LISTEN 0      4096         0.0.0.0:3000       0.0.0.0:*    users:(("docker-proxy",pid=746350,fd=4))
+LISTEN 0      128          0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=1551,fd=3))          
+LISTEN 0      4096       127.0.0.1:41339      0.0.0.0:*    users:(("containerd",pid=30799,fd=9))   
+LISTEN 0      4096            [::]:8000          [::]:*    users:(("docker-proxy",pid=746254,fd=4))
+LISTEN 0      4096            [::]:3000          [::]:*    users:(("docker-proxy",pid=746355,fd=4))
+LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",pid=1551,fd=4))          
+
+=== Docker containers ===
+NAMES                  IMAGE                                          PORTS                                       STATUS
+f1-race-insights-web   ghcr.io/aarav500/f1-race-insights/web:latest   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   Up 11 hours (healthy)
+f1-race-insights-api   ghcr.io/aarav500/f1-race-insights/api:latest   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   Up 11 hours (healthy)
+
+=== Docker compose status ===
+NAME                   IMAGE                                          COMMAND                  SERVICE   CREATED        STATUS                  PORTS
+f1-race-insights-api   ghcr.io/aarav500/f1-race-insights/api:latest   "uvicorn api.main:apà"   api       11 hours ago   Up 11 hours (healthy)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp
+f1-race-insights-web   ghcr.io/aarav500/f1-race-insights/web:latest   "docker-entrypoint.sà"   web       11 hours ago   Up 11 hours (healthy)   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp
+
+=== Compose ports from c
+---Output truncated---
+----------ERROR-------
+time="2025-12-31T04:41:16Z" level=warning msg="/opt/f1-race-insights/docker-compose.yml: `version` is obsolete"
+time="2025-12-31T04:41:17Z" level=warning msg="/opt/f1-race-insights/docker-compose.yml: `version` is obsolete"
+curl: (7) Failed to connect to 127.0.0.1 port 80 after 0 ms: Could not connect to server
+curl: (7) Failed to connect to 127.0.0.1 port 443 after 0 ms: Could not connect to server
+curl: (7) Failed to connect to 127.0.0.1 port 8080 after 0 ms: Could not connect to server
+

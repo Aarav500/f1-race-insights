@@ -1,54 +1,13 @@
 import axios from 'axios'
 
-// Runtime configuration cache
-let cachedApiBaseUrl: string | null = null
-
-/**
- * Fetch runtime configuration from the server
- * This allows the API URL to be set at container startup time
- */
-async function getApiBaseUrl(): Promise<string> {
-    // Return cached value if available
-    if (cachedApiBaseUrl) {
-        return cachedApiBaseUrl
-    }
-
-    // In browser environment, fetch from config endpoint
-    if (typeof window !== 'undefined') {
-        try {
-            const response = await fetch('/api/config')
-            const config = await response.json()
-            cachedApiBaseUrl = config.apiBaseUrl
-            return cachedApiBaseUrl || 'http://localhost:8000'
-        } catch (error) {
-            console.warn('Failed to fetch runtime config, using fallback:', error)
-            // Fallback to environment variable or localhost
-            const fallback = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-            cachedApiBaseUrl = fallback
-            return fallback
-        }
-    }
-
-    // Server-side: use environment variable directly
-    const serverUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-    cachedApiBaseUrl = serverUrl
-    return serverUrl
-}
-
-// Create API client with initial config
+// Create API client using relative paths (same-origin)
+// All API calls will go through Next.js API routes which proxy to the backend
 export const api = axios.create({
-    baseURL: 'http://localhost:8000', // Default, will be updated
+    baseURL: '', // Empty = same origin, uses Next.js proxy routes at /api/*
     headers: {
         'Content-Type': 'application/json',
     },
 })
-
-// Initialize API client with runtime config (browser only)
-if (typeof window !== 'undefined') {
-    getApiBaseUrl().then((baseURL) => {
-        api.defaults.baseURL = baseURL
-    })
-}
 
 // Types
 export interface PredictionResponse {

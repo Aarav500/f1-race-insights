@@ -1,0 +1,20 @@
+﻿u0027=== Docker ps ===u0027
+CONTAINER ID   IMAGE                                          COMMAND                  CREATED        STATUS                  PORTS                                       NAMES
+762b27ff08f9   ghcr.io/aarav500/f1-race-insights/web:latest   "docker-entrypoint.sà"   13 hours ago   Up 13 hours (healthy)   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   f1-race-insights-web
+2e7d8ac0f4d5   ghcr.io/aarav500/f1-race-insights/api:latest   "uvicorn api.main:apà"   13 hours ago   Up 13 hours (healthy)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   f1-race-insights-api
+u0027u0027
+u0027=== Docker compose ps ===u0027
+NAME                   IMAGE                                          COMMAND                  SERVICE   CREATED        STATUS                  PORTS
+f1-race-insights-api   ghcr.io/aarav500/f1-race-insights/api:latest   "uvicorn api.main:apà"   api       13 hours ago   Up 13 hours (healthy)   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp
+f1-race-insights-web   ghcr.io/aarav500/f1-race-insights/web:latest   "docker-entrypoint.sà"   web       13 hours ago   Up 13 hours (healthy)   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp
+u0027u0027
+u0027=== Listening ports ===u0027
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                  
+LISTEN 0      4096         0.0.0.0:8000       0.0.0.0:*    users:(("docker-proxy",pid=746248,fd=4))
+LISTEN 0      4096         0.0.0.0:3000       0.0.0.0:*    users:(("docker-proxy",pid=746350,fd=4))
+LISTEN 0      128          0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=1551,fd=3))          
+LISTEN 0      4096       127.0.0.1:41339      0.0.0.0:*    users:(("containerd",pid=30799,fd=9))   
+LISTEN 0      4096            [::]:8000          [::]:*    users:(("docker-proxy",pid=746254,fd=4))
+LISTEN 0      4096            [::]:3000          [::]:*    users:(("docker-proxy",pid=746355,fd=4))
+LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",pid=1551,fd=4))          
+

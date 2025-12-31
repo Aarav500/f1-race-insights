@@ -1,0 +1,25 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Parameters": {
+        "commands": [
+            "echo '=== EC2 Disk Usage ==='",
+            "df -h",
+            "echo ''",
+            "echo '=== Docker Disk Usage ==='",
+            "docker system df",
+            "echo ''",
+            "echo '=== Docker Images ==='",
+            "docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}'",
+            "echo ''",
+            "echo '=== Cleaning up Docker resources ==='",
+            "docker system prune -af",
+            "docker volume prune -f",
+            "echo ''",
+            "echo '=== Disk usage after cleanup ==='",
+            "df -h"
+        ]
+    }
+}

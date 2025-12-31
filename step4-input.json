@@ -1,0 +1,23 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Parameters": {
+        "commands": [
+            "cd /opt/f1-race-insights",
+            "echo '=== Docker Compose Environment Configuration ==='",
+            "docker compose config | grep -A 20 'environment:' || true",
+            "echo ''",
+            "echo'=== Web Container Environment Variables ==='",
+            "docker exec f1-race-insights-web sh -c 'env | sort | grep -E \"NEXT_PUBLIC_|API|NODE_ENV\"' || true",
+            "echo ''",
+            "echo '=== API Container CORS Configuration ==='",
+            "docker exec f1-race-insights-api sh -c 'env | sort | grep -E \"CORS|ALLOW|ORIGIN\"' || true",
+            "echo ''",
+            "echo '=== Test inter-container connectivity ==='",
+            "docker exec f1-race-insights-web sh -c 'curl -sS -o /dev/null -w \"web->api:8000/docs - %{http_code}\\n\" http://f1-race-insights-api:8000/docs' || true",
+            "docker exec f1-race-insights-web sh -c 'curl -sS -o /dev/null -w \"web->api:8000/health - %{http_code}\\n\" http://f1-race-insights-api:8000/health' || true"
+        ]
+    }
+}

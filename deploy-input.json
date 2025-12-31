@@ -1,0 +1,27 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Parameters": {
+        "commands": [
+            "set -euo pipefail",
+            "cd /opt/f1-race-insights",
+            "echo '=== Pulling latest code from main ==='",
+            "sudo git fetch origin main",
+            "sudo git reset --hard origin/main",
+            "git rev-parse HEAD",
+            "echo ''",
+            "echo '=== Restarting containers with updated config ==='",
+            "sudo docker compose up -d --remove-orphans",
+            "echo ''",
+            "echo '=== Container status ==='",
+            "sudo docker compose ps",
+            "echo ''",
+            "echo '=== Checking environment variable ==='",
+            "docker exec f1-race-insights-web sh -c 'env | grep NEXT_PUBLIC_API_BASE_URL'",
+            "echo ''",
+            "echo '✅ Deployment complete!'"
+        ]
+    }
+}
