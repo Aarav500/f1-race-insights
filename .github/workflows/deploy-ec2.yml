@@ -67,19 +67,20 @@ jobs:
           echo "Available space on root:"
           df -h / | grep -v Filesystem
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
+      # Python setup and dependencies not needed since CI gate is skipped
       # CI Gate already runs in the publish workflow, skip here to save time and disk space
+      # - name: Set up Python 3.11
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.11'
+      #     cache: 'pip'
+      #     cache-dependency-path: 'requirements.txt'
+      # 
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+      # 
       # - name: Run CI Gate
       #   run: bash scripts/ci_gate.sh
 
