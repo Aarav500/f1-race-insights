@@ -53,15 +53,15 @@ jobs:
           sudo rm -rf /usr/local/share/boost
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           
-          echo "=== Cleaning up Docker resources ===\"
+          echo "=== Cleaning up Docker resources ==="
           docker system prune -af || true
           docker builder prune -af || true
           docker volume prune -f || true
           
-          echo "=== Cleaning up APT cache ===\"
+          echo "=== Cleaning up APT cache ==="
           sudo apt-get clean || true
           
-          echo "=== Final disk usage ===\"
+          echo "=== Final disk usage ==="
           df -h
           echo ""
           echo "Available space on root:"
