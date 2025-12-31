@@ -1,5 +1,5 @@
-import json
 import time
+
 import boto3
 
 # Create SSM client
@@ -35,7 +35,7 @@ response = ssm.send_command(
 command_id = response['Command']['CommandId']
 print(f"Command ID: {command_id}")
 
-# Wait for command to complete  
+# Wait for command to complete
 print("Waiting for command to complete...")
 time.sleep(15)
 

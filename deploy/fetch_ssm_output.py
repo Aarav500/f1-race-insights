@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 # Read command ID
-with open('deploy/ui-check-cmd-id.json', 'r') as f:
+with open('deploy/ui-check-cmd-id.json') as f:
     cmd_id = json.load(f)['CommandId']
 
 print(f"Fetching output for command: {cmd_id}")
