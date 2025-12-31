@@ -1,5 +1,6 @@
-import boto3
 import time
+
+import boto3
 
 # Create SSM client
 ssm = boto3.client('ssm', region_name='us-east-1')
