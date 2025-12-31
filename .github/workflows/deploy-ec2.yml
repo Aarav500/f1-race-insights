@@ -40,11 +40,32 @@ jobs:
       - name: Free disk space
         shell: bash
         run: |
-          echo "=== Cleaning up Docker resources ==="
+          echo "=== Disk usage before cleanup ==="
+          df -h
+          echo ""
+          
+          echo "=== Removing unnecessary packages and tools ===" 
+          # Remove large packages that we don't need for deployment
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          
+          echo "=== Cleaning up Docker resources ===\"
           docker system prune -af || true
           docker builder prune -af || true
-          echo "Disk usage after cleanup:"
+          docker volume prune -f || true
+          
+          echo "=== Cleaning up APT cache ===\"
+          sudo apt-get clean || true
+          
+          echo "=== Final disk usage ===\"
           df -h
+          echo ""
+          echo "Available space on root:"
+          df -h / | grep -v Filesystem
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -58,8 +79,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run CI Gate
-        run: bash scripts/ci_gate.sh
+      # CI Gate already runs in the publish workflow, skip here to save time and disk space
+      # - name: Run CI Gate
+      #   run: bash scripts/ci_gate.sh
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
