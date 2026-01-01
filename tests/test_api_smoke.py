@@ -2,6 +2,10 @@
 
 Tests critical API endpoints that the frontend relies on.
 These tests verify basic connectivity and response shapes.
+
+NOTE: These are integration tests that require a running API server.
+They will be skipped automatically if the API is not available.
+Run with: docker-compose up -d && pytest tests/test_api_smoke.py -v
 """
 
 import pytest
@@ -11,6 +15,23 @@ from typing import Dict, Any
 
 # Base URL for API (adjust if needed for local testing)
 API_BASE_URL = "http://localhost:8000"
+
+
+# Check if API is available
+def _is_api_available() -> bool:
+    """Check if the API server is running and accessible."""
+    try:
+        response = requests.get(f"{API_BASE_URL}/health", timeout=2)
+        return response.status_code == 200
+    except (requests.ConnectionError, requests.Timeout):
+        return False
+
+
+# Skip all tests in this module if API is not available
+pytestmark = pytest.mark.skipif(
+    not _is_api_available(),
+    reason="API server not running on localhost:8000. Start with: docker-compose up -d"
+)
 
 
 def test_health_endpoint():
