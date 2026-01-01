@@ -68,6 +68,41 @@ export interface ModelsResponse {
     count: number
 }
 
+export interface ModelMetrics {
+    accuracy: number
+    logloss: number | null
+    brier: number | null
+}
+
+export interface MetaModelInfo {
+    model_id: string
+    display_name: string
+    type: string
+    interpretable: string
+    speed: string
+    metrics: {
+        overall: ModelMetrics
+        win: ModelMetrics | null
+        podium: ModelMetrics | null
+    }
+}
+
+export interface MetaModelsResponse {
+    models: MetaModelInfo[]
+}
+
+export interface RaceInfo {
+    race_id: string
+    name: string
+    date: string
+    season: number
+    round: number
+}
+
+export interface RacesResponse {
+    races: RaceInfo[]
+}
+
 // API functions
 export async function getRacePrediction(
     raceId: string,
@@ -113,6 +148,18 @@ export async function postCounterfactual(
 
 export async function getModels(): Promise<ModelsResponse> {
     const response = await api.get('/api/f1/models')
+    return response.data
+}
+
+export async function getMetaModels(): Promise<MetaModelsResponse> {
+    const response = await api.get('/api/meta/models')
+    return response.data
+}
+
+export async function getRaces(season: number = 2026, limit: number = 50): Promise<RacesResponse> {
+    const response = await api.get('/api/meta/races', {
+        params: { season, limit },
+    })
     return response.data
 }
 
