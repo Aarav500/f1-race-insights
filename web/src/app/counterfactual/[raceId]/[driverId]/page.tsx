@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { postCounterfactual, CounterfactualResponse, getModels, ModelInfo } from '@/utils/api'
+import { postCounterfactual, CounterfactualResponse, getMetaModels, MetaModelInfo } from '@/utils/api'
 import { ArrowLeft, Loader2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CounterfactualPage({ params }: { params: { raceId: string; driverId: string } }) {
     const { raceId, driverId } = params
     const [model, setModel] = useState('xgb')
-    const [models, setModels] = useState<ModelInfo[]>([])
+    const [models, setModels] = useState<MetaModelInfo[]>([])
     const [modelsLoading, setModelsLoading] = useState(true)
     const [changes, setChanges] = useState({
         qualifying_position_delta: 0,
@@ -27,18 +27,17 @@ export default function CounterfactualPage({ params }: { params: { raceId: strin
 
     const loadModels = async () => {
         try {
-            const data = await getModels()
-            setModels(data.models.filter(m => m.supports_counterfactual))
+            const data = await getMetaModels()
+            // Filter for models that are likely to support counterfactuals (tree-based and neural models)
+            const counterfactualModels = data.models.filter(m =>
+                !m.type.includes('Baseline')
+            )
+            setModels(counterfactualModels)
         } catch (err) {
             console.error('Failed to load models:', err)
-            // Fallback to hardcoded list if API fails
             setModels([
-                { id: 'xgb', name: 'XGBoost', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'lgbm', name: 'LightGBM', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'cat', name: 'CatBoost', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'nbt_tlf', name: 'NBT-TLF', type: 'neural_ranking', description: '', supports_shap: false, supports_counterfactual: true },
-                { id: 'lr', name: 'Logistic Regression', type: 'linear', description: '', supports_shap: false, supports_counterfactual: true },
-                { id: 'rf', name: 'Random Forest', type: 'ensemble', description: '', supports_shap: true, supports_counterfactual: true },
+                { model_id: 'xgb', display_name: 'XGBoost', type: 'Gradient Boosting', interpretable: '✓ (SHAP)', speed: 'Fast', metrics: { overall: { accuracy: 0.72, logloss: 0.85, brier: 0.18 }, win: null, podium: null } },
+                { model_id: 'lgbm', display_name: 'LightGBM', type: 'Gradient Boosting', interpretable: '✓ (SHAP)', speed: 'Fast', metrics: { overall: { accuracy: 0.71, logloss: 0.87, brier: 0.19 }, win: null, podium: null } },
             ])
         } finally {
             setModelsLoading(false)
@@ -98,7 +97,7 @@ export default function CounterfactualPage({ params }: { params: { raceId: strin
                                 <option>Loading models...</option>
                             ) : (
                                 models.map((m) => (
-                                    <option key={m.id} value={m.id}>{m.name}</option>
+                                    <option key={m.model_id} value={m.model_id}>{m.display_name}</option>
                                 ))
                             )}
                         </select>

@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getRacePrediction, PredictionResponse, getModels, ModelInfo } from '@/utils/api'
+import { getRacePrediction, PredictionResponse, getMetaModels, MetaModelInfo } from '@/utils/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function RaceExplorerPage() {
     const [raceId, setRaceId] = useState('2024_01')
     const [model, setModel] = useState('xgb')
-    const [models, setModels] = useState<ModelInfo[]>([])
+    const [models, setModels] = useState<MetaModelInfo[]>([])
     const [modelsLoading, setModelsLoading] = useState(true)
     const [prediction, setPrediction] = useState<PredictionResponse | null>(null)
     const [loading, setLoading] = useState(false)
@@ -19,20 +19,13 @@ export default function RaceExplorerPage() {
 
     const loadModels = async () => {
         try {
-            const data = await getModels()
+            const data = await getMetaModels()
             setModels(data.models)
         } catch (err) {
             console.error('Failed to load models:', err)
-            // Fallback to hardcoded list
             setModels([
-                { id: 'xgb', name: 'XGBoost', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'lgbm', name: 'LightGBM', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'cat', name: 'CatBoost', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'nbt_tlf', name: 'NBT-TLF', type: 'neural_ranking', description: '', supports_shap: false, supports_counterfactual: true },
-                { id: 'lr', name: 'Logistic Regression', type: 'linear', description: '', supports_shap: false, supports_counterfactual: true },
-                { id: 'rf', name: 'Random Forest', type: 'ensemble', description: '', supports_shap: true, supports_counterfactual: true },
-                { id: 'quali_freq', name: 'Qualifying Frequency', type: 'baseline', description: '', supports_shap: false, supports_counterfactual: false },
-                { id: 'elo', name: 'Elo Rating', type: 'baseline', description: '', supports_shap: false, supports_counterfactual: false },
+                { model_id: 'xgb', display_name: 'XGBoost', type: 'Gradient Boosting', interpretable: '✓ (SHAP)', speed: 'Fast', metrics: { overall: { accuracy: 0.72, logloss: 0.85, brier: 0.18 }, win: null, podium: null } },
+                { model_id: 'lgbm', display_name: 'LightGBM', type: 'Gradient Boosting', interpretable: '✓ (SHAP)', speed: 'Fast', metrics: { overall: { accuracy: 0.71, logloss: 0.87, brier: 0.19 }, win: null, podium: null } },
             ])
         } finally {
             setModelsLoading(false)
@@ -97,7 +90,7 @@ export default function RaceExplorerPage() {
                                 <option>Loading models...</option>
                             ) : (
                                 models.map((m) => (
-                                    <option key={m.id} value={m.id}>{m.name}</option>
+                                    <option key={m.model_id} value={m.model_id}>{m.display_name}</option>
                                 ))
                             )}
                         </select>
