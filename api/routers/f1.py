@@ -137,11 +137,11 @@ async def predict_race_endpoint(
             try:
                 available_races = features["race_id"].unique().tolist()[:10]
                 detail = f"Race '{race_id}' not found. Available races include: {', '.join(available_races)}"
-            except:
+            except Exception:
                 detail = f"Race '{race_id}' not found in data."
         else:
             detail = error_msg
-        
+
         logger.warning(f"Bad request for race prediction: {detail}")
         raise HTTPException(status_code=400, detail=detail) from e
     except FileNotFoundError as e:

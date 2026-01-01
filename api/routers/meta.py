@@ -131,16 +131,16 @@ async def get_races(season: int = 2024, _next: bool = False, limit: int = 50):
     try:
         # Import dependencies here to avoid circular imports
         from pathlib import Path
-        import pandas as pd
-        from api.deps import get_config, get_data_cache, DataCache
-        
+
+        from api.deps import DataCache, get_config, get_data_cache
+
         # Get config and cache
         config = get_config()
         data_cache: DataCache = get_data_cache()
-        
+
         # Load features to get actual available races
         features_path = Path(config.data_dir) / "features" / "features.parquet"
-        
+
         # Check if features file exists
         if not features_path.exists():
             logger.warning(f"Features file not found at {features_path}, returning test data")
@@ -150,10 +150,10 @@ async def get_races(season: int = 2024, _next: bool = False, limit: int = 50):
                     {"race_id": "2024_01", "name": "Bahrain Grand Prix", "date": "2024-03-02", "season": 2024, "round": 1},
                 ]
             }
-        
+
         # Load features
         features = data_cache.get_features(features_path)
-        
+
         # Get unique races with metadata
         races_df = (
             features.groupby("race_id")
@@ -164,7 +164,7 @@ async def get_races(season: int = 2024, _next: bool = False, limit: int = 50):
             })
             .reset_index()
         )
-        
+
         # Race name mapping for known races
         race_names = {
             "2024_01": "Bahrain Grand Prix",
@@ -192,7 +192,7 @@ async def get_races(season: int = 2024, _next: bool = False, limit: int = 50):
             "2024_23": "Qatar Grand Prix",
             "2024_24": "Abu Dhabi Grand Prix",
         }
-        
+
         # Convert to list of dicts with display names
         race_list = []
         for _, row in races_df.iterrows():
@@ -204,20 +204,20 @@ async def get_races(season: int = 2024, _next: bool = False, limit: int = 50):
                 "season": int(row["season"]),
                 "round": int(row["round"])
             })
-        
+
         # Filter by season if requested
         if season:
             race_list = [r for r in race_list if r["season"] == season]
-        
+
         # Sort by season and round
         race_list.sort(key=lambda x: (x["season"], x["round"]))
-        
+
         # Apply limit
         race_list = race_list[:limit]
-        
+
         logger.info(f"Returning {len(race_list)} races for season {season}")
         return {"races": race_list}
-        
+
     except Exception as e:
         logger.error(f"Failed to load races: {e}")
         # Fallback to  basic test data
