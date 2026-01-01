@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.config import get_settings
 from api.core.logging import LoggingMiddleware, setup_logging
-from api.routers import f1, health, models, meta
+from api.routers import f1, health, meta, models
 
 # Initialize settings and logging
 settings = get_settings()

@@ -114,7 +114,7 @@ async def get_models():
 
 
 @router.get("/races")
-async def get_races(season: int = 2026, next: bool = False, limit: int = 50):
+async def get_races(season: int = 2026, _next: bool = False, limit: int = 50):
     """Get list of races with metadata.
 
     Args:
