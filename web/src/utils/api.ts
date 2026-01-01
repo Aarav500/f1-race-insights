@@ -54,6 +54,20 @@ export interface BacktestResults {
     results: Record<string, any>
 }
 
+export interface ModelInfo {
+    id: string
+    name: string
+    type: string
+    description: string
+    supports_shap: boolean
+    supports_counterfactual: boolean
+}
+
+export interface ModelsResponse {
+    models: ModelInfo[]
+    count: number
+}
+
 // API functions
 export async function getRacePrediction(
     raceId: string,
@@ -97,19 +111,17 @@ export async function postCounterfactual(
     return response.data
 }
 
+export async function getModels(): Promise<ModelsResponse> {
+    const response = await api.get('/api/f1/models')
+    return response.data
+}
+
 export async function getBacktestResults(): Promise<BacktestResults> {
-    // Try to fetch from reports endpoint if available
-    // Fallback to static file
-    try {
-        const response = await api.get('/reports/backtest.json')
-        return response.data
-    } catch (error) {
-        // If endpoint doesn't exist, return placeholder
-        throw new Error('Backtest results not available. Run: python scripts/backtest.py')
-    }
+    const response = await api.get('/api/f1/reports/backtest')
+    return response.data
 }
 
 export async function getHealthCheck(): Promise<{ status: string }> {
-    const response = await api.get('/health')
+    const response = await api.get('/api/health')
     return response.data
 }

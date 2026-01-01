@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getRacePrediction, PredictionResponse } from '@/utils/api'
+import { getRacePrediction, PredictionResponse, getModels, ModelInfo } from '@/utils/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -9,13 +9,41 @@ import Link from 'next/link'
 export default function RacePage({ params }: { params: { raceId: string } }) {
     const { raceId } = params
     const [model, setModel] = useState('xgb')
+    const [models, setModels] = useState<ModelInfo[]>([])
+    const [modelsLoading, setModelsLoading] = useState(true)
     const [prediction, setPrediction] = useState<PredictionResponse | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
+        loadModels()
+    }, [])
+
+    useEffect(() => {
         loadPrediction()
     }, [raceId, model])
+
+    const loadModels = async () => {
+        try {
+            const data = await getModels()
+            setModels(data.models)
+        } catch (err) {
+            console.error('Failed to load models:', err)
+            // Fallback to hardcoded list
+            setModels([
+                { id: 'xgb', name: 'XGBoost', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
+                { id: 'lgbm', name: 'LightGBM', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
+                { id: 'cat', name: 'CatBoost', type: 'gradient_boosting', description: '', supports_shap: true, supports_counterfactual: true },
+                { id: 'nbt_tlf', name: 'NBT-TLF', type: 'neural_ranking', description: '', supports_shap: false, supports_counterfactual: true },
+                { id: 'lr', name: 'Logistic Regression', type: 'linear', description: '', supports_shap: false, supports_counterfactual: true },
+                { id: 'rf', name: 'Random Forest', type: 'ensemble', description: '', supports_shap: true, supports_counterfactual: true },
+                { id: 'quali_freq', name: 'Qualifying Frequency', type: 'baseline', description: '', supports_shap: false, supports_counterfactual: false },
+                { id: 'elo', name: 'Elo Rating', type: 'baseline', description: '', supports_shap: false, supports_counterfactual: false },
+            ])
+        } finally {
+            setModelsLoading(false)
+        }
+    }
 
     const loadPrediction = async () => {
         setLoading(true)
@@ -62,16 +90,16 @@ export default function RacePage({ params }: { params: { raceId: string } }) {
                 <select
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    className="w-full md:w-64 px-4 py-2 border border-f1-gray-300 rounded-lg focus:ring-2 focus:ring-f1-red focus:border-transparent"
+                    disabled={modelsLoading}
+                    className="w-full md:w-64 px-4 py-2 border border-f1-gray-300 rounded-lg focus:ring-2 focus:ring-f1-red focus:border-transparent disabled:bg-f1-gray-100"
                 >
-                    <option value="xgb">XGBoost</option>
-                    <option value="lgbm">LightGBM</option>
-                    <option value="cat">CatBoost</option>
-                    <option value="lr">Logistic Regression</option>
-                    <option value="rf">Random Forest</option>
-                    <option value="quali_freq">Qualifying Frequency</option>
-                    <option value="elo">Elo Rating</option>
-                    <option value="nbt_tlf">NBT-TLF</option>
+                    {modelsLoading ? (
+                        <option>Loading models...</option>
+                    ) : (
+                        models.map((m) => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                        ))
+                    )}
                 </select>
             </div>
 

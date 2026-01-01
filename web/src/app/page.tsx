@@ -30,14 +30,6 @@ export default function HomePage() {
                         <Github className="w-5 h-5" />
                         GitHub
                     </a>
-                    <a
-                        href="http://localhost:8000/docs"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="border border-f1-gray-300 text-f1-black px-6 py-3 rounded-lg hover:bg-f1-gray-100 transition"
-                    >
-                        API Docs
-                    </a>
                 </div>
             </div>
 
@@ -110,20 +102,13 @@ export default function HomePage() {
             </div>
 
             {/* Technical Resources */}
-            <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div className="grid md:grid-cols-1 gap-8 mb-16">
                 <ResourceCard
                     icon={<BookOpen className="w-6 h-6 text-f1-red" />}
                     title="Technical Paper"
                     description="Paper-ready documentation with model formulations, evaluation protocol, and results."
                     href="https://github.com/Aarav500/f1-race-insights/blob/main/docs/F1.md"
                     label="Read Paper"
-                />
-                <ResourceCard
-                    icon={<FileText className="w-6 h-6 text-f1-red" />}
-                    title="API Documentation"
-                    description="Interactive Swagger UI with all endpoints, schemas, and request/response examples."
-                    href="http://localhost:8000/docs"
-                    label="Explore API"
                 />
             </div>
 
