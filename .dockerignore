@@ -23,8 +23,11 @@ env/
 *.swn
 .DS_Store
 
-# Data directories (should be mounted as volumes)
+# Data directories (should be mounted as volumes in production)
+# But include sample features.parquet for demo/fallback
 data/
+!data/features/
+!data/features/features.parquet
 models/
 reports/
 metrics/
