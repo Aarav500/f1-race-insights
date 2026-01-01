@@ -8,6 +8,45 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/meta", tags=["metadata"])
 
 
+@router.get("/seasons")
+async def get_seasons():
+    """Get list of available seasons from data.
+    
+    Returns available seasons sorted descending (latest first).
+    """
+    try:
+        from pathlib import Path
+
+        from api.deps import DataCache, get_config, get_data_cache
+
+        # Get config and cache
+        config = get_config()
+        data_cache: DataCache = get_data_cache()
+
+        # Load features to get actual available seasons
+        features_path = Path(config.data_dir) / "features" / "features.parquet"
+
+        # Check if features file exists
+        if not features_path.exists():
+            logger.warning(f"Features file not found at {features_path}, returning default")
+            return {"seasons": [2024], "latest": 2024}
+
+        # Load features
+        features = data_cache.get_features(features_path)
+
+        # Get unique seasons and sort descending (latest first)
+        seasons = sorted(features["season"].unique().tolist(), reverse=True)
+        latest = seasons[0] if seasons else 2024
+
+        logger.info(f"Returning {len(seasons)} seasons, latest: {latest}")
+        return {"seasons": seasons, "latest": latest}
+
+    except Exception as e:
+        logger.error(f"Failed to load seasons: {e}")
+        # Fallback to default
+        return {"seasons": [2024], "latest": 2024}
+
+
 @router.get("/models")
 async def get_models():
     """Get list of available models with rich metadata.

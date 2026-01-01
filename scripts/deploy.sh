@@ -64,24 +64,39 @@ fi
 
 echo ""
 
-# Step 2: Run deployment scripts
-log_step "STEP 2: Running deployment scripts"
+# Step 2: Run deployment script
+log_step "STEP 2: Running deployment script"
 echo ""
 
-# Run EC2 deployment script
-DEPLOY_SCRIPT="$REPO_ROOT/deploy/ec2_deploy.sh"
+# Run ops/deploy.sh (idempotent deployment with disk checks)
+DEPLOY_SCRIPT="$REPO_ROOT/ops/deploy.sh"
 if [ -f "$DEPLOY_SCRIPT" ]; then
-    log_info "Running EC2 deployment script..."
+    log_info "Running idempotent deployment script..."
     echo ""
-    if bash "$DEPLOY_SCRIPT" "$@"; then
-        log_success "EC2 deployment completed"
+    # Pass --soft-clean by default, but allow override via command line args
+    DEPLOY_MODE="${1:---soft-clean}"
+    if sudo bash "$DEPLOY_SCRIPT" "$DEPLOY_MODE"; then
+        log_success "Deployment completed"
     else
-        log_error "EC2 deployment failed"
+        log_error "Deployment failed"
         exit 1
     fi
 else
-    log_error "Deployment script not found: $DEPLOY_SCRIPT"
-    exit 1
+    # Fallback to legacy EC2 deployment script
+    LEGACY_DEPLOY="$REPO_ROOT/deploy/ec2_deploy.sh"
+    if [ -f "$LEGACY_DEPLOY" ]; then
+        log_info "ops/deploy.sh not found, using legacy EC2 deployment..."
+        echo ""
+        if bash "$LEGACY_DEPLOY" "$@"; then
+            log_success "EC2 deployment completed"
+        else
+            log_error "EC2 deployment failed"
+            exit 1
+        fi
+    else
+        log_error "No deployment script found"
+        exit 1
+    fi
 fi
 
 echo ""

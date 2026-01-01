@@ -184,6 +184,65 @@ docker run -p 8000:8000 \
 
 See [docker/README.md](docker/README.md) for details.
 
+## Deployment
+
+### Quick Deploy (Production)
+
+Deploy to a remote server with idempotent deployment script:
+
+```bash
+# Standard deployment (soft clean + redeploy)
+sudo bash ops/deploy.sh --soft-clean
+
+# Hard reset (WARNING: destroys all Docker data)
+# Only use for stateless apps or with backups
+sudo bash ops/deploy.sh --hard-reset
+
+# With volume pruning (if disk space is low)
+sudo bash ops/deploy.sh --soft-clean --prune-volumes
+```
+
+The deployment script:
+- ✅ Checks disk space (requires ≥20GB free)
+- ✅ Stops containers and prunes Docker images
+- ✅ Updates code from GitHub (main branch)
+- ✅ Pulls latest Docker images
+- ✅ Starts services with docker-compose
+- ✅ Runs health checks
+- ✅ Logs everything to `/var/log/antigravity/deploy.log`
+
+### Google Cloud (GCE) Auto-Deploy
+
+For automated deployment on Google Compute Engine VMs:
+
+```bash
+# Create VM with startup script
+gcloud compute instances create f1-insights \
+  --zone=us-central1-a \
+  --machine-type=e2-medium \
+  --metadata-from-file startup-script=ops/gce-startup.sh
+
+# Or add to existing VM
+gcloud compute instances add-metadata f1-insights \
+  --zone=us-central1-a \
+  --metadata-from-file startup-script=ops/gce-startup.sh
+
+# Using remote URL
+gcloud compute instances create f1-insights \
+  --metadata startup-script-url=https://raw.githubusercontent.com/Aarav500/f1-race-insights/main/ops/gce-startup.sh
+```
+
+The GCE startup script auto-installs Git + Docker and deploys on VM boot.
+
+### Health Check
+
+```bash
+bash ops/healthcheck.sh
+```
+
+Validates that API (port 8000) and Web (port 3000) are healthy.
+
+
 ## Testing
 
 ```bash

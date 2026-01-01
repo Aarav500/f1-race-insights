@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { getRacePrediction, PredictionResponse, getMetaModels, MetaModelInfo } from '@/utils/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import RacePicker from '@/components/RacePicker'
 
 export default function RaceExplorerPage() {
-    const [raceId, setRaceId] = useState('2024_01')
+    const [raceId, setRaceId] = useState('')
+    const [raceName, setRaceName] = useState('')
     const [model, setModel] = useState('xgb')
     const [models, setModels] = useState<MetaModelInfo[]>([])
     const [modelsLoading, setModelsLoading] = useState(true)
@@ -32,11 +34,24 @@ export default function RaceExplorerPage() {
         }
     }
 
-    const handlePredict = async () => {
+    const handleRaceSelect = (selectedRaceId: string, selectedRaceName: string) => {
+        setRaceId(selectedRaceId)
+        setRaceName(selectedRaceName)
+        // Auto-predict when race is selected
+        handlePredict(selectedRaceId)
+    }
+
+    const handlePredict = async (targetRaceId?: string) => {
+        const useRaceId = targetRaceId || raceId
+        if (!useRaceId) {
+            setError('Please select a race')
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
-            const data = await getRacePrediction(raceId, model)
+            const data = await getRacePrediction(useRaceId, model)
             setPrediction(data)
         } catch (err: any) {
             setError(err.message || 'Failed to load predictions')
@@ -62,20 +77,14 @@ export default function RaceExplorerPage() {
 
             {/* Controls */}
             <div className="bg-white rounded-lg shadow p-6 mb-8">
-                <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-2 text-f1-gray-700">
-                            Race ID
-                        </label>
-                        <input
-                            type="text"
-                            value={raceId}
-                            onChange={(e) => setRaceId(e.target.value)}
-                            className="w-full px-4 py-2 border border-f1-gray-300 rounded-lg focus:ring-2 focus:ring-f1-red focus:border-transparent"
-                            placeholder="e.g., 2024_01"
-                        />
-                    </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                    {/* Race Picker */}
+                    <RacePicker
+                        onRaceSelect={handleRaceSelect}
+                        label="Select Race"
+                    />
 
+                    {/* Model Selection */}
                     <div>
                         <label className="block text-sm font-medium mb-2 text-f1-gray-700">
                             Model
@@ -95,16 +104,17 @@ export default function RaceExplorerPage() {
                             )}
                         </select>
                     </div>
+                </div>
 
-                    <div className="flex items-end">
-                        <button
-                            onClick={handlePredict}
-                            disabled={loading}
-                            className="w-full bg-f1-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition disabled:bg-f1-gray-400"
-                        >
-                            {loading ? 'Loading...' : 'Get Predictions'}
-                        </button>
-                    </div>
+                {/* Predict Button */}
+                <div className="mt-4">
+                    <button
+                        onClick={() => handlePredict()}
+                        disabled={loading || !raceId}
+                        className="w-full bg-f1-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition disabled:bg-f1-gray-400"
+                    >
+                        {loading ? 'Loading...' : 'Get Predictions'}
+                    </button>
                 </div>
             </div>
 

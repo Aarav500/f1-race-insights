@@ -61,7 +61,14 @@ test.describe('F1 Race Insights Smoke Tests', () => {
 
         // Check for key elements
         await expect(page.locator('h1')).toContainText('F1 Race Insights')
-        await expect(page.locator('text=Try Predictions')).toBeVisible()
+
+        // Verify RacePicker is present (not hardcoded race link)
+        const racePickerLabel = page.locator('label:has-text("Try Predictions - Select a Race")')
+        await expect(racePickerLabel).toBeVisible()
+
+        // Verify season and race dropdowns exist
+        const selects = await page.locator('select').count()
+        expect(selects).toBeGreaterThanOrEqual(2) // Should have at least season + race selects
 
         // Ensure no hardcoded localhost:8000 links exist
         const localhostLinks = await page.locator('a[href*="localhost:8000"]').count()
@@ -122,15 +129,27 @@ test.describe('F1 Race Insights Smoke Tests', () => {
         expect(options).toBeGreaterThan(0)
     })
 
-    test('backtest page does not crash', async ({ page }) => {
+    test('backtest page loads and shows data or error', async ({ page }) => {
         await page.goto('/backtest')
 
         await page.waitForLoadState('networkidle')
 
-        // Check page loaded (should show either results or empty state)
+        // Check page loaded
         await expect(page.locator('h1')).toContainText('Backtest')
 
-        // Should not have thrown unhandled errors (checked in afterEach)
+        // Should show either:
+        // 1. Model Comparison table with data
+        // 2. Error message about missing backtest report
+        const hasTable = await page.locator('table').count() > 0
+        const hasError = await page.locator('text=/backtest report/i').count() > 0
+
+        expect(hasTable || hasError).toBe(true)
+
+        // If table exists, verify it has content
+        if (hasTable) {
+            const rows = await page.locator('tbody tr').count()
+            expect(rows).toBeGreaterThan(0)
+        }
     })
 
     test('navigation and back button work', async ({ page }) => {

@@ -44,7 +44,11 @@ export interface CounterfactualResponse {
     model_name: string
     baseline: PredictionOutcome
     counterfactual: PredictionOutcome
-    delta: PredictionOutcome
+    delta: {
+        win_prob: number
+        podium_prob: number
+        expected_finish: number
+    }
     changes: Record<string, number>
 }
 
@@ -103,6 +107,11 @@ export interface RacesResponse {
     races: RaceInfo[]
 }
 
+export interface SeasonsResponse {
+    seasons: number[]
+    latest: number
+}
+
 // API functions
 export async function getRacePrediction(
     raceId: string,
@@ -156,10 +165,17 @@ export async function getMetaModels(): Promise<MetaModelsResponse> {
     return response.data
 }
 
-export async function getRaces(season: number = 2026, limit: number = 50): Promise<RacesResponse> {
-    const response = await api.get('/api/meta/races', {
-        params: { season, limit },
-    })
+export async function getSeasons(): Promise<SeasonsResponse> {
+    const response = await api.get('/api/meta/seasons')
+    return response.data
+}
+
+export async function getRaces(season?: number, limit: number = 50): Promise<RacesResponse> {
+    const params: any = { limit }
+    if (season) {
+        params.season = season
+    }
+    const response = await api.get('/api/meta/races', { params })
     return response.data
 }
 

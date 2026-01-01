@@ -1,7 +1,17 @@
+'use client'
+
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { BarChart3, TrendingUp, FileText, Github, BookOpen, Cpu } from 'lucide-react'
+import RacePicker from '@/components/RacePicker'
 
 export default function HomePage() {
+    const router = useRouter()
+
+    const handleRaceSelect = (raceId: string, raceName: string) => {
+        router.push(`/race/${raceId}`)
+    }
+
     return (
         <div className="container mx-auto px-4 py-12">
             {/* Hero Section */}
@@ -14,13 +24,16 @@ export default function HomePage() {
                     featuring 8 models from simple baselines to neural ranking networks with
                     interpretability and counterfactual analysis.
                 </p>
+
+                {/* Race Picker for quick navigation */}
+                <div className="max-w-2xl mx-auto mb-6">
+                    <RacePicker
+                        onRaceSelect={handleRaceSelect}
+                        label="Try Predictions - Select a Race"
+                    />
+                </div>
+
                 <div className="flex gap-4 justify-center flex-wrap">
-                    <Link
-                        href="/race/2024_01"
-                        className="bg-f1-red text-white px-6 py-3 rounded-lg hover:bg-red-700 transition"
-                    >
-                        Try Predictions
-                    </Link>
                     <a
                         href="https://github.com/Aarav500/f1-race-insights"
                         target="_blank"
