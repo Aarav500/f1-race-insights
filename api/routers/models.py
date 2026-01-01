@@ -8,13 +8,13 @@ router = APIRouter(prefix="/api/f1", tags=["models"])
 @router.get("/models")
 async def get_available_models():
     """Get list of available models with metadata.
-    
+
     Returns models sorted by approximate accuracy (best first) based on
     typical backtest performance for win probability prediction.
-    
+
     Returns:
         Dictionary with models list and metadata
-        
+
     Example:
         GET /api/f1/models
     """
@@ -87,5 +87,5 @@ async def get_available_models():
             "supports_counterfactual": False,
         },
     ]
-    
+
     return {"models": models, "count": len(models)}
