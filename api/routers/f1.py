@@ -130,8 +130,22 @@ async def predict_race_endpoint(
         return response
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        # Race not found or invalid  model - return 400 with helpful message
+        error_msg = str(e)
+        if "not found in data" in error_msg.lower():
+            # Provide list of available races
+            try:
+                available_races = features["race_id"].unique().tolist()[:10]
+                detail = f"Race '{race_id}' not found. Available races include: {', '.join(available_races)}"
+            except:
+                detail = f"Race '{race_id}' not found in data."
+        else:
+            detail = error_msg
+        
+        logger.warning(f"Bad request for race prediction: {detail}")
+        raise HTTPException(status_code=400, detail=detail) from e
     except FileNotFoundError as e:
+        logger.error(f"Model or data file not found: {e}")
         raise HTTPException(status_code=404, detail=f"Model or data not found: {e}") from e
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
@@ -229,8 +243,12 @@ async def counterfactual_endpoint(
         return response
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        # Invalid request - return 400 with helpful message
+        error_msg = str(e)
+        logger.warning(f"Bad request for counterfactual: {error_msg}")
+        raise HTTPException(status_code=400, detail=error_msg) from e
     except FileNotFoundError as e:
+        logger.error(f"Model or data file not found: {e}")
         raise HTTPException(status_code=404, detail=f"Model or data not found: {e}") from e
     except Exception as e:
         logger.error(f"Counterfactual failed: {e}")

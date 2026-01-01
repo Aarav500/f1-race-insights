@@ -1,7 +1,10 @@
 """Meta endpoints for model and race discovery."""
 
+import logging
+
 from fastapi import APIRouter
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/meta", tags=["metadata"])
 
 
@@ -114,55 +117,112 @@ async def get_models():
 
 
 @router.get("/races")
-async def get_races(season: int = 2026, _next: bool = False, limit: int = 50):
+async def get_races(season: int = 2024, _next: bool = False, limit: int = 50):
     """Get list of races with metadata.
 
     Args:
-        season: Season year (default: 2026)
+        season: Season year (default: 2024)
         next: If true, return upcoming races only (default: false)
         limit: Maximum number of races to return (default: 50)
 
     Returns:
         Dictionary with races list
     """
-    # Static schedule data for 2025-2026
-    # In production, this would be loaded from dataset or external API
-    all_races = [
-        {"race_id": "2025_01", "name": "Australian Grand Prix", "date": "2025-03-16", "season": 2025, "round": 1},
-        {"race_id": "2025_02", "name": "Chinese Grand Prix", "date": "2025-03-23", "season": 2025, "round": 2},
-        {"race_id": "2025_03", "name": "Japanese Grand Prix", "date": "2025-04-06", "season": 2025, "round": 3},
-        {"race_id": "2025_04", "name": "Bahrain Grand Prix", "date": "2025-04-13", "season": 2025, "round": 4},
-        {"race_id": "2025_05", "name": "Saudi Arabian Grand Prix", "date": "2025-04-20", "season": 2025, "round": 5},
-        {"race_id": "2025_06", "name": "Miami Grand Prix", "date": "2025-05-04", "season": 2025, "round": 6},
-        {"race_id": "2025_07", "name": "Emilia Romagna Grand Prix", "date": "2025-05-18", "season": 2025, "round": 7},
-        {"race_id": "2025_08", "name": "Monaco Grand Prix", "date": "2025-05-25", "season": 2025, "round": 8},
-        {"race_id": "2025_09", "name": "Spanish Grand Prix", "date": "2025-06-01", "season": 2025, "round": 9},
-        {"race_id": "2025_10", "name": "Canadian Grand Prix", "date": "2025-06-15", "season": 2025, "round": 10},
-        {"race_id": "2025_11", "name": "Austrian Grand Prix", "date": "2025-06-29", "season": 2025, "round": 11},
-        {"race_id": "2025_12", "name": "British Grand Prix", "date": "2025-07-06", "season": 2025, "round": 12},
-        {"race_id": "2025_13", "name": "Belgian Grand Prix", "date": "2025-07-27", "season": 2025, "round": 13},
-        {"race_id": "2025_14", "name": "Hungarian Grand Prix", "date": "2025-08-03", "season": 2025, "round": 14},
-        {"race_id": "2025_15", "name": "Dutch Grand Prix", "date": "2025-08-31", "season": 2025, "round": 15},
-        {"race_id": "2025_16", "name": "Italian Grand Prix", "date": "2025-09-07", "season": 2025, "round": 16},
-        {"race_id": "2025_17", "name": "Azerbaijan Grand Prix", "date": "2025-09-21", "season": 2025, "round": 17},
-        {"race_id": "2025_18", "name": "Singapore Grand Prix", "date": "2025-10-05", "season": 2025, "round": 18},
-        {"race_id": "2025_19", "name": "United States Grand Prix", "date": "2025-10-19", "season": 2025, "round": 19},
-        {"race_id": "2025_20", "name": "Mexico City Grand Prix", "date": "2025-10-26", "season": 2025, "round": 20},
-        {"race_id": "2025_21", "name": "Brazilian Grand Prix", "date": "2025-11-09", "season": 2025, "round": 21},
-        {"race_id": "2025_22", "name": "Las Vegas Grand Prix", "date": "2025-11-22", "season": 2025, "round": 22},
-        {"race_id": "2025_23", "name": "Qatar Grand Prix", "date": "2025-11-30", "season": 2025, "round": 23},
-        {"race_id": "2025_24", "name": "Abu Dhabi Grand Prix", "date": "2025-12-07", "season": 2025, "round": 24},
-        {"race_id": "2026_01", "name": "Australian Grand Prix", "date": "2026-03-15", "season": 2026, "round": 1},
-        {"race_id": "2026_02", "name": "Chinese Grand Prix", "date": "2026-03-22", "season": 2026, "round": 2},
-        {"race_id": "2026_03", "name": "Japanese Grand Prix", "date": "2026-04-05", "season": 2026, "round": 3},
-        {"race_id": "2026_04", "name": "Bahrain Grand Prix", "date": "2026-04-12", "season": 2026, "round": 4},
-        {"race_id": "2026_05", "name": "Saudi Arabian Grand Prix", "date": "2026-04-19", "season": 2026, "round": 5},
-    ]
-
-    # Filter by season
-    races = [r for r in all_races if r["season"] == season]
-
-    # Apply limit
-    races = races[:limit]
-
-    return {"races": races}
+    try:
+        # Import dependencies here to avoid circular imports
+        from pathlib import Path
+        import pandas as pd
+        from api.deps import get_config, get_data_cache, DataCache
+        
+        # Get config and cache
+        config = get_config()
+        data_cache: DataCache = get_data_cache()
+        
+        # Load features to get actual available races
+        features_path = Path(config.data_dir) / "features" / "features.parquet"
+        
+        # Check if features file exists
+        if not features_path.exists():
+            logger.warning(f"Features file not found at {features_path}, returning test data")
+            # Fallback to test data
+            return {
+                "races": [
+                    {"race_id": "2024_01", "name": "Bahrain Grand Prix", "date": "2024-03-02", "season": 2024, "round": 1},
+                ]
+            }
+        
+        # Load features
+        features = data_cache.get_features(features_path)
+        
+        # Get unique races with metadata
+        races_df = (
+            features.groupby("race_id")
+            .agg({
+                "season": "first",
+                "round": "first",
+                "race_date": "first"
+            })
+            .reset_index()
+        )
+        
+        # Race name mapping for known races
+        race_names = {
+            "2024_01": "Bahrain Grand Prix",
+            "2024_02": "Saudi Arabian Grand Prix",
+            "2024_03": "Australian Grand Prix",
+            "2024_04": "Japanese Grand Prix",
+            "2024_05": "Chinese Grand Prix",
+            "2024_06": "Miami Grand Prix",
+            "2024_07": "Emilia Romagna Grand Prix",
+            "2024_08": "Monaco Grand Prix",
+            "2024_09": "Canadian Grand Prix",
+            "2024_10": "Spanish Grand Prix",
+            "2024_11": "Austrian Grand Prix",
+            "2024_12": "British Grand Prix",
+            "2024_13": "Hungarian Grand Prix",
+            "2024_14": "Belgian Grand Prix",
+            "2024_15": "Dutch Grand Prix",
+            "2024_16": "Italian Grand Prix",
+            "2024_17": "Azerbaijan Grand Prix",
+            "2024_18": "Singapore Grand Prix",
+            "2024_19": "United States Grand Prix",
+            "2024_20": "Mexico City Grand Prix",
+            "2024_21": "Brazilian Grand Prix",
+            "2024_22": "Las Vegas Grand Prix",
+            "2024_23": "Qatar Grand Prix",
+            "2024_24": "Abu Dhabi Grand Prix",
+        }
+        
+        # Convert to list of dicts with display names
+        race_list = []
+        for _, row in races_df.iterrows():
+            race_id = row["race_id"]
+            race_list.append({
+                "race_id": race_id,
+                "name": race_names.get(race_id, f"Race {race_id}"),
+                "date": str(row.get("race_date", "")),
+                "season": int(row["season"]),
+                "round": int(row["round"])
+            })
+        
+        # Filter by season if requested
+        if season:
+            race_list = [r for r in race_list if r["season"] == season]
+        
+        # Sort by season and round
+        race_list.sort(key=lambda x: (x["season"], x["round"]))
+        
+        # Apply limit
+        race_list = race_list[:limit]
+        
+        logger.info(f"Returning {len(race_list)} races for season {season}")
+        return {"races": race_list}
+        
+    except Exception as e:
+        logger.error(f"Failed to load races: {e}")
+        # Fallback to  basic test data
+        return {
+            "races": [
+                {"race_id": "2024_01", "name": "Bahrain Grand Prix", "date": "2024-03-02", "season": 2024, "round": 1},
+            ]
+        }

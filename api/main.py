@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.config import get_settings
 from api.core.logging import LoggingMiddleware, setup_logging
-from api.routers import f1, health, meta, models
+from api.routers import f1, health, meta
 
 # Initialize settings and logging
 settings = get_settings()
@@ -33,7 +33,6 @@ app.add_middleware(LoggingMiddleware)
 # Include routers
 app.include_router(health.router)
 app.include_router(f1.router)
-app.include_router(models.router)
 app.include_router(meta.router)
 
 

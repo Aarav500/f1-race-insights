@@ -77,20 +77,20 @@ def test_get_races_default():
 
 def test_get_races_by_season():
     """Test /meta/races with season filter."""
-    response = client.get("/meta/races?season=2025")
+    response = client.get("/meta/races?season=2024")
     assert response.status_code == 200
 
     data = response.json()
     races = data["races"]
 
-    # All races should be for 2025
+    # All races should be for 2024
     for race in races:
-        assert race["season"] == 2025
+        assert race["season"] == 2024
 
 
 def test_get_races_with_limit():
     """Test /meta/races with limit param."""
-    response = client.get("/meta/races?season=2025&limit=5")
+    response = client.get("/meta/races?season=2024&limit=5")
     assert response.status_code == 200
 
     data = response.json()
@@ -99,12 +99,12 @@ def test_get_races_with_limit():
 
 def test_race_names_not_ids():
     """Test that race names are human-readable, not IDs."""
-    response = client.get("/meta/races?season=2026")
+    response = client.get("/meta/races?season=2024")
     data = response.json()
 
     if len(data["races"]) > 0:
         race = data["races"][0]
         # Name should contain "Grand Prix"
         assert "Grand Prix" in race["name"], f"Got name: {race['name']}"
-        # race_id should be like "2026_01"
-        assert race["race_id"].startswith("2026_")
+        # race_id should be like "2024_01"
+        assert race["race_id"].startswith("2024_")
