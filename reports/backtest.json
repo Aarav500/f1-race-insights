@@ -1,0 +1,60 @@
+{
+  "run_timestamp": "2026-01-02T10:31:44.367628",
+  "config": {
+    "data_path": "data\\features\\features.parquet",
+    "task": "win",
+    "min_train_races": 2,
+    "models": [
+      "xgb",
+      "lgbm",
+      "lr",
+      "rf"
+    ]
+  },
+  "results": {
+    "xgb": {
+      "n_test_samples": 24,
+      "n_test_races": 3,
+      "metrics": {
+        "auc": 0.7736842105263158,
+        "logloss": 0.40470713144137194,
+        "brier": 0.11503376211814258,
+        "ece": 0.1143908128918459
+      },
+      "error": null
+    },
+    "lgbm": {
+      "n_test_samples": 24,
+      "n_test_races": 3,
+      "metrics": {
+        "auc": 0.5421052631578948,
+        "logloss": 0.5294259554442474,
+        "brier": 0.16959635416666666,
+        "ece": 0.07291666666666669
+      },
+      "error": null
+    },
+    "lr": {
+      "n_test_samples": 24,
+      "n_test_races": 3,
+      "metrics": {
+        "auc": 0.9473684210526316,
+        "logloss": 0.37318048242676555,
+        "brier": 0.0751651923048282,
+        "ece": 0.0879737444161331
+      },
+      "error": null
+    },
+    "rf": {
+      "n_test_samples": 24,
+      "n_test_races": 3,
+      "metrics": {
+        "auc": 0.9421052631578948,
+        "logloss": 0.3012133891018944,
+        "brier": 0.09422916666666668,
+        "ece": 0.10625
+      },
+      "error": null
+    }
+  }
+}
