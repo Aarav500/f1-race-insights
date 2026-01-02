@@ -104,7 +104,7 @@ class TestCounterfactualContract:
     @pytest.mark.skip(reason="Requires features data to be available")
     def test_counterfactual_response_delta_structure(self):
         """Verify counterfactual response has correct delta structure.
-        
+
         Delta should be a dict with win_prob, podium_prob, expected_finish keys.
         """
         # This test requires actual data and a working model

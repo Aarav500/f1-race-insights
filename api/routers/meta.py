@@ -11,7 +11,7 @@ router = APIRouter(prefix="/meta", tags=["metadata"])
 @router.get("/seasons")
 async def get_seasons():
     """Get list of available seasons from data.
-    
+
     Returns available seasons sorted descending (latest first).
     """
     try:
