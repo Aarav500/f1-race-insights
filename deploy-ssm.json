@@ -1,0 +1,20 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Comment": "F1 App Deploy - Commit 42d9663",
+    "Parameters": {
+        "commands": [
+            "set -euo pipefail",
+            "cd /opt/f1-race-insights",
+            "echo '=== Fetching latest code ==='",
+            "git fetch origin main",
+            "git reset --hard origin/main",
+            "echo '=== Current commit ==='",
+            "git log -1 --oneline",
+            "echo '=== Running deployment ==='",
+            "sudo bash ops/deploy.sh --soft-clean"
+        ]
+    }
+}

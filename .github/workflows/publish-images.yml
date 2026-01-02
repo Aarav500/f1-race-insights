@@ -125,4 +125,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=min
-          # No build-args needed - API URL is configured at runtime
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=http://34.204.193.47:8000
