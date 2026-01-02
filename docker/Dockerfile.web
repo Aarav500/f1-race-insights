@@ -24,6 +24,10 @@ COPY --from=deps /app/web ./web
 # Copy application code from web/ directory to /app/web
 COPY web/ ./web/
 
+# Accept build argument for API URL
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
 # Change to web directory and build
 WORKDIR /app/web
 RUN npm run build

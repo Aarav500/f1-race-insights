@@ -45,13 +45,15 @@ services:
           memory: 512M
 
   web:
-    image: ghcr.io/aarav500/f1-race-insights/web:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://35.171.159.247:8000
     container_name: f1-race-insights-web
     ports:
       - "3000:3000"
     environment:
-      - API_INTERNAL_URL=http://api:8000
-      - NEXT_PUBLIC_API_BASE_URL=http://35.171.159.247:8000
       - NODE_ENV=production
     healthcheck:
       test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
