@@ -108,12 +108,14 @@ class CounterfactualResponse(BaseModel):
 
     race_id: str = Field(..., description="Race identifier")
     driver_id: str = Field(..., description="Driver identifier")
+    model_name: str = Field(default="", description="Model used for prediction")
     baseline: PredictionOutcome = Field(..., description="Original prediction")
     counterfactual: PredictionOutcome = Field(..., description="Prediction with changes applied")
     delta: dict[str, float] = Field(
         ...,
         description="Difference between counterfactual and baseline (positive = improvement)",
     )
+    changes: dict[str, Any] = Field(default_factory=dict, description="Changes that were applied")
 
     class Config:
         """Pydantic configuration."""

@@ -165,9 +165,11 @@ def compute_counterfactual(
     return CounterfactualResponse(
         race_id=race_id,
         driver_id=driver_id,
+        model_name=model_name,
         baseline=baseline,
         counterfactual=counterfactual,
         delta=delta,
+        changes=changes,
     )
 
 

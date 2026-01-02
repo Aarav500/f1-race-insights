@@ -34,7 +34,9 @@ data/raw/
 # Models directory (should contain trained models)
 # Note: Models need to be included if they exist
 models/*.log
-reports/
+# Include reports directory for backtest results
+!reports/
+reports/*.log
 metrics/
 debug_reports/
 
