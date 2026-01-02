@@ -143,3 +143,33 @@ dnf = races_2024[races_2024['Status'] != 'Finished']
 ## References
 - FastF1 Documentation: https://docs.fastf1.dev/
 - F1 Official: https://www.formula1.com/
+
+## Model Features (Engineered)
+
+### Driver Rolling Features
+| Feature | Description | Window |
+|---------|-------------|--------|
+| `driver_last5_avg_finish` | Average finish position | 5 races |
+| `driver_last5_win_rate` | Win rate (0-1) | 5 races |
+| `driver_last5_podium_rate` | Podium rate (0-1) | 5 races |
+
+### Constructor Rolling Features
+| Feature | Description | Window |
+|---------|-------------|--------|
+| `team_last5_avg_finish` | Team average finish | 5 races |
+
+### Session Features
+| Feature | Description |
+|---------|-------------|
+| `quali_position` | Qualifying grid position |
+| `quali_delta` | Gap to reference position |
+
+### Targets
+| Target | Type | Definition |
+|--------|------|------------|
+| `win` | binary | finish_position == 1 |
+| `podium` | binary | finish_position <= 3 |
+| `finish_position` | int | Final race position |
+
+### Leakage Prevention
+All rolling features are computed using **strictly prior races** to prevent data leakage.
