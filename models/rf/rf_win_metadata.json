@@ -1,0 +1,22 @@
+{
+  "model_name": "rf",
+  "task": "win",
+  "features": [
+    "quali_position",
+    "driver_rolling_avg_finish",
+    "driver_rolling_avg_points",
+    "driver_rolling_dnf_rate",
+    "constructor_rolling_avg_finish",
+    "constructor_rolling_avg_points",
+    "constructor_rolling_dnf_rate"
+  ],
+  "num_features": 7,
+  "window": 5,
+  "seed": 42,
+  "timestamp": "2026-01-02T10:07:00.059082",
+  "metrics": {
+    "accuracy": 0.75,
+    "log_loss": 0.4327777604374914,
+    "roc_auc": 0.9166666666666667
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "model_name": "xgb",
+  "task": "win",
+  "features": [
+    "quali_position",
+    "driver_rolling_avg_finish",
+    "driver_rolling_avg_points",
+    "driver_rolling_dnf_rate",
+    "constructor_rolling_avg_finish",
+    "constructor_rolling_avg_points",
+    "constructor_rolling_dnf_rate"
+  ],
+  "num_features": 7,
+  "window": 5,
+  "seed": 42,
+  "timestamp": "2026-01-02T10:06:33.904887",
+  "metrics": {
+    "accuracy": 0.875,
+    "log_loss": 0.5491473069789313,
+    "roc_auc": 0.8333333333333334
+  }
+}

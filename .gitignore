@@ -61,14 +61,18 @@ dmypy.json
 .env.*.local
 
 # Data & Models
-/data/
-*.csv
-*.parquet
+# Exclude large cache directories
+/data/cache/
+/data/fastf1_cache/
+/data/raw/
+# Include data/features/ for predictions (features.parquet)
+!/data/features/
+
+# Exclude temporary model files but INCLUDE trained models
+# Note: models/*.joblib files need to be tracked for deployment
 *.pkl
-*.joblib
 *.h5
 *.hdf5
-/models/
 *.pth
 *.pt
 *.onnx
