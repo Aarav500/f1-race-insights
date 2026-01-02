@@ -1,9 +1,12 @@
 import axios from 'axios'
 
-// Create API client using relative paths (same-origin)
-// All API calls will go through Next.js API routes which proxy to the backend
+// Create API client with configurable backend URL
+// In production: uses NEXT_PUBLIC_API_BASE_URL (should be set to http://IP:8000)
+// In development: defaults to http://localhost:8000
+const apiBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+
 export const api = axios.create({
-    baseURL: '', // Empty = same origin, uses Next.js proxy routes at /api/*
+    baseURL: apiBaseURL,
     headers: {
         'Content-Type': 'application/json',
     },
