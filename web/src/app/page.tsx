@@ -87,7 +87,7 @@ export default function HomePage() {
                     icon={<BarChart3 className="w-8 h-8 text-f1-red" />}
                     title="Race Predictions"
                     description="Interactive predictions for any race with model selection and visual probability distributions."
-                    href="/race/2024_01"
+                    href="/race-explorer"
                 />
                 <FeatureCard
                     icon={<TrendingUp className="w-8 h-8 text-f1-red" />}
@@ -99,7 +99,7 @@ export default function HomePage() {
                     icon={<Cpu className="w-8 h-8 text-f1-red" />}
                     title="Counterfactual Analysis"
                     description="Explore what-if scenarios by adjusting driver attributes and observing prediction impacts."
-                    href="/counterfactual/2024_01/VER"
+                    href="/race-explorer"
                 />
             </div>
 
