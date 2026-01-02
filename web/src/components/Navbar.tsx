@@ -11,6 +11,7 @@ export default function Navbar() {
         { href: '/', label: 'Home' },
         { href: '/race-explorer', label: 'Race Explorer' },
         { href: '/compare', label: 'Compare Models' },
+        { href: '/whatif', label: 'What-If Lab' },
         { href: '/2026', label: '2026 Regs' },
         { href: '/backtest', label: 'Backtest' },
         { href: '/docs', label: 'Docs' },

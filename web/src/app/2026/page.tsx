@@ -80,6 +80,21 @@ export default function Regulations2026Page() {
                 </div>
             </div>
 
+            {/* Training Data Disclaimer */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                <div className="flex gap-2 items-start">
+                    <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <h3 className="font-bold text-blue-800">Prediction Methodology</h3>
+                        <p className="text-sm text-blue-700">
+                            <strong>Training Data:</strong> 2020-2024 F1 seasons (2,140 samples) •
+                            <strong> Prediction Target:</strong> 2026 races (new regulations) •
+                            Models extrapolate from historical patterns. Team readiness scores incorporate regulation adaptation history from 2009, 2014, 2017, and 2022 rule changes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Tabs */}
             <div className="flex gap-2 mb-8 border-b border-f1-gray-200">
                 {[
@@ -91,8 +106,8 @@ export default function Regulations2026Page() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={`px-4 py-2 font-medium border-b-2 transition ${activeTab === tab.id
-                                ? 'border-f1-red text-f1-red'
-                                : 'border-transparent text-f1-gray-600 hover:text-f1-black'
+                            ? 'border-f1-red text-f1-red'
+                            : 'border-transparent text-f1-gray-600 hover:text-f1-black'
                             }`}
                     >
                         {tab.label}
@@ -129,8 +144,8 @@ export default function Regulations2026Page() {
                                                     <td className="px-6 py-3 text-center font-bold text-f1-black">{change.new}</td>
                                                     <td className="px-6 py-3 text-center">
                                                         <span className={`px-2 py-0.5 rounded-full text-sm ${change.impact.includes('+') ? 'bg-green-100 text-green-700' :
-                                                                change.impact.includes('-') ? 'bg-red-100 text-red-700' :
-                                                                    'bg-blue-100 text-blue-700'
+                                                            change.impact.includes('-') ? 'bg-red-100 text-red-700' :
+                                                                'bg-blue-100 text-blue-700'
                                                             }`}>
                                                             {change.impact}
                                                         </span>
