@@ -164,12 +164,12 @@ export async function getModels(): Promise<ModelsResponse> {
 }
 
 export async function getMetaModels(): Promise<MetaModelsResponse> {
-    const response = await api.get('/api/meta/models')
+    const response = await api.get('/meta/models')
     return response.data
 }
 
 export async function getSeasons(): Promise<SeasonsResponse> {
-    const response = await api.get('/api/meta/seasons')
+    const response = await api.get('/meta/seasons')
     return response.data
 }
 
@@ -178,7 +178,7 @@ export async function getRaces(season?: number, limit: number = 50): Promise<Rac
     if (season) {
         params.season = season
     }
-    const response = await api.get('/api/meta/races', { params })
+    const response = await api.get('/meta/races', { params })
     return response.data
 }
 
@@ -188,6 +188,6 @@ export async function getBacktestResults(): Promise<BacktestResults> {
 }
 
 export async function getHealthCheck(): Promise<{ status: string }> {
-    const response = await api.get('/api/health')
+    const response = await api.get('/health')
     return response.data
 }
