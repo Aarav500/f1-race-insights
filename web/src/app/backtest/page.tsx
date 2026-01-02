@@ -130,14 +130,17 @@ function ModelResultRow({ name, metrics }: { name: string; metrics: any }) {
         return value.toFixed(decimals)
     }
 
+    // Handle nested metrics structure from backtest.json
+    const m = metrics?.metrics || metrics
+
     return (
         <tr className="hover:bg-f1-gray-50">
             <td className="px-6 py-4 font-medium">{name}</td>
-            <td className="px-6 py-4 text-center">{formatMetric(metrics.accuracy)}</td>
-            <td className="px-6 py-4 text-center">{formatMetric(metrics.auc)}</td>
-            <td className="px-6 py-4 text-center">{formatMetric(metrics.logloss)}</td>
-            <td className="px-6 py-4 text-center">{formatMetric(metrics.brier)}</td>
-            <td className="px-6 py-4 text-center">{metrics.n_races || 'N/A'}</td>
+            <td className="px-6 py-4 text-center">{formatMetric(m.accuracy)}</td>
+            <td className="px-6 py-4 text-center">{formatMetric(m.auc)}</td>
+            <td className="px-6 py-4 text-center">{formatMetric(m.logloss)}</td>
+            <td className="px-6 py-4 text-center">{formatMetric(m.brier)}</td>
+            <td className="px-6 py-4 text-center">{metrics.n_test_races || metrics.n_races || 'N/A'}</td>
         </tr>
     )
 }

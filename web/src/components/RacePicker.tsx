@@ -78,10 +78,11 @@ export default function RacePicker({
                     setSelectedRaceId(initialRaceId)
                 }
             } else if (data.races.length > 0 && !selectedRaceId) {
-                // Auto-select first race if none selected
+                // Auto-select first race if none selected, but DON'T trigger callback
+                // This prevents auto-redirect on homepage
                 const firstRace = data.races[0]
                 setSelectedRaceId(firstRace.race_id)
-                onRaceSelect(firstRace.race_id, firstRace.name)
+                // Removed: onRaceSelect(firstRace.race_id, firstRace.name)
             }
         } catch (err: any) {
             console.error('Failed to load races:', err)

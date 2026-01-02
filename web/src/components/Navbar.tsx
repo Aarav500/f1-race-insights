@@ -10,6 +10,8 @@ export default function Navbar() {
     const navLinks = [
         { href: '/', label: 'Home' },
         { href: '/race-explorer', label: 'Race Explorer' },
+        { href: '/compare', label: 'Compare Models' },
+        { href: '/2026', label: '2026 Regs' },
         { href: '/backtest', label: 'Backtest' },
         { href: '/docs', label: 'Docs' },
     ]
