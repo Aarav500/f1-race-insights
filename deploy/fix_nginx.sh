@@ -1,5 +1,8 @@
 #!/bin/bash
-# Fix Nginx config - remove trailing slash from proxy_pass
+# ============================================================
+#  Nginx Configuration Script - Applied during deployment
+#  Creates proper reverse proxy config with SSL
+# ============================================================
 
 cat > /tmp/aarav-shah.conf << 'EOF'
 server {
@@ -17,12 +20,12 @@ server {
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    # Redirect root to app (without trailing slash)
+    # Redirect root to app
     location = / {
         return 302 /f1-insights;
     }
 
-    # Handle /f1-insights requests - NO TRAILING SLASH in proxy_pass
+    # F1 Race Insights - Next.js app
     location /f1-insights {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -32,17 +35,32 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
     }
 
+    # API backend
     location /api/ {
         proxy_pass http://127.0.0.1:8000/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 EOF
 
 sudo mv /tmp/aarav-shah.conf /etc/nginx/conf.d/aarav-shah.conf
-sudo nginx -t && sudo systemctl reload nginx
-echo "NGINX FIXED - No trailing slash"
+
+# Test and reload
+if sudo nginx -t; then
+    sudo systemctl reload nginx
+    echo "✅ Nginx configuration applied successfully"
+else
+    echo "❌ Nginx configuration test failed!"
+    exit 1
+fi

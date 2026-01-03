@@ -1,37 +1,48 @@
 @echo off
-REM F1 Race Insights - Windows Deployment Script
-REM Run from d:\f1-race-insights directory
+REM ============================================================
+REM  F1 Race Insights - One-Click EC2 Deployment
+REM  Run this from d:\f1-race-insights to deploy everything
+REM ============================================================
 
 setlocal enabledelayedexpansion
 
 set EC2_HOST=34.204.193.47
 set EC2_USER=ec2-user
 set SSH_KEY=%USERPROFILE%\Downloads\F1.pem
+set REMOTE_DIR=/opt/f1-race-insights
 
 echo.
 echo ============================================================
-echo        F1 Race Insights - Automated EC2 Deployment
+echo        F1 Race Insights - Automated Deployment
 echo ============================================================
 echo.
 
-REM Check SSH key
+REM Check SSH key exists
 if not exist "%SSH_KEY%" (
     echo [ERROR] SSH key not found: %SSH_KEY%
+    echo Please ensure F1.pem is in your Downloads folder
     exit /b 1
 )
 
-echo [INFO] Step 1: Pulling latest code on EC2...
-ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "cd /opt/f1-race-insights && git pull 2>/dev/null || echo 'Skipped'"
+echo [1/6] Pulling latest code on EC2...
+ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "cd %REMOTE_DIR% && git pull origin main 2>/dev/null || echo 'Git pull skipped'"
 
-echo [INFO] Step 2: Checking Nginx...
-ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "sudo systemctl is-active nginx || (sudo dnf install -y nginx && sudo systemctl enable --now nginx)"
+echo [2/6] Installing/checking Nginx...
+ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "which nginx >/dev/null 2>&1 || sudo dnf install -y nginx; sudo systemctl enable --now nginx"
 
-echo [INFO] Step 3: Updating Nginx config...
-scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" deploy\nginx\conf.d\aarav-shah.conf %EC2_USER%@%EC2_HOST%:/tmp/
-ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "sudo mv /tmp/aarav-shah.conf /etc/nginx/conf.d/ && sudo nginx -t && sudo systemctl reload nginx"
+echo [3/6] Uploading Nginx configuration...
+scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" deploy\fix_nginx.sh %EC2_USER%@%EC2_HOST%:~/
+ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "bash ~/fix_nginx.sh"
 
-echo [INFO] Step 4: Restarting application...
-ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "cd /opt/f1-race-insights/web && pm2 restart f1-web 2>/dev/null || pm2 start npm --name f1-web -- start"
+echo [4/6] Rebuilding Next.js app...
+ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "cd %REMOTE_DIR%/web && npm ci --production=false && npm run build"
+
+echo [5/6] Restarting application via PM2...
+ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "cd %REMOTE_DIR%/web && (pm2 delete f1-web 2>/dev/null; pm2 start npm --name f1-web -- start)"
+
+echo [6/6] Verifying deployment...
+timeout /t 5 /nobreak > nul
+ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %EC2_USER%@%EC2_HOST% "curl -s -o /dev/null -w '%%{http_code}' http://127.0.0.1:3000/f1-insights"
 
 echo.
 echo ============================================================
@@ -39,8 +50,9 @@ echo [SUCCESS] Deployment Complete!
 echo ============================================================
 echo.
 echo Your site is live at:
-echo    http://aarav-shah.com/f1-insights/
-echo    http://%EC2_HOST%/f1-insights/
+echo    https://aarav-shah.com/f1-insights
+echo    http://%EC2_HOST%:3000/f1-insights
 echo.
 
 endlocal
+pause
