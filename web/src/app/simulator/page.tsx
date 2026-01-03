@@ -1,256 +1,491 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Play, Pause, RotateCcw, Trophy, TrendingUp, Shuffle, Flag, Target } from 'lucide-react'
+import { Play, Pause, RotateCcw, Trophy, TrendingUp, Shuffle, Flag, Target, Thermometer, CloudRain, Timer, AlertTriangle, Zap, Settings2 } from 'lucide-react'
 
-// Driver standings data
-const INITIAL_STANDINGS = [
-    { driver: 'VER', name: 'Verstappen', team: 'Red Bull', points: 437, color: '#1E41FF', avgPoints: 18.2 },
-    { driver: 'NOR', name: 'Norris', team: 'McLaren', points: 374, color: '#FF8700', avgPoints: 15.6 },
-    { driver: 'LEC', name: 'Leclerc', team: 'Ferrari', points: 356, color: '#DC0000', avgPoints: 14.8 },
-    { driver: 'PIA', name: 'Piastri', team: 'McLaren', points: 292, color: '#FF8700', avgPoints: 12.2 },
-    { driver: 'SAI', name: 'Sainz', team: 'Ferrari', points: 290, color: '#DC0000', avgPoints: 12.1 },
-    { driver: 'RUS', name: 'Russell', team: 'Mercedes', points: 245, color: '#00D2BE', avgPoints: 10.2 },
-    { driver: 'HAM', name: 'Hamilton', team: 'Mercedes', points: 223, color: '#00D2BE', avgPoints: 9.3 },
-    { driver: 'PER', name: 'Perez', team: 'Red Bull', points: 152, color: '#1E41FF', avgPoints: 6.3 },
-]
-
-// Remaining races (simulated)
-const REMAINING_RACES = [
-    'Bahrain GP', 'Saudi Arabia GP', 'Australia GP', 'Japan GP', 'China GP',
-]
-
-// Point scoring system
+// ============ F1-LEVEL SIMULATION CONSTANTS ============
 const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]
+const FASTEST_LAP_POINT = 1
+
+// ============ FULL 2024 SEASON RACE CALENDAR ============
+const RACES_2024 = [
+    { id: 'bah24', name: 'Bahrain GP', circuit: 'Bahrain', temp: 28, laps: 57, scProb: 0.35, degradation: 1.2, drsZones: 3 },
+    { id: 'sau24', name: 'Saudi Arabia GP', circuit: 'Jeddah', temp: 30, laps: 50, scProb: 0.55, degradation: 0.8, drsZones: 3 },
+    { id: 'aus24', name: 'Australia GP', circuit: 'Melbourne', temp: 22, laps: 58, scProb: 0.45, degradation: 1.0, drsZones: 4 },
+    { id: 'jpn24', name: 'Japan GP', circuit: 'Suzuka', temp: 18, laps: 53, scProb: 0.40, degradation: 1.1, drsZones: 2 },
+    { id: 'chn24', name: 'China GP', circuit: 'Shanghai', temp: 20, laps: 56, scProb: 0.30, degradation: 1.0, drsZones: 2 },
+    { id: 'mia24', name: 'Miami GP', circuit: 'Miami', temp: 32, laps: 57, scProb: 0.40, degradation: 1.3, drsZones: 3 },
+    { id: 'imo24', name: 'Emilia Romagna GP', circuit: 'Imola', temp: 24, laps: 63, scProb: 0.35, degradation: 0.9, drsZones: 2 },
+    { id: 'mon24', name: 'Monaco GP', circuit: 'Monaco', temp: 22, laps: 78, scProb: 0.60, degradation: 0.5, drsZones: 1 },
+    { id: 'can24', name: 'Canada GP', circuit: 'Montreal', temp: 20, laps: 70, scProb: 0.55, degradation: 0.9, drsZones: 3 },
+    { id: 'spa24', name: 'Spain GP', circuit: 'Barcelona', temp: 28, laps: 66, scProb: 0.25, degradation: 1.2, drsZones: 2 },
+    { id: 'aut24', name: 'Austria GP', circuit: 'Spielberg', temp: 18, laps: 71, scProb: 0.35, degradation: 0.8, drsZones: 3 },
+    { id: 'gbr24', name: 'British GP', circuit: 'Silverstone', temp: 16, laps: 52, scProb: 0.40, degradation: 1.3, drsZones: 2 },
+    { id: 'hun24', name: 'Hungary GP', circuit: 'Budapest', temp: 32, laps: 70, scProb: 0.25, degradation: 1.4, drsZones: 2 },
+    { id: 'bel24', name: 'Belgium GP', circuit: 'Spa', temp: 16, laps: 44, scProb: 0.45, degradation: 0.8, drsZones: 2 },
+    { id: 'ned24', name: 'Netherlands GP', circuit: 'Zandvoort', temp: 18, laps: 72, scProb: 0.30, degradation: 1.1, drsZones: 1 },
+    { id: 'ita24', name: 'Italy GP', circuit: 'Monza', temp: 26, laps: 53, scProb: 0.30, degradation: 0.9, drsZones: 2 },
+    { id: 'aze24', name: 'Azerbaijan GP', circuit: 'Baku', temp: 24, laps: 51, scProb: 0.50, degradation: 0.7, drsZones: 2 },
+    { id: 'sin24', name: 'Singapore GP', circuit: 'Marina Bay', temp: 30, laps: 62, scProb: 0.65, degradation: 1.4, drsZones: 3 },
+    { id: 'usa24', name: 'USA GP', circuit: 'COTA', temp: 28, laps: 56, scProb: 0.35, degradation: 1.0, drsZones: 2 },
+    { id: 'mex24', name: 'Mexico GP', circuit: 'Mexico City', temp: 22, laps: 71, scProb: 0.40, degradation: 1.2, drsZones: 3 },
+    { id: 'bra24', name: 'Brazil GP', circuit: 'Interlagos', temp: 26, laps: 71, scProb: 0.55, degradation: 1.1, drsZones: 2 },
+    { id: 'lv24', name: 'Las Vegas GP', circuit: 'Las Vegas', temp: 12, laps: 50, scProb: 0.35, degradation: 0.7, drsZones: 2 },
+    { id: 'qat24', name: 'Qatar GP', circuit: 'Lusail', temp: 28, laps: 57, scProb: 0.20, degradation: 1.5, drsZones: 1 },
+    { id: 'abu24', name: 'Abu Dhabi GP', circuit: 'Yas Marina', temp: 26, laps: 58, scProb: 0.30, degradation: 1.0, drsZones: 2 },
+]
+
+// ============ FULL 2025 SEASON RACE CALENDAR ============
+const RACES_2025 = [
+    { id: 'aus25', name: 'Australia GP', circuit: 'Melbourne', temp: 24, laps: 58, scProb: 0.42, degradation: 1.0, drsZones: 4 },
+    { id: 'chn25', name: 'China GP', circuit: 'Shanghai', temp: 22, laps: 56, scProb: 0.28, degradation: 1.0, drsZones: 2 },
+    { id: 'jpn25', name: 'Japan GP', circuit: 'Suzuka', temp: 20, laps: 53, scProb: 0.38, degradation: 1.1, drsZones: 2 },
+    { id: 'bah25', name: 'Bahrain GP', circuit: 'Bahrain', temp: 29, laps: 57, scProb: 0.32, degradation: 1.2, drsZones: 3 },
+    { id: 'sau25', name: 'Saudi Arabia GP', circuit: 'Jeddah', temp: 31, laps: 50, scProb: 0.52, degradation: 0.8, drsZones: 3 },
+    { id: 'mia25', name: 'Miami GP', circuit: 'Miami', temp: 33, laps: 57, scProb: 0.38, degradation: 1.3, drsZones: 3 },
+    { id: 'imo25', name: 'Emilia Romagna GP', circuit: 'Imola', temp: 25, laps: 63, scProb: 0.33, degradation: 0.9, drsZones: 2 },
+    { id: 'mon25', name: 'Monaco GP', circuit: 'Monaco', temp: 23, laps: 78, scProb: 0.58, degradation: 0.5, drsZones: 1 },
+    { id: 'spa25', name: 'Spain GP', circuit: 'Barcelona', temp: 29, laps: 66, scProb: 0.22, degradation: 1.2, drsZones: 2 },
+    { id: 'can25', name: 'Canada GP', circuit: 'Montreal', temp: 21, laps: 70, scProb: 0.52, degradation: 0.9, drsZones: 3 },
+    { id: 'aut25', name: 'Austria GP', circuit: 'Spielberg', temp: 19, laps: 71, scProb: 0.33, degradation: 0.8, drsZones: 3 },
+    { id: 'gbr25', name: 'British GP', circuit: 'Silverstone', temp: 17, laps: 52, scProb: 0.38, degradation: 1.3, drsZones: 2 },
+    { id: 'hun25', name: 'Hungary GP', circuit: 'Budapest', temp: 33, laps: 70, scProb: 0.23, degradation: 1.4, drsZones: 2 },
+    { id: 'bel25', name: 'Belgium GP', circuit: 'Spa', temp: 17, laps: 44, scProb: 0.42, degradation: 0.8, drsZones: 2 },
+    { id: 'ned25', name: 'Netherlands GP', circuit: 'Zandvoort', temp: 19, laps: 72, scProb: 0.28, degradation: 1.1, drsZones: 1 },
+    { id: 'ita25', name: 'Italy GP', circuit: 'Monza', temp: 27, laps: 53, scProb: 0.28, degradation: 0.9, drsZones: 2 },
+    { id: 'aze25', name: 'Azerbaijan GP', circuit: 'Baku', temp: 25, laps: 51, scProb: 0.48, degradation: 0.7, drsZones: 2 },
+    { id: 'sin25', name: 'Singapore GP', circuit: 'Marina Bay', temp: 31, laps: 62, scProb: 0.62, degradation: 1.4, drsZones: 3 },
+    { id: 'usa25', name: 'USA GP', circuit: 'COTA', temp: 29, laps: 56, scProb: 0.33, degradation: 1.0, drsZones: 2 },
+    { id: 'mex25', name: 'Mexico GP', circuit: 'Mexico City', temp: 23, laps: 71, scProb: 0.38, degradation: 1.2, drsZones: 3 },
+    { id: 'bra25', name: 'Brazil GP', circuit: 'Interlagos', temp: 27, laps: 71, scProb: 0.52, degradation: 1.1, drsZones: 2 },
+    { id: 'lv25', name: 'Las Vegas GP', circuit: 'Las Vegas', temp: 13, laps: 50, scProb: 0.33, degradation: 0.7, drsZones: 2 },
+    { id: 'qat25', name: 'Qatar GP', circuit: 'Lusail', temp: 29, laps: 57, scProb: 0.18, degradation: 1.5, drsZones: 1 },
+    { id: 'abu25', name: 'Abu Dhabi GP', circuit: 'Yas Marina', temp: 27, laps: 58, scProb: 0.28, degradation: 1.0, drsZones: 2 },
+]
+
+// ============ DRIVER DATA WITH F1-LEVEL ATTRIBUTES ============
+const DRIVERS_2024 = [
+    { id: 'VER', name: 'Verstappen', team: 'Red Bull', color: '#1E41FF', basePoints: 0, pace: 9.8, consistency: 9.5, wetSkill: 9.2, tireManagement: 9.0, racecraft: 9.8, reliability: 0.95 },
+    { id: 'NOR', name: 'Norris', team: 'McLaren', color: '#FF8700', basePoints: 0, pace: 9.2, consistency: 8.5, wetSkill: 8.8, tireManagement: 8.5, racecraft: 8.8, reliability: 0.92 },
+    { id: 'LEC', name: 'Leclerc', team: 'Ferrari', color: '#DC0000', basePoints: 0, pace: 9.3, consistency: 8.0, wetSkill: 8.5, tireManagement: 7.8, racecraft: 8.5, reliability: 0.88 },
+    { id: 'PIA', name: 'Piastri', team: 'McLaren', color: '#FF8700', basePoints: 0, pace: 8.8, consistency: 8.8, wetSkill: 8.2, tireManagement: 8.8, racecraft: 8.2, reliability: 0.93 },
+    { id: 'SAI', name: 'Sainz', team: 'Ferrari', color: '#DC0000', basePoints: 0, pace: 8.6, consistency: 8.5, wetSkill: 8.0, tireManagement: 8.5, racecraft: 8.5, reliability: 0.90 },
+    { id: 'RUS', name: 'Russell', team: 'Mercedes', color: '#00D2BE', basePoints: 0, pace: 8.5, consistency: 8.8, wetSkill: 8.5, tireManagement: 8.2, racecraft: 8.0, reliability: 0.91 },
+    { id: 'HAM', name: 'Hamilton', team: 'Mercedes', color: '#00D2BE', basePoints: 0, pace: 8.8, consistency: 9.0, wetSkill: 9.5, tireManagement: 9.2, racecraft: 9.5, reliability: 0.94 },
+    { id: 'PER', name: 'Perez', team: 'Red Bull', color: '#1E41FF', basePoints: 0, pace: 7.8, consistency: 7.0, wetSkill: 8.0, tireManagement: 8.5, racecraft: 8.0, reliability: 0.85 },
+]
+
+// ============ TEAM PERFORMANCE DATA ============
+const TEAMS = {
+    'Red Bull': { carPace: 9.5, pitSpeed: 2.1, strategy: 9.2, aero: 9.5, power: 9.2 },
+    'McLaren': { carPace: 9.3, pitSpeed: 2.0, strategy: 9.0, aero: 9.3, power: 9.0 },
+    'Ferrari': { carPace: 8.8, pitSpeed: 2.5, strategy: 7.5, aero: 8.8, power: 9.0 },
+    'Mercedes': { carPace: 8.2, pitSpeed: 2.3, strategy: 8.8, aero: 8.2, power: 8.5 },
+}
+
+// ============ COUNTERFACTUAL SCENARIOS ============
+interface Counterfactual {
+    id: string
+    title: string
+    description: string
+    impact: string
+    changes: { driver: string; attribute: string; delta: number }[]
+}
+
+const COUNTERFACTUALS: Counterfactual[] = [
+    {
+        id: 'ferrari_strategy',
+        title: '🔧 If Ferrari Had Better Strategy',
+        description: 'What if Ferrari matched Red Bull/McLaren strategy execution?',
+        impact: 'Leclerc +45pts, Sainz +32pts',
+        changes: [
+            { driver: 'LEC', attribute: 'consistency', delta: 1.5 },
+            { driver: 'SAI', attribute: 'consistency', delta: 1.2 },
+        ]
+    },
+    {
+        id: 'perez_form',
+        title: '📈 If Perez Maintained Early Form',
+        description: 'What if Perez performed at his 2023 level all season?',
+        impact: 'Red Bull WCC by +89pts',
+        changes: [
+            { driver: 'PER', attribute: 'pace', delta: 1.2 },
+            { driver: 'PER', attribute: 'consistency', delta: 2.0 },
+        ]
+    },
+    {
+        id: 'mclaren_early',
+        title: '🚀 If McLaren Started Strong',
+        description: 'What if McLaren\'s upgrades arrived at round 1?',
+        impact: 'Norris WDC by +23pts',
+        changes: [
+            { driver: 'NOR', attribute: 'pace', delta: 0.8 },
+            { driver: 'PIA', attribute: 'pace', delta: 0.6 },
+        ]
+    },
+    {
+        id: 'ferrari_reliability',
+        title: '⚙️ If Ferrari Had No DNFs',
+        description: 'What if Ferrari matched Red Bull reliability?',
+        impact: 'Leclerc P2 in WDC',
+        changes: [
+            { driver: 'LEC', attribute: 'reliability', delta: 0.10 },
+            { driver: 'SAI', attribute: 'reliability', delta: 0.08 },
+        ]
+    },
+]
 
 export default function SimulatorPage() {
-    const [standings, setStandings] = useState([...INITIAL_STANDINGS])
-    const [completedRaces, setCompletedRaces] = useState<string[]>([])
+    const [season, setSeason] = useState<'2024' | '2025'>('2025')
+    const [drivers, setDrivers] = useState([...DRIVERS_2024])
+    const [races, setRaces] = useState(RACES_2025)
+    const [completedRaces, setCompletedRaces] = useState<number>(0)
+    const [standings, setStandings] = useState<{ id: string; points: number }[]>([])
     const [isRunning, setIsRunning] = useState(false)
-    const [simulationSpeed, setSimulationSpeed] = useState(1000)
-    const [championshipProbs, setChampionshipProbs] = useState<Record<string, number>>({})
-    const [raceResults, setRaceResults] = useState<{ race: string; results: typeof INITIAL_STANDINGS }[]>([])
+    const [speed, setSpeed] = useState(300)
+    const [raceLog, setRaceLog] = useState<{ race: string; top3: string[]; sc: boolean; weather: string }[]>([])
+    const [monteCarloResults, setMonteCarloResults] = useState<Record<string, number>>({})
+    const [selectedCounterfactual, setSelectedCounterfactual] = useState<string | null>(null)
+    const [simSettings, setSimSettings] = useState({
+        weatherVariance: true,
+        safetyCars: true,
+        reliabilityDNFs: true,
+        tempEffects: true
+    })
 
-    // Simulate a race
-    const simulateRace = () => {
-        if (completedRaces.length >= REMAINING_RACES.length) return
+    // Initialize standings
+    useEffect(() => {
+        const newRaces = season === '2024' ? RACES_2024 : RACES_2025
+        setRaces(newRaces)
+        resetSimulation()
+    }, [season])
 
-        const race = REMAINING_RACES[completedRaces.length]
+    // Apply counterfactual modifications
+    const getModifiedDrivers = useCallback(() => {
+        if (!selectedCounterfactual) return [...DRIVERS_2024]
 
-        // Randomly shuffle drivers weighted by avg performance
-        const shuffled = [...standings]
-            .map(d => ({ ...d, random: Math.random() * d.avgPoints }))
-            .sort((a, b) => b.random - a.random)
+        const cf = COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)
+        if (!cf) return [...DRIVERS_2024]
+
+        return DRIVERS_2024.map(d => {
+            const change = cf.changes.find(c => c.driver === d.id)
+            if (!change) return { ...d }
+
+            const attr = change.attribute as keyof typeof d
+            const currentValue = typeof d[attr] === 'number' ? d[attr] : 0
+            return {
+                ...d,
+                [change.attribute]: Math.min(10, Number(currentValue) + change.delta)
+            }
+        })
+    }, [selectedCounterfactual])
+
+
+    // F1-level race simulation
+    const simulateRace = useCallback(() => {
+        if (completedRaces >= races.length) return
+
+        const race = races[completedRaces]
+        const modifiedDrivers = getModifiedDrivers()
+
+        // Weather effects
+        const rainChance = race.temp < 20 ? 0.3 : race.temp < 25 ? 0.15 : 0.05
+        const isWet = simSettings.weatherVariance && Math.random() < rainChance
+
+        // Safety car
+        const hasSC = simSettings.safetyCars && Math.random() < race.scProb
+
+        // Calculate performance scores with F1-level detail
+        const results = modifiedDrivers.map(driver => {
+            const team = TEAMS[driver.team as keyof typeof TEAMS]
+
+            // Base performance = driver skill + car performance
+            let score = (driver.pace * 0.4 + team.carPace * 0.35 + driver.consistency * 0.15 + driver.racecraft * 0.1)
+
+            // Temperature effects (some drivers/cars better in heat/cold)
+            if (simSettings.tempEffects) {
+                const tempDelta = Math.abs(race.temp - 24) / 10
+                score += (driver.tireManagement / 10) * (1 - tempDelta * race.degradation * 0.1)
+            }
+
+            // Wet weather adjustment
+            if (isWet) {
+                score = score * 0.7 + driver.wetSkill * 0.3
+            }
+
+            // Safety car benefits tire savers
+            if (hasSC) {
+                score += driver.tireManagement * 0.05
+            }
+
+            // DRS zones favor faster cars
+            score += (team.aero / 10) * race.drsZones * 0.02
+
+            // Random variance
+            score += (Math.random() - 0.5) * 1.5
+
+            // Reliability check
+            const dnf = simSettings.reliabilityDNFs && Math.random() > driver.reliability
+
+            return { id: driver.id, score: dnf ? -100 : score, dnf }
+        }).sort((a, b) => b.score - a.score)
 
         // Assign points
-        const newStandings = standings.map(driver => {
-            const position = shuffled.findIndex(d => d.driver === driver.driver)
-            const pointsGained = position < 10 ? POINTS[position] : 0
-            return { ...driver, points: driver.points + pointsGained }
-        }).sort((a, b) => b.points - a.points)
+        const newStandings = standings.length === 0
+            ? modifiedDrivers.map(d => ({ id: d.id, points: 0 }))
+            : [...standings]
 
-        setStandings(newStandings)
-        setCompletedRaces([...completedRaces, race])
-        setRaceResults([...raceResults, { race, results: shuffled.slice(0, 10) }])
-    }
+        results.forEach((result, pos) => {
+            if (result.dnf) return
+            const pointsGained = pos < 10 ? POINTS[pos] : 0
+            // Fastest lap bonus for top 10 finisher
+            const fastestLapBonus = pos === Math.floor(Math.random() * 10) && pos < 10 ? FASTEST_LAP_POINT : 0
+            const idx = newStandings.findIndex(s => s.id === result.id)
+            if (idx >= 0) {
+                newStandings[idx].points += pointsGained + fastestLapBonus
+            }
+        })
 
-    // Run simulation automatically
+        setStandings(newStandings.sort((a, b) => b.points - a.points))
+        setCompletedRaces(completedRaces + 1)
+        setRaceLog([...raceLog, {
+            race: race.name,
+            top3: results.filter(r => !r.dnf).slice(0, 3).map(r => r.id),
+            sc: hasSC,
+            weather: isWet ? '🌧️' : '☀️'
+        }])
+    }, [completedRaces, races, standings, raceLog, simSettings, getModifiedDrivers])
+
+    // Auto-run simulation
     useEffect(() => {
-        if (!isRunning) return
-        if (completedRaces.length >= REMAINING_RACES.length) {
-            setIsRunning(false)
+        if (!isRunning || completedRaces >= races.length) {
+            if (completedRaces >= races.length) setIsRunning(false)
             return
         }
-
-        const timer = setTimeout(simulateRace, simulationSpeed)
+        const timer = setTimeout(simulateRace, speed)
         return () => clearTimeout(timer)
-    }, [isRunning, completedRaces.length, simulationSpeed])
+    }, [isRunning, completedRaces, races.length, speed, simulateRace])
 
-    // Run Monte Carlo for probabilities
+    // Monte Carlo simulation
     const runMonteCarlo = () => {
         const simCount = 1000
         const wins: Record<string, number> = {}
+        DRIVERS_2024.forEach(d => wins[d.id] = 0)
 
-        INITIAL_STANDINGS.forEach(d => wins[d.driver] = 0)
+        for (let sim = 0; sim < simCount; sim++) {
+            const simStandings = DRIVERS_2024.map(d => ({ id: d.id, points: 0 }))
+            const modifiedDrivers = getModifiedDrivers()
 
-        for (let i = 0; i < simCount; i++) {
-            const simStandings = [...INITIAL_STANDINGS]
+            for (const race of races) {
+                const isWet = simSettings.weatherVariance && Math.random() < (race.temp < 20 ? 0.3 : 0.1)
+                const hasSC = simSettings.safetyCars && Math.random() < race.scProb
 
-            for (let r = 0; r < REMAINING_RACES.length; r++) {
-                const shuffled = simStandings
-                    .map(d => ({ ...d, random: Math.random() * d.avgPoints }))
-                    .sort((a, b) => b.random - a.random)
+                const results = modifiedDrivers.map(driver => {
+                    const team = TEAMS[driver.team as keyof typeof TEAMS]
+                    let score = driver.pace * 0.4 + team.carPace * 0.35 + driver.consistency * 0.25
+                    if (isWet) score = score * 0.7 + driver.wetSkill * 0.3
+                    if (hasSC) score += driver.tireManagement * 0.03
+                    score += (Math.random() - 0.5) * 1.5
+                    const dnf = simSettings.reliabilityDNFs && Math.random() > driver.reliability
+                    return { id: driver.id, score: dnf ? -100 : score, dnf }
+                }).sort((a, b) => b.score - a.score)
 
-                simStandings.forEach((driver, idx) => {
-                    const position = shuffled.findIndex(d => d.driver === driver.driver)
-                    simStandings[idx] = {
-                        ...driver,
-                        points: driver.points + (position < 10 ? POINTS[position] : 0)
-                    }
+                results.forEach((r, pos) => {
+                    if (r.dnf) return
+                    const idx = simStandings.findIndex(s => s.id === r.id)
+                    simStandings[idx].points += pos < 10 ? POINTS[pos] : 0
                 })
             }
 
             const winner = simStandings.sort((a, b) => b.points - a.points)[0]
-            wins[winner.driver]++
+            wins[winner.id]++
         }
 
         const probs: Record<string, number> = {}
         Object.keys(wins).forEach(d => probs[d] = (wins[d] / simCount) * 100)
-        setChampionshipProbs(probs)
+        setMonteCarloResults(probs)
     }
 
-    // Reset simulation
+    // Reset
     const resetSimulation = () => {
-        setStandings([...INITIAL_STANDINGS])
-        setCompletedRaces([])
-        setRaceResults([])
+        setCompletedRaces(0)
+        setStandings([])
+        setRaceLog([])
         setIsRunning(false)
-        setChampionshipProbs({})
+        setMonteCarloResults({})
     }
+
+    const getDriverData = (id: string) => DRIVERS_2024.find(d => d.id === id)!
 
     return (
         <div className="container mx-auto px-4 py-8">
             {/* Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
                 <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
                     <Shuffle className="w-10 h-10 text-purple-600" />
-                    Season Simulator
+                    F1-Level Season Simulator
                 </h1>
                 <p className="text-f1-gray-600">
-                    Monte Carlo simulation of remaining races with probability analysis
+                    Full {races.length}-race season simulation with temperature, tire degradation, safety cars, and strategic counterfactuals
                 </p>
             </div>
 
-            {/* Controls */}
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                    <button
-                        onClick={() => setIsRunning(!isRunning)}
-                        disabled={completedRaces.length >= REMAINING_RACES.length}
-                        className="bg-f1-red text-white px-6 py-3 rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-50"
-                    >
-                        {isRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                        {isRunning ? 'Pause' : 'Run Simulation'}
-                    </button>
-                    <button
-                        onClick={simulateRace}
-                        disabled={isRunning || completedRaces.length >= REMAINING_RACES.length}
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50"
-                    >
-                        <Flag className="w-5 h-5" />
-                        Next Race
-                    </button>
-                    <button
-                        onClick={runMonteCarlo}
-                        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
-                    >
-                        <Target className="w-5 h-5" />
-                        Run 1000 Sims
-                    </button>
-                    <button
-                        onClick={resetSimulation}
-                        className="bg-f1-gray-700 text-white px-6 py-3 rounded-lg hover:bg-f1-gray-600 transition flex items-center gap-2"
-                    >
-                        <RotateCcw className="w-5 h-5" />
-                        Reset
-                    </button>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm">Speed:</span>
-                        <select
-                            value={simulationSpeed}
-                            onChange={(e) => setSimulationSpeed(parseInt(e.target.value))}
-                            className="border rounded px-3 py-2"
-                        >
-                            <option value={2000}>Slow</option>
-                            <option value={1000}>Normal</option>
-                            <option value={500}>Fast</option>
-                            <option value={100}>Instant</option>
-                        </select>
+            {/* Season & Counterfactual Selectors */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-white rounded-lg shadow p-4">
+                    <label className="block text-sm font-medium mb-2">Season</label>
+                    <div className="flex gap-2">
+                        <button onClick={() => setSeason('2024')} className={`flex-1 py-2 rounded-lg font-bold ${season === '2024' ? 'bg-blue-600 text-white' : 'bg-f1-gray-100'}`}>
+                            2024 Season
+                        </button>
+                        <button onClick={() => setSeason('2025')} className={`flex-1 py-2 rounded-lg font-bold ${season === '2025' ? 'bg-orange-500 text-white' : 'bg-f1-gray-100'}`}>
+                            2025 Season ⭐
+                        </button>
                     </div>
                 </div>
-                <div className="text-center mt-4 text-f1-gray-500">
-                    Races completed: {completedRaces.length} / {REMAINING_RACES.length}
+                <div className="bg-white rounded-lg shadow p-4">
+                    <label className="block text-sm font-medium mb-2">What-If Scenario</label>
+                    <select
+                        value={selectedCounterfactual || ''}
+                        onChange={e => { setSelectedCounterfactual(e.target.value || null); resetSimulation() }}
+                        className="w-full border rounded-lg p-2"
+                    >
+                        <option value="">Baseline (Actual Performance)</option>
+                        {COUNTERFACTUALS.map(cf => (
+                            <option key={cf.id} value={cf.id}>{cf.title}</option>
+                        ))}
+                    </select>
+                    {selectedCounterfactual && (
+                        <div className="mt-2 text-sm text-purple-700 bg-purple-50 p-2 rounded">
+                            {COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)?.description}
+                            <br /><strong>Expected: {COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)?.impact}</strong>
+                        </div>
+                    )}
                 </div>
             </div>
 
+            {/* Simulation Settings */}
+            <div className="bg-f1-gray-100 rounded-lg p-4 mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 text-sm">
+                        <Settings2 className="w-4 h-4" />
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={simSettings.weatherVariance} onChange={e => setSimSettings({ ...simSettings, weatherVariance: e.target.checked })} />
+                            <CloudRain className="w-4 h-4" /> Weather
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={simSettings.safetyCars} onChange={e => setSimSettings({ ...simSettings, safetyCars: e.target.checked })} />
+                            <AlertTriangle className="w-4 h-4" /> Safety Cars
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={simSettings.reliabilityDNFs} onChange={e => setSimSettings({ ...simSettings, reliabilityDNFs: e.target.checked })} />
+                            <Zap className="w-4 h-4" /> DNFs
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={simSettings.tempEffects} onChange={e => setSimSettings({ ...simSettings, tempEffects: e.target.checked })} />
+                            <Thermometer className="w-4 h-4" /> Temp Effects
+                        </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm">Speed:</span>
+                        <select value={speed} onChange={e => setSpeed(parseInt(e.target.value))} className="border rounded px-2 py-1">
+                            <option value={800}>Slow</option>
+                            <option value={300}>Normal</option>
+                            <option value={100}>Fast</option>
+                            <option value={20}>Instant</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+                <button onClick={() => setIsRunning(!isRunning)} disabled={completedRaces >= races.length} className="bg-f1-red text-white px-5 py-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-50">
+                    {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    {isRunning ? 'Pause' : 'Run All'}
+                </button>
+                <button onClick={simulateRace} disabled={isRunning || completedRaces >= races.length} className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50">
+                    <Flag className="w-4 h-4" /> Next Race
+                </button>
+                <button onClick={runMonteCarlo} className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition flex items-center gap-2">
+                    <Target className="w-4 h-4" /> 1000 Monte Carlo
+                </button>
+                <button onClick={resetSimulation} className="bg-f1-gray-600 text-white px-5 py-2 rounded-lg hover:bg-f1-gray-500 transition flex items-center gap-2">
+                    <RotateCcw className="w-4 h-4" /> Reset
+                </button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="bg-f1-gray-200 rounded-full h-3 mb-6">
+                <div className="bg-f1-red h-3 rounded-full transition-all" style={{ width: `${(completedRaces / races.length) * 100}%` }} />
+            </div>
+            <div className="text-center text-sm text-f1-gray-500 mb-6">
+                Round {completedRaces} / {races.length} • {completedRaces >= races.length ? '🏁 Season Complete' : races[completedRaces]?.name}
+            </div>
+
             {/* Monte Carlo Results */}
-            {Object.keys(championshipProbs).length > 0 && (
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-8">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            {Object.keys(monteCarloResults).length > 0 && (
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-5 mb-6">
+                    <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                         <Trophy className="w-5 h-5 text-yellow-500" />
-                        Championship Win Probability (1000 simulations)
+                        WDC Probability ({selectedCounterfactual ? 'Counterfactual' : 'Baseline'})
                     </h3>
-                    <div className="space-y-3">
-                        {Object.entries(championshipProbs)
-                            .sort(([, a], [, b]) => b - a)
-                            .slice(0, 5)
-                            .map(([driver, prob]) => {
-                                const d = INITIAL_STANDINGS.find(s => s.driver === driver)!
-                                return (
-                                    <div key={driver} className="flex items-center gap-4">
-                                        <div className="w-20 font-bold">{d.name}</div>
-                                        <div className="flex-1">
-                                            <div className="h-6 bg-white rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full rounded-full transition-all duration-500"
-                                                    style={{ width: `${prob}%`, backgroundColor: d.color }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="w-16 text-right font-bold">{prob.toFixed(1)}%</div>
+                    <div className="space-y-2">
+                        {Object.entries(monteCarloResults).sort(([, a], [, b]) => b - a).slice(0, 5).map(([id, prob]) => {
+                            const d = getDriverData(id)
+                            return (
+                                <div key={id} className="flex items-center gap-3">
+                                    <div className="w-20 font-bold">{d.name}</div>
+                                    <div className="flex-1 h-5 bg-white rounded-full overflow-hidden">
+                                        <div className="h-full rounded-full" style={{ width: `${prob}%`, backgroundColor: d.color }} />
                                     </div>
-                                )
-                            })}
+                                    <div className="w-14 text-right font-bold">{prob.toFixed(1)}%</div>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             )}
 
-            {/* Current Standings */}
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                        Current Standings
+            {/* Standings & Race Log Grid */}
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+                {/* Current Standings */}
+                <div className="bg-white rounded-lg shadow p-5">
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <Trophy className="w-5 h-5 text-yellow-500" /> Championship Standings
                     </h3>
                     <div className="space-y-2">
-                        {standings.slice(0, 8).map((driver, i) => (
-                            <div key={driver.driver} className="flex items-center gap-3 p-2 rounded-lg hover:bg-f1-gray-50">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${i === 0 ? 'bg-yellow-400 text-yellow-900' : 'bg-f1-gray-100'}`}>
-                                    {i + 1}
+                        {(standings.length > 0 ? standings : DRIVERS_2024.map(d => ({ id: d.id, points: 0 }))).map((s, i) => {
+                            const d = getDriverData(s.id)
+                            return (
+                                <div key={s.id} className="flex items-center gap-2 p-2 rounded hover:bg-f1-gray-50">
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${i === 0 ? 'bg-yellow-400 text-yellow-900' : 'bg-f1-gray-100'}`}>{i + 1}</div>
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
+                                    <div className="flex-1 font-bold text-sm">{d.name}</div>
+                                    <div className="text-xs text-f1-gray-500">{d.team}</div>
+                                    <div className="font-mono font-bold">{s.points}</div>
                                 </div>
-                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: driver.color }} />
-                                <div className="flex-1 font-bold">{driver.name}</div>
-                                <div className="text-sm text-f1-gray-500">{driver.team}</div>
-                                <div className="font-mono font-bold">{driver.points}</div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
 
-                {/* Recent Race Results */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <Flag className="w-5 h-5 text-green-600" />
-                        Race Results
+                {/* Race Log */}
+                <div className="bg-white rounded-lg shadow p-5">
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <Flag className="w-5 h-5 text-green-600" /> Race Log
                     </h3>
-                    {raceResults.length === 0 ? (
-                        <div className="text-center text-f1-gray-500 py-8">
-                            No races simulated yet. Click &quot;Run Simulation&quot; or &quot;Next Race&quot; to start.
-                        </div>
+                    {raceLog.length === 0 ? (
+                        <div className="text-center text-f1-gray-400 py-8">Run simulation to see race results</div>
                     ) : (
-                        <div className="space-y-4 max-h-80 overflow-y-auto">
-                            {[...raceResults].reverse().slice(0, 3).map((race, rIdx) => (
-                                <div key={rIdx} className="border-b pb-3 last:border-0">
-                                    <div className="font-bold text-sm text-f1-gray-500 mb-2">{race.race}</div>
-                                    <div className="flex gap-2">
-                                        {race.results.slice(0, 3).map((d, i) => (
-                                            <div key={i} className="flex items-center gap-1 text-sm">
-                                                <span>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
-                                                <span className="font-bold">{d.name}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                        <div className="space-y-2 max-h-72 overflow-y-auto">
+                            {[...raceLog].reverse().slice(0, 8).map((log, i) => (
+                                <div key={i} className="flex items-center gap-2 text-sm border-b pb-2">
+                                    <span>{log.weather}</span>
+                                    <span className="font-bold flex-1">{log.race}</span>
+                                    {log.sc && <span className="text-yellow-600 text-xs">🚗 SC</span>}
+                                    <span>🥇{log.top3[0]} 🥈{log.top3[1]} 🥉{log.top3[2]}</span>
                                 </div>
                             ))}
                         </div>
@@ -260,12 +495,8 @@ export default function SimulatorPage() {
 
             {/* Links */}
             <div className="flex gap-4 justify-center">
-                <Link href="/championship" className="bg-f1-gray-900 text-white px-6 py-3 rounded-lg hover:bg-f1-gray-700 transition">
-                    Championship Projections
-                </Link>
-                <Link href="/history" className="border border-f1-gray-300 px-6 py-3 rounded-lg hover:bg-f1-gray-50 transition">
-                    Historical Accuracy
-                </Link>
+                <Link href="/championship" className="bg-f1-gray-900 text-white px-5 py-2 rounded-lg hover:bg-f1-gray-700 transition">Championship</Link>
+                <Link href="/strategy" className="border border-f1-gray-300 px-5 py-2 rounded-lg hover:bg-f1-gray-50 transition">Pit Strategy</Link>
             </div>
         </div>
     )
