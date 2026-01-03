@@ -445,6 +445,19 @@ main() {
     login_to_registry
     pull_images
     deploy_application
+
+    # Setup Nginx if not already running
+    if ! systemctl is-active --quiet nginx 2>/dev/null; then
+        log_step "Setting up Nginx..."
+        if [ -f "${DEPLOY_DIR}/setup_nginx.sh" ]; then
+            bash "${DEPLOY_DIR}/setup_nginx.sh"
+        else
+            log_warning "setup_nginx.sh not found, skipping Nginx setup"
+        fi
+    else
+        log_info "Nginx already running, skipping setup"
+    fi
+
     verify_deployment
     prune_images
 

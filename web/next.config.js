@@ -2,6 +2,8 @@
 const nextConfig = {
     reactStrictMode: true,
     output: 'standalone', // For optimized Docker builds
+    basePath: '/f1-insights',
+    assetPrefix: '/f1-insights',
 
     // Configure runtime environment variables
     // These can be set when the container starts
