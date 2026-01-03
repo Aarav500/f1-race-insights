@@ -130,13 +130,14 @@ def prepare_features(
     return np.asarray(X), y, feature_cols
 
 
-def create_model(model_name: str, task: str, seed: int = 42) -> Any:
+def create_model(model_name: str, task: str, seed: int = 42, optimized: bool = True) -> Any:
     """Create model instance.
 
     Args:
         model_name: One of 'xgb', 'lgbm', 'cat', 'lr', 'rf'
         task: One of 'win', 'podium', 'expected_finish'
         seed: Random seed
+        optimized: Whether to use optimized hyperparameters (default: True)
 
     Returns:
         Model instance
@@ -147,53 +148,128 @@ def create_model(model_name: str, task: str, seed: int = 42) -> Any:
         if not HAS_XGB:
             raise ImportError("XGBoost not installed. Install with: pip install xgboost")
         if is_classification:
-            return xgb.XGBClassifier(
-                n_estimators=100,
-                max_depth=6,
-                learning_rate=0.1,
-                random_state=seed,
-                eval_metric="logloss",
-            )
+            if optimized:
+                # Optimized hyperparameters for better generalization
+                return xgb.XGBClassifier(
+                    n_estimators=200,
+                    max_depth=4,  # Reduced from 6 to prevent overfitting
+                    learning_rate=0.05,  # Lower LR with more trees
+                    min_child_weight=5,  # Prevent overfitting on rare cases
+                    subsample=0.8,  # Row sampling
+                    colsample_bytree=0.8,  # Feature sampling
+                    reg_alpha=0.1,  # L1 regularization
+                    reg_lambda=1.0,  # L2 regularization
+                    random_state=seed,
+                    eval_metric="logloss",
+                    scale_pos_weight=19,  # ~1 win per 20 drivers
+                )
+            else:
+                return xgb.XGBClassifier(
+                    n_estimators=100,
+                    max_depth=6,
+                    learning_rate=0.1,
+                    random_state=seed,
+                    eval_metric="logloss",
+                )
         else:
             return xgb.XGBRegressor(
-                n_estimators=100, max_depth=6, learning_rate=0.1, random_state=seed
+                n_estimators=200 if optimized else 100,
+                max_depth=4 if optimized else 6,
+                learning_rate=0.05 if optimized else 0.1,
+                random_state=seed
             )
 
     elif model_name == "lgbm":
         if not HAS_LIGHTGBM:
             raise ImportError("LightGBM not installed. Install with: pip install lightgbm")
         if is_classification:
-            return lgb.LGBMClassifier(
-                n_estimators=100, max_depth=6, learning_rate=0.1, random_state=seed, verbose=-1
-            )
+            if optimized:
+                # Optimized hyperparameters to reduce overfitting
+                return lgb.LGBMClassifier(
+                    n_estimators=200,
+                    max_depth=4,
+                    num_leaves=15,  # Lower than 2^max_depth
+                    learning_rate=0.05,
+                    min_data_in_leaf=20,  # Minimum samples per leaf
+                    feature_fraction=0.8,  # Column subsampling
+                    bagging_fraction=0.8,  # Row subsampling
+                    bagging_freq=5,
+                    reg_alpha=0.1,  # L1 regularization
+                    reg_lambda=1.0,  # L2 regularization
+                    random_state=seed,
+                    verbose=-1,
+                    class_weight='balanced',
+                )
+            else:
+                return lgb.LGBMClassifier(
+                    n_estimators=100, max_depth=6, learning_rate=0.1, random_state=seed, verbose=-1
+                )
         else:
             return lgb.LGBMRegressor(
-                n_estimators=100, max_depth=6, learning_rate=0.1, random_state=seed, verbose=-1
+                n_estimators=200 if optimized else 100,
+                max_depth=4 if optimized else 6,
+                learning_rate=0.05 if optimized else 0.1,
+                random_state=seed, verbose=-1
             )
 
     elif model_name == "cat":
         if not HAS_CATBOOST:
             raise ImportError("CatBoost not installed. Install with: pip install catboost")
         if is_classification:
-            return cb.CatBoostClassifier(
-                iterations=100, depth=6, learning_rate=0.1, random_state=seed, verbose=False
-            )
+            if optimized:
+                return cb.CatBoostClassifier(
+                    iterations=200,
+                    depth=4,  # Reduced from 6
+                    learning_rate=0.05,
+                    l2_leaf_reg=3.0,  # L2 regularization
+                    random_state=seed,
+                    verbose=False,
+                    auto_class_weights='Balanced',
+                )
+            else:
+                return cb.CatBoostClassifier(
+                    iterations=100, depth=6, learning_rate=0.1, random_state=seed, verbose=False
+                )
         else:
             return cb.CatBoostRegressor(
-                iterations=100, depth=6, learning_rate=0.1, random_state=seed, verbose=False
+                iterations=200 if optimized else 100,
+                depth=4 if optimized else 6,
+                learning_rate=0.05 if optimized else 0.1,
+                random_state=seed, verbose=False
             )
 
     elif model_name == "lr":
         if is_classification:
-            return LogisticRegression(max_iter=1000, random_state=seed)
+            # Logistic Regression with regularization tuning
+            return LogisticRegression(
+                max_iter=1000,
+                random_state=seed,
+                C=0.5 if optimized else 1.0,  # Slight regularization
+                class_weight='balanced' if optimized else None,
+            )
         else:
             return Ridge(alpha=1.0, random_state=seed)
 
     elif model_name == "rf":
         if is_classification:
-            return RandomForestClassifier(n_estimators=100, max_depth=10, random_state=seed)
+            if optimized:
+                return RandomForestClassifier(
+                    n_estimators=200,
+                    max_depth=8,  # Reduced from 10
+                    min_samples_split=10,
+                    min_samples_leaf=5,
+                    max_features='sqrt',
+                    random_state=seed,
+                    class_weight='balanced',
+                )
+            else:
+                return RandomForestClassifier(n_estimators=100, max_depth=10, random_state=seed)
         else:
-            return RandomForestRegressor(n_estimators=100, max_depth=10, random_state=seed)
+            return RandomForestRegressor(
+                n_estimators=200 if optimized else 100,
+                max_depth=8 if optimized else 10,
+                random_state=seed
+            )
 
     else:
         raise ValueError(f"Unknown model: {model_name}")

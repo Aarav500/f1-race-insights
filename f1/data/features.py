@@ -279,6 +279,89 @@ def compute_rolling_constructor_form(
     return pd.DataFrame(rolling_features)
 
 
+def compute_driver_track_history(
+    race_features: pd.DataFrame, min_visits: int = 1
+) -> pd.DataFrame:
+    """Compute driver's historical performance at each specific track.
+
+    This is a high-impact feature that captures circuit-specific driver skill.
+    Uses ONLY strictly prior visits to the same track to prevent data leakage.
+
+    Args:
+        race_features: DataFrame with race results including track info
+        min_visits: Minimum prior track visits required for calculation
+
+    Returns:
+        DataFrame with track-specific driver history features
+    """
+    # Sort by year and round to ensure temporal ordering
+    df = race_features.sort_values(["year", "round"]).copy()
+
+    # Create race index for temporal ordering
+    race_order = (
+        df[["year", "round"]]
+        .drop_duplicates()
+        .sort_values(["year", "round"])
+        .reset_index(drop=True)
+    )
+    race_order["race_index"] = list(range(len(race_order)))
+    df = df.merge(race_order, on=["year", "round"])
+
+    # Create track identifier from country and race_name
+    if "track_id" not in df.columns:
+        df["track_id"] = df["country"].astype(str) + "_" + df.get("track_name", df.get("race_name", "")).astype(str)
+
+    track_features = []
+
+    for driver in df["driver_id"].unique():
+        driver_races = df[df["driver_id"] == driver].sort_values("race_index")
+
+        for _, row in driver_races.iterrows():
+            current_race_idx = row["race_index"]
+            current_track = row["track_id"]
+
+            # Get strictly prior visits to THIS track
+            prior_track_visits = driver_races[
+                (driver_races["race_index"] < current_race_idx) &
+                (driver_races["track_id"] == current_track)
+            ]
+
+            if len(prior_track_visits) >= min_visits:
+                # Driver's average finish at this track
+                track_avg_finish = prior_track_visits["finish_position"].mean()
+                # Best finish at this track
+                track_best_finish = prior_track_visits["finish_position"].min()
+                # Win rate at this track
+                track_win_rate = (prior_track_visits["finish_position"] == 1).mean()
+                # Podium rate at this track
+                track_podium_rate = (prior_track_visits["finish_position"] <= 3).mean()
+                # DNF rate at this track
+                track_dnf_rate = prior_track_visits["dnf"].mean()
+                # Number of prior visits
+                n_visits = len(prior_track_visits)
+            else:
+                # Not enough prior data for this track
+                track_avg_finish = np.nan
+                track_best_finish = np.nan
+                track_win_rate = np.nan
+                track_podium_rate = np.nan
+                track_dnf_rate = np.nan
+                n_visits = 0
+
+            track_features.append({
+                "race_id": row["race_id"],
+                "driver_id": driver,
+                "driver_track_avg_finish": track_avg_finish,
+                "driver_track_best_finish": track_best_finish,
+                "driver_track_win_rate": track_win_rate,
+                "driver_track_podium_rate": track_podium_rate,
+                "driver_track_dnf_rate": track_dnf_rate,
+                "driver_track_visits": n_visits,
+            })
+
+    return pd.DataFrame(track_features)
+
+
 def build_feature_table(
     race_results: pd.DataFrame, qual_results: pd.DataFrame, rolling_window: int = 5
 ) -> pd.DataFrame:
@@ -336,6 +419,9 @@ def build_feature_table(
         race_features_with_team, window=rolling_window
     )
 
+    logger.info("Computing driver track history...")
+    driver_track_history = compute_driver_track_history(race_features_with_team)
+
     # Merge all features
     features = qual_features.merge(driver_rolling, on=["race_id", "driver_id"], how="left")
 
@@ -348,6 +434,24 @@ def build_feature_table(
                 "constructor_rolling_avg_points",
                 "constructor_rolling_dnf_rate",
                 "constructor_prior_races_count",
+            ]
+        ],
+        on=["race_id", "driver_id"],
+        how="left",
+    )
+
+    # Merge driver track history features (high-impact for predictions)
+    features = features.merge(
+        driver_track_history[
+            [
+                "race_id",
+                "driver_id",
+                "driver_track_avg_finish",
+                "driver_track_best_finish",
+                "driver_track_win_rate",
+                "driver_track_podium_rate",
+                "driver_track_dnf_rate",
+                "driver_track_visits",
             ]
         ],
         on=["race_id", "driver_id"],
@@ -387,6 +491,13 @@ def build_feature_table(
         "constructor_rolling_avg_finish",
         "constructor_rolling_avg_points",
         "constructor_rolling_dnf_rate",
+        # New track-specific features (high-impact)
+        "driver_track_avg_finish",
+        "driver_track_best_finish",
+        "driver_track_win_rate",
+        "driver_track_podium_rate",
+        "driver_track_dnf_rate",
+        "driver_track_visits",
     ]
 
     # Add optional columns if they exist
