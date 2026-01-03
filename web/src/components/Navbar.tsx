@@ -19,9 +19,12 @@ export default function Navbar() {
         { href: '/head-to-head', label: 'Head-to-Head', icon: '👥' },
         { href: '/explainer', label: 'SHAP Explainer', icon: '🧠' },
         { href: '/championship', label: 'Championship', icon: '🏆' },
+        { href: '/ticker', label: 'Race Ticker', icon: '⏱️' },
+        { href: '/career', label: 'Career Timeline', icon: '📈' },
         { href: '/architecture', label: 'Architecture', icon: '🏗️' },
         { href: '/playground', label: 'API Playground', icon: '🔧' },
         { href: '/history', label: 'Accuracy', icon: '📊' },
+        { href: '/export', label: 'PDF Export', icon: '📄' },
         { href: '/2026', label: '2026 Regs', icon: '🚀' },
         { href: '/docs', label: 'Docs', icon: '📚' },
     ]
