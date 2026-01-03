@@ -15,8 +15,18 @@ export default function Navbar() {
         { href: '/strategy', label: 'Strategy' },
     ]
 
-    // Organized feature categories
+    // Organized feature categories - now with advanced features
     const featureCategories = [
+        {
+            title: 'Advanced Analytics',
+            links: [
+                { href: '/live', label: 'Live Dashboard', icon: '🔴' },
+                { href: '/fantasy', label: 'Fantasy F1', icon: '🏆' },
+                { href: '/replay', label: 'Race Replay', icon: '⏪' },
+                { href: '/uncertainty', label: 'Uncertainty Viz', icon: '📊' },
+                { href: '/report', label: 'Race Reports', icon: '📝' },
+            ]
+        },
         {
             title: 'Prediction & Analysis',
             links: [
@@ -36,20 +46,11 @@ export default function Navbar() {
             ]
         },
         {
-            title: 'Career & History',
+            title: 'Technical',
             links: [
                 { href: '/career', label: 'Career Timeline', icon: '📈' },
                 { href: '/constructors', label: 'Constructors', icon: '🏢' },
-                { href: '/history', label: 'Model Accuracy', icon: '📊' },
-                { href: '/2026', label: '2026 Regulations', icon: '🚀' },
-            ]
-        },
-        {
-            title: 'Technical',
-            links: [
                 { href: '/architecture', label: 'Neural Network', icon: '🏗️' },
-                { href: '/training', label: 'Training Viz', icon: '📉' },
-                { href: '/abtesting', label: 'A/B Testing', icon: '🔬' },
                 { href: '/playground', label: 'API Playground', icon: '🔧' },
             ]
         },
@@ -74,8 +75,8 @@ export default function Navbar() {
                                 key={link.href}
                                 href={link.href}
                                 className={`px-4 py-2 rounded-lg font-medium transition ${link.highlight
-                                        ? 'bg-f1-red hover:bg-red-700'
-                                        : 'hover:bg-white/10'
+                                    ? 'bg-f1-red hover:bg-red-700'
+                                    : 'hover:bg-white/10'
                                     }`}
                             >
                                 {link.label}

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Github, ArrowRight, Play, Brain, Target, Zap, Trophy, Thermometer, Users, BarChart3, ChevronRight, Sparkles, Cpu, Database, LineChart, GitBranch, Layers } from 'lucide-react'
+import { Github, ArrowRight, Play, Brain, Target, Zap, Trophy, Thermometer, Users, BarChart3, ChevronRight, Sparkles, Cpu, Database, LineChart, GitBranch, Layers, Activity, FileText, Rewind } from 'lucide-react'
 
 // Animated counter hook
 function useCounter(end: number, duration: number = 2000) {
@@ -223,14 +223,14 @@ export default function HomePage() {
                     {/* Secondary Features - Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
                         {[
-                            { href: '/compare', icon: BarChart3, label: 'Compare Models', desc: '8 models side-by-side' },
-                            { href: '/whatif', icon: Target, label: 'What-If Lab', desc: 'Counterfactual analysis' },
-                            { href: '/explainer', icon: Brain, label: 'SHAP Explainer', desc: 'ML interpretability' },
-                            { href: '/head-to-head', icon: Users, label: 'Head-to-Head', desc: 'Driver battles' },
-                            { href: '/career', icon: LineChart, label: 'Career Timeline', desc: '10 drivers, all stats' },
-                            { href: '/constructors', icon: Database, label: 'Constructors', desc: '2026 lineups' },
-                            { href: '/architecture', icon: Cpu, label: 'Neural Network', desc: 'Architecture viz' },
-                            { href: '/ticker', icon: Zap, label: '2026 Ticker', desc: 'New regs countdown' },
+                            { href: '/live', icon: Activity, label: 'Live Dashboard', desc: 'Real-time race updates' },
+                            { href: '/fantasy', icon: Trophy, label: 'Fantasy F1', desc: 'ML team builder' },
+                            { href: '/replay', icon: Rewind, label: 'Race Replay', desc: 'What-if scenarios' },
+                            { href: '/uncertainty', icon: BarChart3, label: 'Uncertainty Viz', desc: 'Confidence intervals' },
+                            { href: '/report', icon: FileText, label: 'Race Reports', desc: 'AI analysis' },
+                            { href: '/compare', icon: Brain, label: 'Compare Models', desc: '8 models' },
+                            { href: '/explainer', icon: Cpu, label: 'SHAP Explainer', desc: 'Interpretability' },
+                            { href: '/architecture', icon: Layers, label: 'Neural Network', desc: 'Architecture viz' },
                         ].map(f => (
                             <Link key={f.href} href={f.href} className="group bg-white rounded-xl p-4 hover:shadow-lg transition border border-f1-gray-200">
                                 <f.icon className="w-6 h-6 text-f1-red mb-2 group-hover:scale-110 transition" />
