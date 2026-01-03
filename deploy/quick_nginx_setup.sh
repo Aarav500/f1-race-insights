@@ -1,10 +1,15 @@
+#!/bin/bash
+# Quick Nginx config setup
+
+# Create the config file
+cat > /tmp/aarav-shah.conf << 'EOF'
 server {
     listen 80;
     server_name aarav-shah.com www.aarav-shah.com;
 
-    # Redirect root to app
-    location = / {
-        return 302 /f1-insights/;
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
     }
 
     location /f1-insights/ {
@@ -25,3 +30,9 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 }
+EOF
+
+# Move to nginx config and reload
+sudo mv /tmp/aarav-shah.conf /etc/nginx/conf.d/
+sudo nginx -t && sudo systemctl reload nginx
+echo "DONE - Nginx configured"
