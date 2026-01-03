@@ -2,96 +2,136 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, Flag, ChevronDown } from 'lucide-react'
+import { Menu, X, Flag, ChevronDown, ExternalLink } from 'lucide-react'
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
-    const [moreOpen, setMoreOpen] = useState(false)
+    const [featuresOpen, setFeaturesOpen] = useState(false)
 
+    // Clean 4-item main nav
     const mainLinks = [
-        { href: '/', label: 'Home' },
-        { href: '/compare', label: 'Compare' },
-        { href: '/whatif', label: 'What-If' },
-        { href: '/backtest', label: 'Backtest' },
+        { href: '/simulator', label: 'Simulator', highlight: true },
+        { href: '/championship', label: 'Championship' },
+        { href: '/strategy', label: 'Strategy' },
     ]
 
-    const moreLinks = [
-        { href: '/head-to-head', label: 'Head-to-Head', icon: '👥' },
-        { href: '/explainer', label: 'SHAP Explainer', icon: '🧠' },
-        { href: '/championship', label: 'Championship', icon: '🏆' },
-        { href: '/ticker', label: 'Race Ticker', icon: '⏱️' },
-        { href: '/career', label: 'Career Timeline', icon: '📈' },
-        { href: '/tracks', label: 'Track Profiles', icon: '🏁' },
-        { href: '/weather', label: 'Weather Impact', icon: '🌧️' },
-        { href: '/strategy', label: 'Pit Strategy', icon: '⛽' },
-        { href: '/simulator', label: 'Season Simulator', icon: '🎲' },
-        { href: '/qualifying', label: 'Qualifying', icon: '⚡' },
-        { href: '/constructors', label: 'Constructors', icon: '🏢' },
-        { href: '/dashboard', label: 'Live Dashboard', icon: '📡' },
-        { href: '/training', label: 'Training Viz', icon: '📉' },
-        { href: '/abtesting', label: 'A/B Testing', icon: '🔬' },
-        { href: '/architecture', label: 'Architecture', icon: '🏗️' },
-        { href: '/playground', label: 'API Playground', icon: '🔧' },
-        { href: '/history', label: 'Accuracy', icon: '📊' },
-        { href: '/export', label: 'PDF Export', icon: '📄' },
-        { href: '/2026', label: '2026 Regs', icon: '🚀' },
-        { href: '/docs', label: 'Docs', icon: '📚' },
+    // Organized feature categories
+    const featureCategories = [
+        {
+            title: 'Prediction & Analysis',
+            links: [
+                { href: '/compare', label: 'Compare Models', icon: '📊' },
+                { href: '/whatif', label: 'What-If Lab', icon: '🔮' },
+                { href: '/explainer', label: 'SHAP Explainer', icon: '🧠' },
+                { href: '/head-to-head', label: 'Head-to-Head', icon: '👥' },
+            ]
+        },
+        {
+            title: 'Race Intelligence',
+            links: [
+                { href: '/ticker', label: '2026 Ticker', icon: '⏱️' },
+                { href: '/tracks', label: 'Track Profiles', icon: '🏁' },
+                { href: '/weather', label: 'Weather Impact', icon: '🌧️' },
+                { href: '/qualifying', label: 'Qualifying', icon: '⚡' },
+            ]
+        },
+        {
+            title: 'Career & History',
+            links: [
+                { href: '/career', label: 'Career Timeline', icon: '📈' },
+                { href: '/constructors', label: 'Constructors', icon: '🏢' },
+                { href: '/history', label: 'Model Accuracy', icon: '📊' },
+                { href: '/2026', label: '2026 Regulations', icon: '🚀' },
+            ]
+        },
+        {
+            title: 'Technical',
+            links: [
+                { href: '/architecture', label: 'Neural Network', icon: '🏗️' },
+                { href: '/training', label: 'Training Viz', icon: '📉' },
+                { href: '/abtesting', label: 'A/B Testing', icon: '🔬' },
+                { href: '/playground', label: 'API Playground', icon: '🔧' },
+            ]
+        },
     ]
 
     return (
-        <nav className="bg-f1-black text-white shadow-lg">
+        <nav className="bg-f1-black text-white shadow-lg sticky top-0 z-50">
             <div className="container mx-auto px-4">
-                <div className="flex justify-between items-center h-16">
+                <div className="flex justify-between items-center h-14">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center space-x-2 font-bold text-xl">
-                        <Flag className="w-6 h-6 text-f1-red" />
-                        <span>F1 Insights</span>
+                    <Link href="/" className="flex items-center space-x-2 font-bold text-lg group">
+                        <div className="w-8 h-8 bg-f1-red rounded flex items-center justify-center group-hover:scale-110 transition">
+                            <Flag className="w-5 h-5" />
+                        </div>
+                        <span className="hidden sm:inline">F1 Race Insights</span>
                     </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-6">
+                    {/* Desktop Navigation - Clean 4 items */}
+                    <div className="hidden md:flex items-center space-x-1">
                         {mainLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="hover:text-f1-red transition"
+                                className={`px-4 py-2 rounded-lg font-medium transition ${link.highlight
+                                        ? 'bg-f1-red hover:bg-red-700'
+                                        : 'hover:bg-white/10'
+                                    }`}
                             >
                                 {link.label}
                             </Link>
                         ))}
 
-                        {/* More Dropdown */}
+                        {/* Features Mega Menu */}
                         <div className="relative">
                             <button
-                                onClick={() => setMoreOpen(!moreOpen)}
-                                className="flex items-center gap-1 hover:text-f1-red transition"
+                                onClick={() => setFeaturesOpen(!featuresOpen)}
+                                className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-white/10 transition font-medium"
                             >
-                                More <ChevronDown className={`w-4 h-4 transition ${moreOpen ? 'rotate-180' : ''}`} />
+                                Features <ChevronDown className={`w-4 h-4 transition ${featuresOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            {moreOpen && (
-                                <div
-                                    className="absolute right-0 mt-2 w-48 bg-white text-f1-black rounded-lg shadow-lg py-2 z-50"
-                                    onMouseLeave={() => setMoreOpen(false)}
-                                >
-                                    {moreLinks.map((link) => (
-                                        <Link
-                                            key={link.href}
-                                            href={link.href}
-                                            className="block px-4 py-2 hover:bg-f1-gray-100 transition"
-                                            onClick={() => setMoreOpen(false)}
-                                        >
-                                            <span className="mr-2">{link.icon}</span>
-                                            {link.label}
-                                        </Link>
-                                    ))}
-                                </div>
+                            {featuresOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setFeaturesOpen(false)} />
+                                    <div className="absolute right-0 mt-2 w-[600px] bg-white text-f1-black rounded-xl shadow-2xl p-4 z-50 grid grid-cols-2 gap-4">
+                                        {featureCategories.map((cat) => (
+                                            <div key={cat.title}>
+                                                <div className="text-xs font-bold text-f1-gray-500 uppercase tracking-wider mb-2">{cat.title}</div>
+                                                <div className="space-y-1">
+                                                    {cat.links.map((link) => (
+                                                        <Link
+                                                            key={link.href}
+                                                            href={link.href}
+                                                            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-f1-gray-100 transition text-sm"
+                                                            onClick={() => setFeaturesOpen(false)}
+                                                        >
+                                                            <span>{link.icon}</span>
+                                                            <span className="font-medium">{link.label}</span>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
                             )}
                         </div>
+
+                        {/* GitHub */}
+                        <a
+                            href="https://github.com/Aarav500/f1-race-insights"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/10 transition text-sm"
+                        >
+                            <ExternalLink className="w-4 h-4" />
+                            <span className="hidden lg:inline">GitHub</span>
+                        </a>
                     </div>
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden"
+                        className="md:hidden p-2"
                         onClick={() => setIsOpen(!isOpen)}
                         aria-label="Toggle menu"
                     >
@@ -101,28 +141,32 @@ export default function Navbar() {
 
                 {/* Mobile Navigation */}
                 {isOpen && (
-                    <div className="md:hidden pb-4">
+                    <div className="md:hidden pb-4 max-h-[80vh] overflow-y-auto">
                         {mainLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="block py-2 hover:text-f1-red transition"
+                                className={`block py-3 px-4 rounded-lg transition ${link.highlight ? 'bg-f1-red' : 'hover:bg-white/10'}`}
                                 onClick={() => setIsOpen(false)}
                             >
                                 {link.label}
                             </Link>
                         ))}
-                        <div className="border-t border-f1-gray-700 my-2" />
-                        {moreLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                className="block py-2 hover:text-f1-red transition"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                <span className="mr-2">{link.icon}</span>
-                                {link.label}
-                            </Link>
+                        {featureCategories.map((cat) => (
+                            <div key={cat.title} className="mt-4">
+                                <div className="text-xs text-f1-gray-400 uppercase px-4 mb-1">{cat.title}</div>
+                                {cat.links.map((link) => (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        className="block py-2 px-4 hover:bg-white/10 transition"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <span className="mr-2">{link.icon}</span>
+                                        {link.label}
+                                    </Link>
+                                ))}
+                            </div>
                         ))}
                     </div>
                 )}
@@ -130,4 +174,3 @@ export default function Navbar() {
         </nav>
     )
 }
-

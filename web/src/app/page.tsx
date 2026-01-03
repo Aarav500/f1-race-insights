@@ -2,290 +2,314 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BarChart3, TrendingUp, FileText, Github, BookOpen, Cpu, Trophy, Timer, Zap, Target, Brain, Shuffle, Thermometer, Flag, CloudRain } from 'lucide-react'
-import RacePicker from '@/components/RacePicker'
+import { useState, useEffect } from 'react'
+import { Github, ArrowRight, Play, Brain, Target, Zap, Trophy, Thermometer, Users, BarChart3, ChevronRight, Sparkles, Cpu, Database, LineChart, GitBranch, Layers } from 'lucide-react'
+
+// Animated counter hook
+function useCounter(end: number, duration: number = 2000) {
+    const [count, setCount] = useState(0)
+    useEffect(() => {
+        let start = 0
+        const increment = end / (duration / 16)
+        const timer = setInterval(() => {
+            start += increment
+            if (start >= end) {
+                setCount(end)
+                clearInterval(timer)
+            } else {
+                setCount(Math.floor(start))
+            }
+        }, 16)
+        return () => clearInterval(timer)
+    }, [end, duration])
+    return count
+}
 
 export default function HomePage() {
     const router = useRouter()
+    const [activeDemo, setActiveDemo] = useState(0)
 
-    const handleRaceSelect = (raceId: string, raceName: string) => {
-        router.push(`/race/${raceId}`)
-    }
+    // Animated stats
+    const aucScore = useCounter(98.7, 1500)
+    const samples = useCounter(2640, 2000)
+    const features = useCounter(48, 1200)
+    const races = useCounter(24, 1000)
+
+    // Demo scenarios
+    const demos = [
+        { title: 'Monte Carlo Simulation', desc: 'Run 1000 season simulations with real F1 parameters' },
+        { title: 'SHAP Explanations', desc: 'See why the model predicts each driver\'s win probability' },
+        { title: 'What-If Scenarios', desc: 'Modify driver attributes and see prediction changes' },
+        { title: 'Temperature Effects', desc: '5-45°C simulation affecting tire strategy' },
+    ]
+
+    // Auto-cycle demos
+    useEffect(() => {
+        const timer = setInterval(() => setActiveDemo((d) => (d + 1) % demos.length), 4000)
+        return () => clearInterval(timer)
+    }, [])
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* 2025 Champion Banner */}
-            <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 rounded-xl p-6 mb-8 text-white relative overflow-hidden">
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-9xl opacity-20">🏆</div>
-                <div className="relative z-10">
-                    <div className="text-sm opacity-80 uppercase tracking-wider">2025 World Champion</div>
-                    <div className="text-4xl font-bold mb-1">Lando Norris • McLaren</div>
-                    <div className="text-sm opacity-80">412 points • 8 wins • First British champion since Hamilton 2020</div>
-                </div>
-            </div>
-
-            {/* Hero Section */}
-            <div className="text-center mb-8">
-                <h1 className="text-5xl font-bold mb-4 text-f1-black">
-                    F1 Race Insights
-                </h1>
-                <p className="text-xl text-f1-gray-600 mb-6 max-w-3xl mx-auto">
-                    F1-level predictive modeling and simulation for Formula 1 race outcomes,
-                    featuring Monte Carlo season simulation, SHAP explanations, and counterfactual analysis.
-                </p>
-
-                {/* Race Picker */}
-                <div className="max-w-2xl mx-auto mb-6">
-                    <RacePicker
-                        onRaceSelect={handleRaceSelect}
-                        label="Try Predictions - Select a Race"
-                    />
+        <div className="min-h-screen bg-gradient-to-b from-f1-black via-f1-gray-900 to-f1-black">
+            {/* Hero Section - Dark, dramatic */}
+            <section className="relative overflow-hidden">
+                {/* Animated grid background */}
+                <div className="absolute inset-0 opacity-20">
+                    <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
                 </div>
 
-                <div className="flex gap-4 justify-center flex-wrap">
-                    <a
-                        href="https://github.com/Aarav500/f1-race-insights"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="border border-f1-gray-300 text-f1-black px-6 py-3 rounded-lg hover:bg-f1-gray-100 transition flex items-center gap-2"
-                    >
-                        <Github className="w-5 h-5" />
-                        GitHub
-                    </a>
-                </div>
-            </div>
+                {/* Red accent glow */}
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-f1-red/20 rounded-full blur-[150px]" />
 
-            {/* Stats Banner - Updated for 2025 */}
-            <div className="bg-gradient-to-r from-f1-gray-900 to-f1-gray-800 text-white rounded-xl p-6 mb-8">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                    <div>
-                        <div className="text-3xl font-bold text-f1-red">98.7%</div>
-                        <div className="text-xs text-f1-gray-300">AUC Score</div>
-                    </div>
-                    <div>
-                        <div className="text-3xl font-bold text-yellow-400">8</div>
-                        <div className="text-xs text-f1-gray-300">ML Models</div>
-                    </div>
-                    <div>
-                        <div className="text-3xl font-bold text-green-400">2,640</div>
-                        <div className="text-xs text-f1-gray-300">Training Samples</div>
-                        <div className="text-[10px] text-f1-gray-500">2020-2025</div>
-                    </div>
-                    <div>
-                        <div className="text-3xl font-bold text-blue-400">24</div>
-                        <div className="text-xs text-f1-gray-300">Races/Season</div>
-                    </div>
-                    <div>
-                        <div className="text-3xl font-bold text-orange-400">48</div>
-                        <div className="text-xs text-f1-gray-300">Simulated Features</div>
-                        <div className="text-[10px] text-f1-gray-500">Temp, Tire, SC, DRS</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Featured: F1-Level Simulator */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 mb-8 text-white">
-                <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Shuffle className="w-6 h-6" />
-                            <span className="text-sm opacity-80 uppercase tracking-wider">New Feature</span>
+                <div className="container mx-auto px-4 pt-16 pb-24 relative z-10">
+                    {/* Badge */}
+                    <div className="flex justify-center mb-6">
+                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm text-white flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-yellow-400" />
+                            <span>2025 WDC: <strong>Lando Norris</strong></span>
+                            <span className="text-f1-gray-400">• McLaren</span>
                         </div>
-                        <h2 className="text-2xl font-bold mb-3">F1-Level Season Simulator</h2>
-                        <p className="opacity-90 mb-4">
-                            Full 24-race season simulation with real F1 features: temperature effects,
-                            tire degradation, safety car probability, DRS zones, wet weather skills,
-                            reliability DNFs, and strategic counterfactual &quot;what-if&quot; scenarios.
+                    </div>
+
+                    {/* Main headline */}
+                    <h1 className="text-5xl md:text-7xl font-bold text-center text-white mb-6 tracking-tight">
+                        F1 Race
+                        <span className="bg-gradient-to-r from-f1-red to-orange-500 text-transparent bg-clip-text"> Insights</span>
+                    </h1>
+
+                    <p className="text-xl md:text-2xl text-center text-f1-gray-300 max-w-3xl mx-auto mb-10">
+                        A machine learning platform for Formula 1 race prediction, featuring
+                        <span className="text-white font-semibold"> 8 ML models</span>,
+                        <span className="text-white font-semibold"> Monte Carlo simulation</span>, and
+                        <span className="text-white font-semibold"> SHAP explainability</span>.
+                    </p>
+
+                    {/* CTA Buttons */}
+                    <div className="flex flex-wrap justify-center gap-4 mb-16">
+                        <Link href="/simulator" className="group bg-f1-red hover:bg-red-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition flex items-center gap-2">
+                            <Play className="w-5 h-5" />
+                            Launch Simulator
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
+                        </Link>
+                        <a href="https://github.com/Aarav500/f1-race-insights" target="_blank" rel="noopener noreferrer" className="bg-white/10 hover:bg-white/20 backdrop-blur text-white px-8 py-4 rounded-xl font-bold text-lg transition flex items-center gap-2 border border-white/20">
+                            <Github className="w-5 h-5" />
+                            View on GitHub
+                        </a>
+                    </div>
+
+                    {/* Animated Stats */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center">
+                            <div className="text-4xl font-bold text-f1-red mb-1">{aucScore.toFixed(1)}%</div>
+                            <div className="text-sm text-f1-gray-400">AUC Score</div>
+                            <div className="text-xs text-f1-gray-500">Win Prediction</div>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center">
+                            <div className="text-4xl font-bold text-yellow-400 mb-1">8</div>
+                            <div className="text-sm text-f1-gray-400">ML Models</div>
+                            <div className="text-xs text-f1-gray-500">Ensemble Ready</div>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center">
+                            <div className="text-4xl font-bold text-green-400 mb-1">{samples.toLocaleString()}</div>
+                            <div className="text-sm text-f1-gray-400">Training Samples</div>
+                            <div className="text-xs text-f1-gray-500">2020-2025</div>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center">
+                            <div className="text-4xl font-bold text-blue-400 mb-1">{features}</div>
+                            <div className="text-sm text-f1-gray-400">Sim Features</div>
+                            <div className="text-xs text-f1-gray-500">F1-Level Detail</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Technical Excellence - Light section */}
+            <section className="bg-white py-20">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-f1-black mb-4">Technical Excellence</h2>
+                        <p className="text-f1-gray-600 max-w-2xl mx-auto">
+                            Built with production-grade ML engineering practices and modern web technologies
                         </p>
-                        <Link href="/simulator" className="bg-white text-purple-700 px-6 py-3 rounded-lg font-bold hover:bg-purple-50 transition inline-flex items-center gap-2">
-                            <Target className="w-5 h-5" /> Launch Simulator
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                        <div className="bg-gradient-to-br from-f1-gray-50 to-white border border-f1-gray-200 rounded-2xl p-6 hover:shadow-xl transition">
+                            <div className="w-12 h-12 bg-f1-red/10 rounded-xl flex items-center justify-center mb-4">
+                                <Brain className="w-6 h-6 text-f1-red" />
+                            </div>
+                            <h3 className="text-xl font-bold text-f1-black mb-2">8 ML Models</h3>
+                            <p className="text-f1-gray-600 text-sm mb-4">
+                                From Elo baselines to Neural Ranking Networks (NBT-TLF) with temporal features
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                                {['XGBoost', 'LightGBM', 'CatBoost', 'Neural'].map(m => (
+                                    <span key={m} className="text-xs bg-f1-gray-100 px-2 py-1 rounded">{m}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-f1-gray-50 to-white border border-f1-gray-200 rounded-2xl p-6 hover:shadow-xl transition">
+                            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                                <Layers className="w-6 h-6 text-purple-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-f1-black mb-2">Monte Carlo Engine</h3>
+                            <p className="text-f1-gray-600 text-sm mb-4">
+                                1000+ simulation runs with temperature, tire degradation, safety cars, and DRS zones
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                                {['Temp', 'Tires', 'SC', 'DRS'].map(m => (
+                                    <span key={m} className="text-xs bg-purple-50 px-2 py-1 rounded text-purple-700">{m}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-f1-gray-50 to-white border border-f1-gray-200 rounded-2xl p-6 hover:shadow-xl transition">
+                            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                                <LineChart className="w-6 h-6 text-green-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-f1-black mb-2">SHAP Explainability</h3>
+                            <p className="text-f1-gray-600 text-sm mb-4">
+                                Interpretable predictions with waterfall charts showing feature contributions
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                                {['Waterfall', 'Force', 'Summary'].map(m => (
+                                    <span key={m} className="text-xs bg-green-50 px-2 py-1 rounded text-green-700">{m}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature Showcase - Interactive cards */}
+            <section className="bg-f1-gray-100 py-20">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-f1-black mb-4">Explore Features</h2>
+                        <p className="text-f1-gray-600">24 interactive tools for F1 analysis and prediction</p>
+                    </div>
+
+                    {/* Primary Features - Large cards */}
+                    <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-8">
+                        <Link href="/simulator" className="group bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-6 text-white hover:scale-[1.02] transition shadow-lg">
+                            <Zap className="w-8 h-8 mb-4" />
+                            <h3 className="text-2xl font-bold mb-2">Season Simulator</h3>
+                            <p className="text-white/80 mb-4">48 races • 4 counterfactual scenarios • F1-level physics</p>
+                            <div className="flex items-center gap-1 text-white/80 group-hover:text-white">
+                                Launch <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+                            </div>
+                        </Link>
+
+                        <Link href="/strategy" className="group bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl p-6 text-white hover:scale-[1.02] transition shadow-lg">
+                            <Thermometer className="w-8 h-8 mb-4" />
+                            <h3 className="text-2xl font-bold mb-2">Pit Strategy</h3>
+                            <p className="text-white/80 mb-4">24 tracks • 10 teams • Temperature slider (5-45°C)</p>
+                            <div className="flex items-center gap-1 text-white/80 group-hover:text-white">
+                                Explore <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+                            </div>
+                        </Link>
+
+                        <Link href="/championship" className="group bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white hover:scale-[1.02] transition shadow-lg">
+                            <Trophy className="w-8 h-8 mb-4" />
+                            <h3 className="text-2xl font-bold mb-2">Championship</h3>
+                            <p className="text-white/80 mb-4">2025 results • 2026 projections • Monte Carlo evolution</p>
+                            <div className="flex items-center gap-1 text-white/80 group-hover:text-white">
+                                View <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+                            </div>
                         </Link>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white/10 rounded-lg p-3">
-                            <Thermometer className="w-5 h-5 mb-1" />
-                            <div className="text-sm font-bold">Temperature</div>
-                            <div className="text-xs opacity-70">12°C - 33°C range effects</div>
+
+                    {/* Secondary Features - Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+                        {[
+                            { href: '/compare', icon: BarChart3, label: 'Compare Models', desc: '8 models side-by-side' },
+                            { href: '/whatif', icon: Target, label: 'What-If Lab', desc: 'Counterfactual analysis' },
+                            { href: '/explainer', icon: Brain, label: 'SHAP Explainer', desc: 'ML interpretability' },
+                            { href: '/head-to-head', icon: Users, label: 'Head-to-Head', desc: 'Driver battles' },
+                            { href: '/career', icon: LineChart, label: 'Career Timeline', desc: '10 drivers, all stats' },
+                            { href: '/constructors', icon: Database, label: 'Constructors', desc: '2026 lineups' },
+                            { href: '/architecture', icon: Cpu, label: 'Neural Network', desc: 'Architecture viz' },
+                            { href: '/ticker', icon: Zap, label: '2026 Ticker', desc: 'New regs countdown' },
+                        ].map(f => (
+                            <Link key={f.href} href={f.href} className="group bg-white rounded-xl p-4 hover:shadow-lg transition border border-f1-gray-200">
+                                <f.icon className="w-6 h-6 text-f1-red mb-2 group-hover:scale-110 transition" />
+                                <div className="font-bold text-f1-black group-hover:text-f1-red transition">{f.label}</div>
+                                <div className="text-xs text-f1-gray-500">{f.desc}</div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Tech Stack */}
+            <section className="bg-white py-16">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl font-bold text-f1-black mb-2">Built With</h2>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-6 text-f1-gray-600">
+                        {[
+                            { name: 'Python', sub: 'XGBoost, SHAP' },
+                            { name: 'FastAPI', sub: 'REST API' },
+                            { name: 'Next.js 15', sub: 'React 19' },
+                            { name: 'TypeScript', sub: 'Type-safe' },
+                            { name: 'Tailwind', sub: 'CSS' },
+                            { name: 'Docker', sub: 'Containers' },
+                        ].map(t => (
+                            <div key={t.name} className="text-center px-6 py-3">
+                                <div className="font-bold text-f1-black">{t.name}</div>
+                                <div className="text-xs text-f1-gray-500">{t.sub}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Project Highlights */}
+            <section className="bg-f1-black py-16">
+                <div className="container mx-auto px-4">
+                    <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto text-center">
+                        <div>
+                            <div className="text-4xl font-bold text-f1-red mb-2">24+</div>
+                            <div className="text-white font-medium">Interactive Features</div>
+                            <div className="text-f1-gray-500 text-sm">Prediction to Simulation</div>
                         </div>
-                        <div className="bg-white/10 rounded-lg p-3">
-                            <CloudRain className="w-5 h-5 mb-1" />
-                            <div className="text-sm font-bold">Weather</div>
-                            <div className="text-xs opacity-70">Wet skill simulation</div>
+                        <div>
+                            <div className="text-4xl font-bold text-yellow-400 mb-2">15K+</div>
+                            <div className="text-white font-medium">Lines of Code</div>
+                            <div className="text-f1-gray-500 text-sm">Python + TypeScript</div>
                         </div>
-                        <div className="bg-white/10 rounded-lg p-3">
-                            <Flag className="w-5 h-5 mb-1" />
-                            <div className="text-sm font-bold">Safety Cars</div>
-                            <div className="text-xs opacity-70">18-65% probability/track</div>
+                        <div>
+                            <div className="text-4xl font-bold text-green-400 mb-2">100%</div>
+                            <div className="text-white font-medium">Type Coverage</div>
+                            <div className="text-f1-gray-500 text-sm">TypeScript + Python hints</div>
                         </div>
-                        <div className="bg-white/10 rounded-lg p-3">
-                            <Zap className="w-5 h-5 mb-1" />
-                            <div className="text-sm font-bold">What-If</div>
-                            <div className="text-xs opacity-70">4 counterfactual scenarios</div>
+                        <div>
+                            <div className="text-4xl font-bold text-blue-400 mb-2">CI/CD</div>
+                            <div className="text-white font-medium">GitHub Actions</div>
+                            <div className="text-f1-gray-500 text-sm">Automated testing</div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Core Features - 2 Rows of 4 */}
-            <div className="grid md:grid-cols-4 gap-4 mb-4">
-                <Link href="/compare" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">📊</div>
-                    <div className="font-bold group-hover:text-f1-red transition">Compare Models</div>
-                    <div className="text-xs text-f1-gray-500">8 models side-by-side</div>
-                </Link>
-                <Link href="/whatif" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">🔮</div>
-                    <div className="font-bold group-hover:text-f1-red transition">What-If Lab</div>
-                    <div className="text-xs text-f1-gray-500">Counterfactual analysis</div>
-                </Link>
-                <Link href="/head-to-head" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">👥</div>
-                    <div className="font-bold group-hover:text-f1-red transition">Head-to-Head</div>
-                    <div className="text-xs text-f1-gray-500">Driver battles</div>
-                </Link>
-                <Link href="/explainer" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">🧠</div>
-                    <div className="font-bold group-hover:text-f1-red transition">SHAP Explainer</div>
-                    <div className="text-xs text-f1-gray-500">2025/2026 data</div>
-                </Link>
-            </div>
-            <div className="grid md:grid-cols-4 gap-4 mb-8">
-                <Link href="/championship" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">🏆</div>
-                    <div className="font-bold group-hover:text-f1-red transition">Championship</div>
-                    <div className="text-xs text-f1-gray-500">2025 results + 2026</div>
-                </Link>
-                <Link href="/strategy" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">⛽</div>
-                    <div className="font-bold group-hover:text-f1-red transition">Pit Strategy</div>
-                    <div className="text-xs text-f1-gray-500">8 tracks, 6 teams</div>
-                </Link>
-                <Link href="/ticker" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">⏱️</div>
-                    <div className="font-bold group-hover:text-f1-red transition">2026 Ticker</div>
-                    <div className="text-xs text-f1-gray-500">New regs countdown</div>
-                </Link>
-                <Link href="/career" className="bg-white border-2 border-f1-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-f1-red transition text-center group">
-                    <div className="text-2xl mb-2">📈</div>
-                    <div className="font-bold group-hover:text-f1-red transition">Career Timeline</div>
-                    <div className="text-xs text-f1-gray-500">10 drivers, all stats</div>
-                </Link>
-            </div>
-
-            {/* What This System Does */}
-            <div className="bg-gradient-to-r from-f1-red to-red-700 text-white rounded-lg p-8 mb-8">
-                <h2 className="text-2xl font-bold mb-4">What This System Does</h2>
-                <div className="grid md:grid-cols-4 gap-4">
-                    <div>
-                        <h3 className="font-bold mb-1">🎯 Prediction</h3>
-                        <p className="text-white/80 text-sm">
-                            Win probability, podium odds, expected finish using 8 ML models.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 className="font-bold mb-1">🔍 Interpretation</h3>
-                        <p className="text-white/80 text-sm">
-                            SHAP values and feature importance for transparent predictions.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 className="font-bold mb-1">🔮 Counterfactuals</h3>
-                        <p className="text-white/80 text-sm">
-                            What-if analysis: modify features, observe prediction changes.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 className="font-bold mb-1">📊 Simulation</h3>
-                        <p className="text-white/80 text-sm">
-                            Monte Carlo season simulation with F1-level parameters.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Model Types */}
-            <div className="bg-f1-gray-100 rounded-lg p-6 mb-8">
-                <h2 className="text-2xl font-bold mb-4 text-f1-black">8 Model Types</h2>
-                <div className="grid md:grid-cols-4 gap-4">
-                    <div className="bg-white p-4 rounded-lg">
-                        <h3 className="font-bold mb-2">Baselines</h3>
-                        <ul className="text-sm text-f1-gray-700 space-y-1">
-                            <li>• Qualifying Freq</li>
-                            <li>• Elo Rating</li>
-                        </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg">
-                        <h3 className="font-bold mb-2">Tree Models</h3>
-                        <ul className="text-sm text-f1-gray-700 space-y-1">
-                            <li>• XGBoost</li>
-                            <li>• LightGBM</li>
-                            <li>• CatBoost</li>
-                        </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg">
-                        <h3 className="font-bold mb-2">Linear</h3>
-                        <ul className="text-sm text-f1-gray-700 space-y-1">
-                            <li>• Logistic Reg</li>
-                            <li>• Random Forest</li>
-                        </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg">
-                        <h3 className="font-bold mb-2">Neural</h3>
-                        <ul className="text-sm text-f1-gray-700 space-y-1">
-                            <li>• NBT-TLF</li>
-                            <li className="text-f1-red">⭐ Best AUC</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            {/* More Features Grid */}
-            <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">More Features</h2>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <Link href="/constructors" className="bg-white border rounded-lg p-3 hover:shadow transition text-center">
-                        <span className="text-lg">🏢</span>
-                        <div className="text-sm font-bold">Constructors</div>
-                    </Link>
-                    <Link href="/dashboard" className="bg-white border rounded-lg p-3 hover:shadow transition text-center">
-                        <span className="text-lg">📡</span>
-                        <div className="text-sm font-bold">Dashboard</div>
-                    </Link>
-                    <Link href="/training" className="bg-white border rounded-lg p-3 hover:shadow transition text-center">
-                        <span className="text-lg">📉</span>
-                        <div className="text-sm font-bold">Training Viz</div>
-                    </Link>
-                    <Link href="/abtesting" className="bg-white border rounded-lg p-3 hover:shadow transition text-center">
-                        <span className="text-lg">🔬</span>
-                        <div className="text-sm font-bold">A/B Testing</div>
-                    </Link>
-                    <Link href="/2026" className="bg-white border rounded-lg p-3 hover:shadow transition text-center">
-                        <span className="text-lg">🚀</span>
-                        <div className="text-sm font-bold">2026 Regs</div>
-                    </Link>
-                </div>
-            </div>
-
-            {/* Technical Resources */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-start gap-4">
-                    <BookOpen className="w-6 h-6 text-f1-red mt-1" />
-                    <div>
-                        <h3 className="font-bold mb-1">Technical Paper</h3>
-                        <p className="text-f1-gray-600 text-sm mb-2">
-                            Paper-ready documentation with model formulations, evaluation protocol, and results.
-                        </p>
-                        <a
-                            href="https://github.com/Aarav500/f1-race-insights/blob/main/docs/F1.md"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-f1-red hover:underline font-medium text-sm"
-                        >
-                            Read Paper →
+            {/* Footer CTA */}
+            <section className="bg-gradient-to-r from-f1-red to-red-700 py-12">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                        Ready to explore F1 predictions?
+                    </h2>
+                    <div className="flex flex-wrap justify-center gap-4">
+                        <Link href="/simulator" className="bg-white text-f1-red px-8 py-3 rounded-lg font-bold hover:bg-f1-gray-100 transition">
+                            Try the Simulator
+                        </Link>
+                        <a href="https://github.com/Aarav500/f1-race-insights/blob/main/docs/F1.md" target="_blank" rel="noopener noreferrer" className="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white/10 transition">
+                            Read Technical Paper
                         </a>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     )
 }
