@@ -55,8 +55,8 @@ export default function DriverComparisonPage() {
     const [driver1, setDriver1] = useState('VER')
     const [driver2, setDriver2] = useState('NOR')
 
-    const d1 = DRIVERS_DATA.find(d => d.id === driver1)!
-    const d2 = DRIVERS_DATA.find(d => d.id === driver2)!
+    const d1 = DRIVERS_DATA.find(d => d.id === driver1) || DRIVERS_DATA[0]
+    const d2 = DRIVERS_DATA.find(d => d.id === driver2) || DRIVERS_DATA[1]
 
     const getWinner = (stat: typeof STAT_CONFIG[0]) => {
         const v1 = d1.stats[stat.key as keyof typeof d1.stats]
