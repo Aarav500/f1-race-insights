@@ -16,11 +16,58 @@ const SHORTCUTS = [
 ]
 
 export default function SettingsPage() {
-    const [isDark, setIsDark] = useState(true)
-    const [audioEnabled, setAudioEnabled] = useState(false)
-    const [notifications, setNotifications] = useState(true)
-    const [reducedMotion, setReducedMotion] = useState(false)
-    const [accentColor, setAccentColor] = useState('red')
+    // Load from localStorage with defaults
+    const [isDark, setIsDark] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('f1-dark-mode')
+            return saved !== null ? JSON.parse(saved) : true
+        }
+        return true
+    })
+    const [audioEnabled, setAudioEnabled] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('f1-audio')
+            return saved !== null ? JSON.parse(saved) : false
+        }
+        return false
+    })
+    const [notifications, setNotifications] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('f1-notifications')
+            return saved !== null ? JSON.parse(saved) : true
+        }
+        return true
+    })
+    const [reducedMotion, setReducedMotion] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('f1-reduced-motion')
+            return saved !== null ? JSON.parse(saved) : false
+        }
+        return false
+    })
+    const [accentColor, setAccentColor] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('f1-accent-color') || 'red'
+        }
+        return 'red'
+    })
+
+    // Save to localStorage when settings change
+    useEffect(() => {
+        localStorage.setItem('f1-dark-mode', JSON.stringify(isDark))
+    }, [isDark])
+    useEffect(() => {
+        localStorage.setItem('f1-audio', JSON.stringify(audioEnabled))
+    }, [audioEnabled])
+    useEffect(() => {
+        localStorage.setItem('f1-notifications', JSON.stringify(notifications))
+    }, [notifications])
+    useEffect(() => {
+        localStorage.setItem('f1-reduced-motion', JSON.stringify(reducedMotion))
+    }, [reducedMotion])
+    useEffect(() => {
+        localStorage.setItem('f1-accent-color', accentColor)
+    }, [accentColor])
 
     // Apply theme
     useEffect(() => {

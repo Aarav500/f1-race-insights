@@ -123,6 +123,43 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* Problem Statement - For Admissions Officers */}
+            <section className="bg-gradient-to-r from-blue-900 to-purple-900 py-12 border-y border-white/10">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="inline-block bg-white/10 rounded-full px-4 py-1 text-sm text-white/80 mb-4">
+                            🎯 The Problem We Solve
+                        </div>
+                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                            F1 generates <span className="text-yellow-400">1.5 billion data points</span> per race weekend
+                        </h2>
+                        <p className="text-lg text-white/80 mb-6">
+                            Fans want to understand &quot;who will win and why&quot; but the raw data is
+                            <strong className="text-white"> inaccessible and overwhelming</strong>.
+                            Traditional media reduces this to pundit opinions, losing data-driven insight.
+                        </p>
+                        <div className="grid md:grid-cols-3 gap-4 text-left">
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                                <div className="text-2xl font-bold text-yellow-400">40M+</div>
+                                <div className="text-sm text-white/70">New F1 fans since Netflix (2020)</div>
+                            </div>
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                                <div className="text-2xl font-bold text-green-400">67%</div>
+                                <div className="text-sm text-white/70">Our model&apos;s podium prediction accuracy</div>
+                            </div>
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                                <div className="text-2xl font-bold text-blue-400">AI</div>
+                                <div className="text-sm text-white/70">Translates complex data into insights</div>
+                            </div>
+                        </div>
+                        <p className="text-sm text-white/60 mt-6 italic">
+                            &quot;As a new F1 fan, I want to understand what might happen before a race starts,
+                            so I can follow the action with context instead of confusion.&quot;
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             {/* Technical Excellence - Light section */}
             <section className="bg-white py-20">
                 <div className="container mx-auto px-4">

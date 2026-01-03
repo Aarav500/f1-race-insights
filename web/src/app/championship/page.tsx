@@ -130,8 +130,8 @@ export default function ChampionshipPage() {
 
             {/* Season Progress/Status */}
             <div className={`rounded-xl p-6 mb-8 text-white ${season === '2025'
-                    ? 'bg-gradient-to-r from-orange-600 to-orange-500'
-                    : 'bg-gradient-to-r from-f1-gray-900 to-f1-gray-700'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-500'
+                : 'bg-gradient-to-r from-f1-gray-900 to-f1-gray-700'
                 }`}>
                 <div className="flex justify-between items-center mb-4">
                     <div>
@@ -291,11 +291,24 @@ export default function ChampionshipPage() {
                             {MONTE_CARLO_2025.map((scenario, i) => (
                                 <div key={i} className="flex-1 text-center">
                                     <div className="text-xs text-f1-gray-500 mb-2">R{scenario.round}</div>
-                                    <div className="h-32 flex flex-col justify-end gap-1">
+                                    <div className="h-32 flex items-end gap-0.5">
+                                        {/* Verstappen - Blue */}
                                         <div
-                                            className="bg-orange-500 rounded-t transition-all duration-500"
+                                            className="flex-1 bg-blue-500 rounded-t transition-all duration-500"
+                                            style={{ height: `${scenario.VER}%` }}
+                                            title={`Verstappen: ${scenario.VER}%`}
+                                        />
+                                        {/* Norris - Orange */}
+                                        <div
+                                            className="flex-1 bg-orange-500 rounded-t transition-all duration-500"
                                             style={{ height: `${scenario.NOR}%` }}
                                             title={`Norris: ${scenario.NOR}%`}
+                                        />
+                                        {/* Leclerc - Red */}
+                                        <div
+                                            className="flex-1 bg-red-500 rounded-t transition-all duration-500"
+                                            style={{ height: `${scenario.LEC}%` }}
+                                            title={`Leclerc: ${scenario.LEC}%`}
                                         />
                                     </div>
                                     <div className="text-xs font-bold mt-1 text-orange-600">{scenario.NOR}%</div>
@@ -323,8 +336,8 @@ export default function ChampionshipPage() {
 
             {/* Key Insight */}
             <div className={`rounded-lg p-6 mb-8 ${season === '2025'
-                    ? 'bg-gradient-to-r from-orange-50 to-yellow-50'
-                    : 'bg-gradient-to-r from-blue-50 to-purple-50'
+                ? 'bg-gradient-to-r from-orange-50 to-yellow-50'
+                : 'bg-gradient-to-r from-blue-50 to-purple-50'
                 }`}>
                 <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
                     <Trophy className="w-5 h-5 text-yellow-500" />

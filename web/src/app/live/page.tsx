@@ -113,6 +113,19 @@ export default function LiveDashboardPage() {
                 </div>
             </div>
 
+            {/* Simulation Mode Banner */}
+            <div className="bg-blue-900/50 border-y border-blue-500/30 py-3 px-4">
+                <div className="container mx-auto flex items-center justify-center gap-3">
+                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
+                    <span className="text-blue-200 font-medium">
+                        📡 SIMULATION MODE • Bahrain GP 2025 (57 Laps)
+                    </span>
+                    <span className="text-blue-400 text-sm">
+                        No live race currently in progress
+                    </span>
+                </div>
+            </div>
+
             {/* Safety Car Alert */}
             {liveState.safetyCar && (
                 <div className="bg-yellow-500 text-black py-2 px-4 flex items-center justify-center gap-2 animate-pulse">

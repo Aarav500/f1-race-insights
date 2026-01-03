@@ -6,11 +6,21 @@ import { PlayCircle, Rewind, FastForward, GitBranch, AlertTriangle, Flag, Refres
 
 // Historical race scenarios
 const HISTORICAL_RACES = [
-    { id: 'bahrain_2024', name: '2024 Bahrain GP', winner: 'VER', laps: 57 },
-    { id: 'monaco_2024', name: '2024 Monaco GP', winner: 'LEC', laps: 78 },
-    { id: 'silverstone_2024', name: '2024 British GP', winner: 'HAM', laps: 52 },
-    { id: 'brazil_2024', name: '2024 Brazilian GP', winner: 'VER', laps: 71 },
-    { id: 'abudhabi_2024', name: '2024 Abu Dhabi GP', winner: 'NOR', laps: 58 },
+    // Classic iconic races
+    { id: 'brazil_2008', name: '2008 Brazil GP', winner: 'HAM', laps: 71, highlight: '🏆 Hamilton wins WDC on last corner!' },
+    { id: 'abudhabi_2021', name: '2021 Abu Dhabi GP', winner: 'VER', laps: 58, highlight: '⚠️ Controversial SC restart' },
+    { id: 'monaco_1996', name: '1996 Monaco GP', winner: 'VER', laps: 75, highlight: '🌧️ Only 3 cars finish in rain' },
+    { id: 'silverstone_2008', name: '2008 British GP', winner: 'HAM', laps: 60, highlight: '🌧️ Hamilton masterclass in rain' },
+    { id: 'germany_2019', name: '2019 German GP', winner: 'VER', laps: 64, highlight: '🎢 Chaos at Hockenheim' },
+    // 2024 Season
+    { id: 'bahrain_2024', name: '2024 Bahrain GP', winner: 'VER', laps: 57, highlight: 'Season opener dominance' },
+    { id: 'monaco_2024', name: '2024 Monaco GP', winner: 'LEC', laps: 78, highlight: '🏠 Leclerc finally wins at home' },
+    { id: 'silverstone_2024', name: '2024 British GP', winner: 'HAM', laps: 52, highlight: '🏆 104 GP wins record' },
+    { id: 'brazil_2024', name: '2024 Brazilian GP', winner: 'VER', laps: 71, highlight: 'Sprint weekend thriller' },
+    { id: 'abudhabi_2024', name: '2024 Abu Dhabi GP', winner: 'NOR', laps: 58, highlight: '🏆 Norris clinches WDC' },
+    // 2025 Season (predictions)
+    { id: 'australia_2025', name: '2025 Australian GP', winner: 'NOR', laps: 58, highlight: 'Champion starts in style' },
+    { id: 'miami_2025', name: '2025 Miami GP', winner: 'LEC', laps: 57, highlight: '🔥 Hamilton/Leclerc 1-2' },
 ]
 
 const DRIVERS = [
@@ -160,8 +170,8 @@ export default function ReplayPage() {
                                     key={race.id}
                                     onClick={() => { setSelectedRace(race); setCurrentLap(1); }}
                                     className={`w-full text-left p-3 rounded-lg transition ${selectedRace.id === race.id
-                                            ? 'bg-indigo-600'
-                                            : 'bg-f1-gray-700 hover:bg-f1-gray-600'
+                                        ? 'bg-indigo-600'
+                                        : 'bg-f1-gray-700 hover:bg-f1-gray-600'
                                         }`}
                                 >
                                     <div className="font-medium">{race.name}</div>
@@ -183,8 +193,8 @@ export default function ReplayPage() {
                                     key={scenario.id}
                                     onClick={() => toggleScenario(scenario.id)}
                                     className={`w-full text-left p-3 rounded-lg transition ${appliedScenarios.includes(scenario.id)
-                                            ? 'bg-yellow-600/30 border border-yellow-500'
-                                            : 'bg-f1-gray-700 hover:bg-f1-gray-600 border border-transparent'
+                                        ? 'bg-yellow-600/30 border border-yellow-500'
+                                        : 'bg-f1-gray-700 hover:bg-f1-gray-600 border border-transparent'
                                         }`}
                                 >
                                     <div className="font-medium text-sm">{scenario.description}</div>

@@ -139,8 +139,8 @@ export default function ReportPage() {
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="font-bold text-white">{idx + 1}. {factor.factor}</div>
                                         <span className={`text-xs px-2 py-1 rounded ${factor.impact === 'Critical' ? 'bg-red-500/30 text-red-400' :
-                                                factor.impact === 'High' ? 'bg-orange-500/30 text-orange-400' :
-                                                    'bg-yellow-500/30 text-yellow-400'
+                                            factor.impact === 'High' ? 'bg-orange-500/30 text-orange-400' :
+                                                'bg-yellow-500/30 text-yellow-400'
                                             }`}>
                                             {factor.impact}
                                         </span>
@@ -234,14 +234,30 @@ export default function ReportPage() {
                     <div className="bg-f1-gray-800 rounded-xl p-6 max-w-md w-full mx-4">
                         <h3 className="text-xl font-bold text-white mb-4">Share Race Report</h3>
                         <div className="space-y-3">
-                            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold">
-                                Share to Twitter/X
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(window.location.href)
+                                    alert('Link copied to clipboard!')
+                                }}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold"
+                            >
+                                📋 Copy Link to Clipboard
                             </button>
-                            <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold">
-                                Share to WhatsApp
+                            <button
+                                onClick={() => {
+                                    const text = `Race Report: ${RACE_DATA.name}\nWinner: ${DRIVERS[RACE_DATA.winner as keyof typeof DRIVERS].name}\nPodium: ${RACE_DATA.podium.map(d => DRIVERS[d as keyof typeof DRIVERS].name).join(', ')}`
+                                    navigator.clipboard.writeText(text)
+                                    alert('Report summary copied!')
+                                }}
+                                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold"
+                            >
+                                📝 Copy Report Summary
                             </button>
-                            <button className="w-full bg-f1-gray-700 hover:bg-f1-gray-600 text-white py-3 rounded-lg font-bold">
-                                Copy Link
+                            <button
+                                onClick={() => window.print()}
+                                className="w-full bg-f1-gray-700 hover:bg-f1-gray-600 text-white py-3 rounded-lg font-bold"
+                            >
+                                🖨️ Print / Save as PDF
                             </button>
                         </div>
                         <button
