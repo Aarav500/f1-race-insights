@@ -136,6 +136,21 @@ export default function WhatIfLabPage() {
                 </div>
             </div>
 
+            {/* F1 API Data Notice */}
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8">
+                <div className="flex gap-2 items-start">
+                    <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <h3 className="font-bold text-orange-800">Why 2024 Races Only?</h3>
+                        <p className="text-sm text-orange-700">
+                            This project uses the official F1 API (Ergast/FastF1) which provides data through
+                            <strong> 2024 only</strong>. Even though 2025 races have occurred, the API has not released that data yet.
+                            What-If analysis requires actual race features which are only available for 2020-2024.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Selection Panel */}
             <div className="bg-white rounded-lg shadow p-6 mb-8">
                 <h2 className="text-xl font-bold mb-4">1. Select Race, Driver & Model</h2>

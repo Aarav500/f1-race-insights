@@ -80,6 +80,21 @@ export default function Regulations2026Page() {
                 </div>
             </div>
 
+            {/* F1 API Data Limitation Notice */}
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                <div className="flex gap-2 items-start">
+                    <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <h3 className="font-bold text-orange-800">F1 API Data Availability</h3>
+                        <p className="text-sm text-orange-700">
+                            <strong>Important:</strong> This project uses the official F1 API (Ergast/FastF1) which currently only provides data through the <strong>2024 season</strong>.
+                            Even though 2025 races have been completed, the API does not yet include 2025 results.
+                            2026 predictions are therefore <strong>projections based on 2020-2024 data</strong> combined with team readiness analysis.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Training Data Disclaimer */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
                 <div className="flex gap-2 items-start">
@@ -211,36 +226,67 @@ export default function Regulations2026Page() {
             {/* Predictions Tab */}
             {activeTab === 'predictions' && (
                 <div className="space-y-6">
+                    {/* F1 API Notice */}
+                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                        <div className="flex gap-2 items-start">
+                            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                            <div>
+                                <h3 className="font-bold text-yellow-800">Why No Race-Level 2026 Predictions?</h3>
+                                <p className="text-sm text-yellow-700">
+                                    The F1 API (Ergast/FastF1) only includes data through <strong>2024</strong>.
+                                    2025 race data is not yet available in the API, even though races have occurred.
+                                    2026 uses major new regulations, so predictions are based on <strong>team readiness analysis</strong> rather than race-level ML predictions.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-2xl font-bold mb-4">2026 Season Predictions</h2>
+                        <h2 className="text-2xl font-bold mb-4">2026 Season Outlook</h2>
                         <p className="text-f1-gray-600 mb-6">
-                            Based on team readiness scores and historical adaptation patterns.
+                            Based on team readiness scores, historical adaptation patterns, and investment levels.
                         </p>
 
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                            {['2026_01', '2026_08', '2026_24'].map((raceId, i) => {
-                                const raceNames = ['Bahrain GP (Opener)', 'Monaco GP', 'Abu Dhabi GP (Finale)']
-                                return (
-                                    <Link
-                                        key={raceId}
-                                        href={`/race/${raceId}`}
-                                        className="bg-f1-gray-100 rounded-lg p-4 hover:shadow-md transition"
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="text-sm text-f1-gray-600">{raceNames[i]}</span>
-                                            <ChevronRight className="w-4 h-4 text-f1-gray-400" />
+                        {/* Predicted Constructor Standings */}
+                        <h3 className="text-lg font-bold mb-4">Projected Constructor Standings</h3>
+                        <div className="space-y-3 mb-8">
+                            {teamReadiness.sort((a, b) => b.score - a.score).slice(0, 5).map((team, i) => (
+                                <div key={team.team} className="flex items-center gap-4 p-3 bg-f1-gray-50 rounded-lg">
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: team.color, color: 'white' }}>
+                                        {i + 1}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-bold">{team.team}</div>
+                                        <div className="text-sm text-f1-gray-600">{team.notes}</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="font-bold">{team.score}/10</div>
+                                        <div className={`text-sm ${team.advantage.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                                            {team.advantage} vs 2024
                                         </div>
-                                        <div className="font-bold">Get Predictions →</div>
-                                    </Link>
-                                )
-                            })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Key Insights */}
+                        <h3 className="text-lg font-bold mb-4">Key 2026 Insights</h3>
+                        <div className="grid md:grid-cols-2 gap-4 mb-8">
+                            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div className="font-bold text-green-800">Winners</div>
+                                <p className="text-sm text-green-700">Ferrari (in-house PU), Audi/Sauber (factory backing), Red Bull-Ford (aero strength)</p>
+                            </div>
+                            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                                <div className="font-bold text-red-800">At Risk</div>
+                                <p className="text-sm text-red-700">Haas (budget constraints), Alpine (PU uncertainty), Williams (rebuilding)</p>
+                            </div>
                         </div>
 
                         <Link
-                            href="/compare"
+                            href="/whatif"
                             className="block bg-f1-red text-white text-center px-6 py-3 rounded-lg hover:bg-red-700 transition"
                         >
-                            Compare All 8 Models on 2026 Races →
+                            Explore 2024 What-If Scenarios (with actual data) →
                         </Link>
                     </div>
                 </div>
