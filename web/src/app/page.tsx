@@ -31,8 +31,8 @@ export default function HomePage() {
 
     // Animated stats
     const aucScore = useCounter(98.7, 1500)
-    const samples = useCounter(2640, 2000)
-    const features = useCounter(48, 1200)
+    const samples = useCounter(5500, 2000)  // 2016-2025 expanded data
+    const features = useCounter(68, 1200)   // 48 base + 20 enhanced features
     const races = useCounter(24, 1000)
 
     // Demo scenarios
@@ -112,7 +112,7 @@ export default function HomePage() {
                         <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center">
                             <div className="text-4xl font-bold text-green-400 mb-1">{samples.toLocaleString()}</div>
                             <div className="text-sm text-f1-gray-400">Training Samples</div>
-                            <div className="text-xs text-f1-gray-500">2020-2025</div>
+                            <div className="text-xs text-f1-gray-500">2016-2025</div>
                         </div>
                         <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center">
                             <div className="text-4xl font-bold text-blue-400 mb-1">{features}</div>
