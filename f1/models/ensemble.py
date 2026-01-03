@@ -10,7 +10,6 @@ import logging
 from typing import Any, Optional
 
 import numpy as np
-import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_predict
@@ -200,7 +199,7 @@ class StackingEnsemble:
             raise ValueError("Ensemble not fitted. Call fit() first.")
 
         meta_features = []
-        for name, model in self.fitted_base_models:
+        for _name, model in self.fitted_base_models:
             if self.use_probas:
                 try:
                     proba = model.predict_proba(X)
@@ -296,7 +295,7 @@ class BlendingEnsemble:
 
         # Collect all probabilities
         all_probas = []
-        for (name, model), weight in zip(self.fitted_models, self.weights):
+        for (_name, model), weight in zip(self.fitted_models, self.weights):
             proba = model.predict_proba(X)
             all_probas.append(proba * weight)
 
