@@ -28,12 +28,12 @@ export default function Navbar() {
             ]
         },
         {
-            title: 'Prediction & Analysis',
+            title: 'ML Insights',
             links: [
+                { href: '/ml-analytics', label: 'ML Analytics', icon: '🧠' },
+                { href: '/driver-compare', label: 'Driver Compare', icon: '👥' },
                 { href: '/compare', label: 'Compare Models', icon: '📊' },
-                { href: '/whatif', label: 'What-If Lab', icon: '🔮' },
-                { href: '/explainer', label: 'SHAP Explainer', icon: '🧠' },
-                { href: '/head-to-head', label: 'Head-to-Head', icon: '👥' },
+                { href: '/explainer', label: 'SHAP Explainer', icon: '🔮' },
             ]
         },
         {
@@ -42,16 +42,16 @@ export default function Navbar() {
                 { href: '/ticker', label: '2026 Ticker', icon: '⏱️' },
                 { href: '/tracks', label: 'Track Profiles', icon: '🏁' },
                 { href: '/weather', label: 'Weather Impact', icon: '🌧️' },
-                { href: '/qualifying', label: 'Qualifying', icon: '⚡' },
+                { href: '/share', label: 'Share Cards', icon: '📤' },
             ]
         },
         {
             title: 'Technical',
             links: [
-                { href: '/career', label: 'Career Timeline', icon: '📈' },
-                { href: '/constructors', label: 'Constructors', icon: '🏢' },
-                { href: '/architecture', label: 'Neural Network', icon: '🏗️' },
+                { href: '/technical', label: 'Infrastructure', icon: '🏗️' },
+                { href: '/architecture', label: 'Neural Network', icon: '⚙️' },
                 { href: '/playground', label: 'API Playground', icon: '🔧' },
+                { href: '/settings', label: 'Settings', icon: '⚙️' },
             ]
         },
     ]
