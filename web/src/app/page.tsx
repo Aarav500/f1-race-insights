@@ -72,27 +72,51 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* Quick Access Cards */}
-            <div className="grid md:grid-cols-4 gap-4 mb-12">
+            {/* Quick Access Cards - Core Features */}
+            <div className="grid md:grid-cols-4 gap-4 mb-6">
                 <Link href="/compare" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
                     <div className="text-2xl mb-2">📊</div>
                     <div className="font-bold group-hover:text-f1-red transition">Compare Models</div>
-                    <div className="text-xs text-f1-gray-500">Side-by-side comparison</div>
+                    <div className="text-xs text-f1-gray-500">8 models side-by-side</div>
                 </Link>
                 <Link href="/whatif" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
                     <div className="text-2xl mb-2">🔮</div>
                     <div className="font-bold group-hover:text-f1-red transition">What-If Lab</div>
                     <div className="text-xs text-f1-gray-500">Counterfactual analysis</div>
                 </Link>
-                <Link href="/2026" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
-                    <div className="text-2xl mb-2">🚀</div>
-                    <div className="font-bold group-hover:text-f1-red transition">2026 Regulations</div>
-                    <div className="text-xs text-f1-gray-500">Future projections</div>
+                <Link href="/head-to-head" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">👥</div>
+                    <div className="font-bold group-hover:text-f1-red transition">Head-to-Head</div>
+                    <div className="text-xs text-f1-gray-500">Driver battles</div>
                 </Link>
-                <Link href="/backtest" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                <Link href="/explainer" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">🧠</div>
+                    <div className="font-bold group-hover:text-f1-red transition">SHAP Explainer</div>
+                    <div className="text-xs text-f1-gray-500">ML interpretability</div>
+                </Link>
+            </div>
+
+            {/* Quick Access Cards - Advanced Features */}
+            <div className="grid md:grid-cols-4 gap-4 mb-12">
+                <Link href="/championship" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">🏆</div>
+                    <div className="font-bold group-hover:text-f1-red transition">Championship</div>
+                    <div className="text-xs text-f1-gray-500">Monte Carlo projections</div>
+                </Link>
+                <Link href="/architecture" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">🏗️</div>
+                    <div className="font-bold group-hover:text-f1-red transition">Architecture</div>
+                    <div className="text-xs text-f1-gray-500">Neural network viz</div>
+                </Link>
+                <Link href="/playground" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">🔧</div>
+                    <div className="font-bold group-hover:text-f1-red transition">API Playground</div>
+                    <div className="text-xs text-f1-gray-500">Live endpoint testing</div>
+                </Link>
+                <Link href="/history" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
                     <div className="text-2xl mb-2">📈</div>
-                    <div className="font-bold group-hover:text-f1-red transition">Backtest Results</div>
-                    <div className="text-xs text-f1-gray-500">Model evaluation</div>
+                    <div className="font-bold group-hover:text-f1-red transition">Accuracy</div>
+                    <div className="text-xs text-f1-gray-500">Historical track record</div>
                 </Link>
             </div>
 
