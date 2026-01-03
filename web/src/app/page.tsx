@@ -15,7 +15,7 @@ export default function HomePage() {
     return (
         <div className="container mx-auto px-4 py-12">
             {/* Hero Section */}
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
                 <h1 className="text-5xl font-bold mb-4 text-f1-black">
                     F1 Race Insights
                 </h1>
@@ -44,6 +44,56 @@ export default function HomePage() {
                         GitHub
                     </a>
                 </div>
+            </div>
+
+            {/* Impressive Stats Banner */}
+            <div className="bg-gradient-to-r from-f1-gray-900 to-f1-gray-800 text-white rounded-xl p-6 mb-12">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div>
+                        <div className="text-4xl font-bold text-f1-red">98.7%</div>
+                        <div className="text-sm text-f1-gray-300">AUC Score</div>
+                        <div className="text-xs text-f1-gray-400">Win Prediction</div>
+                    </div>
+                    <div>
+                        <div className="text-4xl font-bold text-yellow-400">8</div>
+                        <div className="text-sm text-f1-gray-300">ML Models</div>
+                        <div className="text-xs text-f1-gray-400">Baselines to Neural</div>
+                    </div>
+                    <div>
+                        <div className="text-4xl font-bold text-green-400">2,140</div>
+                        <div className="text-sm text-f1-gray-300">Training Samples</div>
+                        <div className="text-xs text-f1-gray-400">2020-2024 Seasons</div>
+                    </div>
+                    <div>
+                        <div className="text-4xl font-bold text-blue-400">15</div>
+                        <div className="text-sm text-f1-gray-300">Features</div>
+                        <div className="text-xs text-f1-gray-400">Including Track History</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Access Cards */}
+            <div className="grid md:grid-cols-4 gap-4 mb-12">
+                <Link href="/compare" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">📊</div>
+                    <div className="font-bold group-hover:text-f1-red transition">Compare Models</div>
+                    <div className="text-xs text-f1-gray-500">Side-by-side comparison</div>
+                </Link>
+                <Link href="/whatif" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">🔮</div>
+                    <div className="font-bold group-hover:text-f1-red transition">What-If Lab</div>
+                    <div className="text-xs text-f1-gray-500">Counterfactual analysis</div>
+                </Link>
+                <Link href="/2026" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">🚀</div>
+                    <div className="font-bold group-hover:text-f1-red transition">2026 Regulations</div>
+                    <div className="text-xs text-f1-gray-500">Future projections</div>
+                </Link>
+                <Link href="/backtest" className="bg-white border border-f1-gray-200 rounded-lg p-4 hover:shadow-lg transition text-center group">
+                    <div className="text-2xl mb-2">📈</div>
+                    <div className="font-bold group-hover:text-f1-red transition">Backtest Results</div>
+                    <div className="text-xs text-f1-gray-500">Model evaluation</div>
+                </Link>
             </div>
 
             {/* What This System Does */}
