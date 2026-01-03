@@ -15,11 +15,11 @@ const DRIVERS = [
         age: 27,
         number: 1,
         championships: 4,
-        careerWins: 63,
-        careerPoles: 40,
-        careerPodiums: 112,
-        careerPoints: 2978,
-        fastestLaps: 33,
+        careerWins: 69,
+        careerPoles: 44,
+        careerPodiums: 118,
+        careerPoints: 3367,
+        fastestLaps: 36,
         seasons: [
             { year: 2015, team: 'Toro Rosso', wins: 0, poles: 0, podiums: 0, points: 49, position: 12 },
             { year: 2016, team: 'Red Bull', wins: 1, poles: 0, podiums: 7, points: 204, position: 5 },
@@ -31,12 +31,13 @@ const DRIVERS = [
             { year: 2022, team: 'Red Bull', wins: 15, poles: 7, podiums: 17, points: 454, position: 1 },
             { year: 2023, team: 'Red Bull', wins: 19, poles: 12, podiums: 21, points: 575, position: 1 },
             { year: 2024, team: 'Red Bull', wins: 9, poles: 8, podiums: 14, points: 437, position: 1 },
+            { year: 2025, team: 'Red Bull', wins: 6, poles: 4, podiums: 12, points: 389, position: 2 },
         ]
     },
     {
         id: 'HAM',
         name: 'Lewis Hamilton',
-        team: 'Ferrari',
+        team: 'Ferrari (2026)',
         teamColor: '#DC0000',
         nationality: '🇬🇧 United Kingdom',
         age: 40,
@@ -44,9 +45,9 @@ const DRIVERS = [
         championships: 7,
         careerWins: 105,
         careerPoles: 104,
-        careerPodiums: 202,
-        careerPoints: 4829,
-        fastestLaps: 67,
+        careerPodiums: 207,
+        careerPoints: 5074,
+        fastestLaps: 69,
         seasons: [
             { year: 2015, team: 'Mercedes', wins: 10, poles: 11, podiums: 17, points: 381, position: 1 },
             { year: 2016, team: 'Mercedes', wins: 10, poles: 12, podiums: 17, points: 380, position: 2 },
@@ -58,6 +59,7 @@ const DRIVERS = [
             { year: 2022, team: 'Mercedes', wins: 0, poles: 0, podiums: 9, points: 240, position: 6 },
             { year: 2023, team: 'Mercedes', wins: 0, poles: 0, podiums: 6, points: 234, position: 3 },
             { year: 2024, team: 'Mercedes', wins: 2, poles: 0, podiums: 5, points: 223, position: 7 },
+            { year: 2025, team: 'Mercedes', wins: 0, poles: 1, podiums: 5, points: 245, position: 6 },
         ]
     },
     {
@@ -92,12 +94,12 @@ const DRIVERS = [
         nationality: '🇬🇧 United Kingdom',
         age: 25,
         number: 4,
-        championships: 0,
-        careerWins: 4,
-        careerPoles: 9,
-        careerPodiums: 31,
-        careerPoints: 967,
-        fastestLaps: 12,
+        championships: 1,
+        careerWins: 12,
+        careerPoles: 14,
+        careerPodiums: 43,
+        careerPoints: 1379,
+        fastestLaps: 16,
         seasons: [
             { year: 2019, team: 'McLaren', wins: 0, poles: 0, podiums: 0, points: 49, position: 11 },
             { year: 2020, team: 'McLaren', wins: 0, poles: 0, podiums: 1, points: 97, position: 9 },
@@ -105,6 +107,7 @@ const DRIVERS = [
             { year: 2022, team: 'McLaren', wins: 0, poles: 0, podiums: 0, points: 122, position: 7 },
             { year: 2023, team: 'McLaren', wins: 0, poles: 1, podiums: 6, points: 205, position: 6 },
             { year: 2024, team: 'McLaren', wins: 4, poles: 7, podiums: 13, points: 374, position: 2 },
+            { year: 2025, team: 'McLaren', wins: 8, poles: 5, podiums: 12, points: 412, position: 1 },
         ]
     },
     {
@@ -284,8 +287,8 @@ export default function CareerTimelinePage() {
                         key={d.id}
                         onClick={() => setSelectedDriver(d.id)}
                         className={`p-3 rounded-lg font-medium transition text-left ${selectedDriver === d.id
-                                ? 'text-white shadow-lg scale-105'
-                                : 'bg-white border border-f1-gray-200 hover:shadow-md'
+                            ? 'text-white shadow-lg scale-105'
+                            : 'bg-white border border-f1-gray-200 hover:shadow-md'
                             }`}
                         style={selectedDriver === d.id ? { backgroundColor: d.teamColor } : {}}
                     >

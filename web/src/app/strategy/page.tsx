@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Timer, Fuel, Settings, TrendingUp, ArrowRight, AlertCircle, Target, Zap } from 'lucide-react'
+import { Timer, Fuel, Settings, TrendingUp, ArrowRight, AlertCircle, Target, Zap, MapPin, Building2 } from 'lucide-react'
 
 // Tire compound data
 const COMPOUNDS = [
@@ -10,6 +10,97 @@ const COMPOUNDS = [
     { id: 'medium', name: 'Medium', color: '#fcd34d', durability: 28, pace: 0.4, pitDegradation: 0.05 },
     { id: 'hard', name: 'Hard', color: '#f5f5f5', durability: 42, pace: 0.9, pitDegradation: 0.03 },
 ]
+
+// Race-specific strategy data
+const RACE_STRATEGIES: Record<string, {
+    name: string; laps: number; pitLaneTime: number; degradation: number;
+    optimalStrategy: string; characteristics: string[];
+}> = {
+    'bahrain': {
+        name: '🇧🇭 Bahrain GP', laps: 57, pitLaneTime: 21, degradation: 1.2,
+        optimalStrategy: 'two-stop',
+        characteristics: ['High rear degradation', 'Abrasive surface', 'Night race cooling']
+    },
+    'jeddah': {
+        name: '🇸🇦 Saudi Arabian GP', laps: 50, pitLaneTime: 23, degradation: 0.8,
+        optimalStrategy: 'one-stop',
+        characteristics: ['Street circuit', 'Limited overtaking', 'Safety car likely']
+    },
+    'monaco': {
+        name: '🇲🇨 Monaco GP', laps: 78, pitLaneTime: 27, degradation: 0.5,
+        optimalStrategy: 'one-stop',
+        characteristics: ['No overtaking', 'Track position crucial', 'Long pit lane']
+    },
+    'monza': {
+        name: '🇮🇹 Italian GP', laps: 53, pitLaneTime: 25, degradation: 0.9,
+        optimalStrategy: 'one-stop',
+        characteristics: ['Low downforce', 'Slipstreaming', 'Tow important']
+    },
+    'silverstone': {
+        name: '🇬🇧 British GP', laps: 52, pitLaneTime: 22, degradation: 1.3,
+        optimalStrategy: 'two-stop',
+        characteristics: ['High-speed corners', 'Front tire wear', 'Weather variable']
+    },
+    'suzuka': {
+        name: '🇯🇵 Japanese GP', laps: 53, pitLaneTime: 24, degradation: 1.1,
+        optimalStrategy: 'two-stop',
+        characteristics: ['Technical esses', 'Balanced wear', 'Typhoon risk']
+    },
+    'spa': {
+        name: '🇧🇪 Belgian GP', laps: 44, pitLaneTime: 21, degradation: 0.8,
+        optimalStrategy: 'one-stop',
+        characteristics: ['Longest circuit', 'Low degradation', 'Rain likely']
+    },
+    'singapore': {
+        name: '🇸🇬 Singapore GP', laps: 62, pitLaneTime: 28, degradation: 1.4,
+        optimalStrategy: 'two-stop',
+        characteristics: ['Street circuit heat', 'Physical race', 'Safety car common']
+    },
+}
+
+// Team-specific strategy profiles
+const TEAM_STRATEGIES: Record<string, {
+    name: string; color: string;
+    tireMgmt: number; pitSpeed: number; strategyFlexibility: number;
+    strengths: string[]; weaknesses: string[];
+}> = {
+    'mclaren': {
+        name: 'McLaren', color: '#FF8700',
+        tireMgmt: 9.2, pitSpeed: 2.1, strategyFlexibility: 9.0,
+        strengths: ['Excellent tire management', 'Fast pit stops', 'Adaptive strategy'],
+        weaknesses: ['Sometimes conservative']
+    },
+    'redbull': {
+        name: 'Red Bull', color: '#1E41FF',
+        tireMgmt: 8.8, pitSpeed: 2.0, strategyFlexibility: 8.5,
+        strengths: ['Fastest pit crew', 'Aggressive undercuts', 'Data-driven'],
+        weaknesses: ['Can overcommit to strategy']
+    },
+    'ferrari': {
+        name: 'Ferrari', color: '#DC0000',
+        tireMgmt: 8.0, pitSpeed: 2.5, strategyFlexibility: 7.5,
+        strengths: ['Strong qualifying pace', 'Home race motivation'],
+        weaknesses: ['Strategy errors', 'Pit stop consistency', 'Radio chaos']
+    },
+    'mercedes': {
+        name: 'Mercedes', color: '#00D2BE',
+        tireMgmt: 8.5, pitSpeed: 2.3, strategyFlexibility: 8.8,
+        strengths: ['Strategic experience', 'Hamilton expertise', 'Tire temps'],
+        weaknesses: ['W14/W15 specific issues']
+    },
+    'astonmartin': {
+        name: 'Aston Martin', color: '#006F62',
+        tireMgmt: 7.5, pitSpeed: 2.6, strategyFlexibility: 8.0,
+        strengths: ['Alonso experience', 'Conservative approach'],
+        weaknesses: ['Slower pit stops', 'Resource limitations']
+    },
+    'williams': {
+        name: 'Williams', color: '#005AFF',
+        tireMgmt: 7.0, pitSpeed: 2.8, strategyFlexibility: 7.5,
+        strengths: ['Improving pit crew', 'No team orders issues'],
+        weaknesses: ['Slower overall pace', 'Limited strategic options']
+    },
+}
 
 // Strategy presets
 const STRATEGIES = [
@@ -21,9 +112,7 @@ const STRATEGIES = [
             { compound: 'medium', startLap: 1, endLap: 30 },
             { compound: 'hard', startLap: 31, endLap: 57 },
         ],
-        totalPitTime: 22,
         riskLevel: 'Low',
-        fuelSaving: 'High',
     },
     {
         id: 'two-stop',
@@ -34,9 +123,7 @@ const STRATEGIES = [
             { compound: 'medium', startLap: 19, endLap: 38 },
             { compound: 'soft', startLap: 39, endLap: 57 },
         ],
-        totalPitTime: 44,
         riskLevel: 'Medium',
-        fuelSaving: 'Medium',
     },
     {
         id: 'three-stop',
@@ -48,34 +135,35 @@ const STRATEGIES = [
             { compound: 'medium', startLap: 29, endLap: 42 },
             { compound: 'soft', startLap: 43, endLap: 57 },
         ],
-        totalPitTime: 66,
         riskLevel: 'High',
-        fuelSaving: 'Low',
     },
 ]
 
 export default function StrategyPage() {
+    const [selectedRace, setSelectedRace] = useState('bahrain')
+    const [selectedTeam, setSelectedTeam] = useState('mclaren')
     const [selectedStrategy, setSelectedStrategy] = useState('two-stop')
-    const [raceLaps, setRaceLaps] = useState(57)
-    const [pitLaneTime, setPitLaneTime] = useState(22)
-    const [degradationRate, setDegradationRate] = useState(1.0)
 
+    const race = RACE_STRATEGIES[selectedRace]
+    const team = TEAM_STRATEGIES[selectedTeam]
     const strategy = STRATEGIES.find(s => s.id === selectedStrategy)!
 
-    // Calculate estimated race time for each strategy
+    // Calculate estimated race time for each strategy based on race/team
     const calculateRaceTime = (strat: typeof strategy) => {
         let totalTime = 0
+        const laps = race.laps
+        const teamPitPenalty = team.pitSpeed - 2.0 // Baseline 2.0s
+
         strat.stints.forEach(stint => {
             const compound = COMPOUNDS.find(c => c.id === stint.compound)!
-            const stintLaps = stint.endLap - stint.startLap + 1
-            // Base lap time + compound penalty + degradation
+            const stintLaps = Math.min(stint.endLap, laps) - stint.startLap + 1
             for (let lap = 0; lap < stintLaps; lap++) {
-                const lapDegradation = compound.pitDegradation * lap * degradationRate
+                const lapDegradation = compound.pitDegradation * lap * race.degradation * (1 - team.tireMgmt / 20)
                 totalTime += 90 + compound.pace + lapDegradation
             }
         })
-        // Add pit stop time
-        totalTime += (strat.stints.length - 1) * pitLaneTime
+        // Add pit stop time (with team-specific penalty)
+        totalTime += (strat.stints.length - 1) * (race.pitLaneTime + teamPitPenalty)
         return totalTime
     }
 
@@ -85,6 +173,7 @@ export default function StrategyPage() {
     })).sort((a, b) => a.estimatedTime - b.estimatedTime)
 
     const fastestTime = strategyTimes[0].estimatedTime
+    const optimalStrategy = race.optimalStrategy
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -95,125 +184,187 @@ export default function StrategyPage() {
                     Pit Strategy Simulator
                 </h1>
                 <p className="text-f1-gray-600">
-                    Compare 1-stop, 2-stop, and 3-stop strategies with interactive parameters
+                    Race-specific and team-specific strategy analysis
                 </p>
             </div>
 
-            {/* Parameters */}
+            {/* Selectors */}
+            <div className="grid md:grid-cols-2 gap-4 mb-8">
+                <div>
+                    <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" /> Select Race
+                    </label>
+                    <select
+                        value={selectedRace}
+                        onChange={(e) => setSelectedRace(e.target.value)}
+                        className="w-full border rounded-lg p-3 font-bold"
+                    >
+                        {Object.entries(RACE_STRATEGIES).map(([id, r]) => (
+                            <option key={id} value={id}>{r.name} ({r.laps} laps)</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Building2 className="w-4 h-4" /> Select Team
+                    </label>
+                    <select
+                        value={selectedTeam}
+                        onChange={(e) => setSelectedTeam(e.target.value)}
+                        className="w-full border rounded-lg p-3 font-bold"
+                        style={{ borderColor: team.color }}
+                    >
+                        {Object.entries(TEAM_STRATEGIES).map(([id, t]) => (
+                            <option key={id} value={id}>{t.name}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Race Characteristics */}
+            <div className="rounded-xl p-6 mb-8 text-white" style={{ backgroundColor: team.color }}>
+                <div className="flex justify-between items-start flex-wrap gap-4">
+                    <div>
+                        <h2 className="text-2xl font-bold">{race.name}</h2>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {race.characteristics.map((c, i) => (
+                                <span key={i} className="bg-white/20 px-3 py-1 rounded-full text-sm">{c}</span>
+                            ))}
+                        </div>
+                        <div className="mt-3 text-sm opacity-90">
+                            Optimal Strategy: <strong>{race.optimalStrategy.toUpperCase().replace('-', ' ')}</strong>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="bg-black/20 rounded-lg px-4 py-2">
+                            <div className="text-2xl font-bold">{race.laps}</div>
+                            <div className="text-xs opacity-75">Laps</div>
+                        </div>
+                        <div className="bg-black/20 rounded-lg px-4 py-2">
+                            <div className="text-2xl font-bold">{race.pitLaneTime}s</div>
+                            <div className="text-xs opacity-75">Pit Lane</div>
+                        </div>
+                        <div className="bg-black/20 rounded-lg px-4 py-2">
+                            <div className="text-2xl font-bold">{race.degradation.toFixed(1)}x</div>
+                            <div className="text-xs opacity-75">Deg Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Team Profile */}
             <div className="bg-white rounded-lg shadow p-6 mb-8">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-gray-600" />
-                    Race Parameters
+                    <Building2 className="w-5 h-5" style={{ color: team.color }} />
+                    {team.name} Strategy Profile
                 </h3>
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                    <div className="text-center p-3 bg-f1-gray-50 rounded-lg">
+                        <div className="text-2xl font-bold" style={{ color: team.color }}>{team.tireMgmt}/10</div>
+                        <div className="text-sm text-f1-gray-500">Tire Management</div>
+                    </div>
+                    <div className="text-center p-3 bg-f1-gray-50 rounded-lg">
+                        <div className="text-2xl font-bold" style={{ color: team.color }}>{team.pitSpeed}s</div>
+                        <div className="text-sm text-f1-gray-500">Avg Pit Stop</div>
+                    </div>
+                    <div className="text-center p-3 bg-f1-gray-50 rounded-lg">
+                        <div className="text-2xl font-bold" style={{ color: team.color }}>{team.strategyFlexibility}/10</div>
+                        <div className="text-sm text-f1-gray-500">Strategy Flexibility</div>
+                    </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2">Race Distance (laps)</label>
-                        <input
-                            type="range"
-                            min={40}
-                            max={78}
-                            value={raceLaps}
-                            onChange={(e) => setRaceLaps(parseInt(e.target.value))}
-                            className="w-full"
-                        />
-                        <div className="text-center font-bold text-2xl mt-2">{raceLaps}</div>
+                        <h4 className="font-bold text-green-700 mb-2">✓ Strengths</h4>
+                        <ul className="text-sm text-f1-gray-600 space-y-1">
+                            {team.strengths.map((s, i) => <li key={i}>• {s}</li>)}
+                        </ul>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-2">Pit Lane Time (sec)</label>
-                        <input
-                            type="range"
-                            min={18}
-                            max={30}
-                            value={pitLaneTime}
-                            onChange={(e) => setPitLaneTime(parseInt(e.target.value))}
-                            className="w-full"
-                        />
-                        <div className="text-center font-bold text-2xl mt-2">{pitLaneTime}s</div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Tire Degradation Rate</label>
-                        <input
-                            type="range"
-                            min={0.5}
-                            max={2.0}
-                            step={0.1}
-                            value={degradationRate}
-                            onChange={(e) => setDegradationRate(parseFloat(e.target.value))}
-                            className="w-full"
-                        />
-                        <div className="text-center font-bold text-2xl mt-2">{degradationRate.toFixed(1)}x</div>
+                        <h4 className="font-bold text-red-700 mb-2">✗ Weaknesses</h4>
+                        <ul className="text-sm text-f1-gray-600 space-y-1">
+                            {team.weaknesses.map((w, i) => <li key={i}>• {w}</li>)}
+                        </ul>
                     </div>
                 </div>
             </div>
 
             {/* Strategy Comparison */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
-                {strategyTimes.map((strat, rank) => (
-                    <button
-                        key={strat.id}
-                        onClick={() => setSelectedStrategy(strat.id)}
-                        className={`p-6 rounded-lg text-left transition ${selectedStrategy === strat.id
-                                ? 'bg-f1-gray-900 text-white shadow-xl scale-105'
-                                : 'bg-white border border-f1-gray-200 hover:shadow-lg'
-                            }`}
-                    >
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <div className="text-sm opacity-75">
-                                    {rank === 0 ? '🥇 Fastest' : rank === 1 ? '🥈 Second' : '🥉 Third'}
+                {strategyTimes.map((strat, rank) => {
+                    const isOptimal = strat.id === optimalStrategy
+                    return (
+                        <button
+                            key={strat.id}
+                            onClick={() => setSelectedStrategy(strat.id)}
+                            className={`p-6 rounded-lg text-left transition ${selectedStrategy === strat.id
+                                    ? 'bg-f1-gray-900 text-white shadow-xl scale-105'
+                                    : 'bg-white border border-f1-gray-200 hover:shadow-lg'
+                                }`}
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <div className="text-sm opacity-75">
+                                        {rank === 0 ? '🥇 Fastest' : rank === 1 ? '🥈 Second' : '🥉 Third'}
+                                        {isOptimal && ' ⭐'}
+                                    </div>
+                                    <div className="text-xl font-bold">{strat.name}</div>
                                 </div>
-                                <div className="text-xl font-bold">{strat.name}</div>
+                                <div className={`px-2 py-1 rounded text-xs font-bold ${strat.riskLevel === 'Low' ? 'bg-green-100 text-green-800' :
+                                        strat.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-red-100 text-red-800'
+                                    }`}>
+                                    {strat.riskLevel} Risk
+                                </div>
                             </div>
-                            <div className={`px-2 py-1 rounded text-xs font-bold ${strat.riskLevel === 'Low' ? 'bg-green-100 text-green-800' :
-                                    strat.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-red-100 text-red-800'
-                                }`}>
-                                {strat.riskLevel} Risk
+                            <div className="text-3xl font-mono font-bold mb-2">
+                                {Math.floor(strat.estimatedTime / 60)}:{String(Math.floor(strat.estimatedTime % 60)).padStart(2, '0')}
                             </div>
-                        </div>
-                        <div className="text-3xl font-mono font-bold mb-2">
-                            {Math.floor(strat.estimatedTime / 60)}:{String(Math.floor(strat.estimatedTime % 60)).padStart(2, '0')}
-                        </div>
-                        <div className="text-sm opacity-75 mb-4">
-                            {rank === 0 ? 'Fastest strategy' : `+${(strat.estimatedTime - fastestTime).toFixed(1)}s`}
-                        </div>
-                        <div className="flex gap-1">
-                            {strat.stints.map((stint, i) => {
-                                const compound = COMPOUNDS.find(c => c.id === stint.compound)!
-                                return (
-                                    <div
-                                        key={i}
-                                        className="flex-1 h-3 rounded"
-                                        style={{ backgroundColor: compound.color, border: stint.compound === 'hard' ? '1px solid #ccc' : 'none' }}
-                                        title={`${compound.name}: Laps ${stint.startLap}-${stint.endLap}`}
-                                    />
-                                )
-                            })}
-                        </div>
-                    </button>
-                ))}
+                            <div className="text-sm opacity-75 mb-4">
+                                {rank === 0 ? 'Fastest for this combo' : `+${(strat.estimatedTime - fastestTime).toFixed(1)}s`}
+                            </div>
+                            <div className="flex gap-1">
+                                {strat.stints.map((stint, i) => {
+                                    const compound = COMPOUNDS.find(c => c.id === stint.compound)!
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="flex-1 h-3 rounded"
+                                            style={{ backgroundColor: compound.color, border: stint.compound === 'hard' ? '1px solid #ccc' : 'none' }}
+                                            title={`${compound.name}: Laps ${stint.startLap}-${Math.min(stint.endLap, race.laps)}`}
+                                        />
+                                    )
+                                })}
+                            </div>
+                        </button>
+                    )
+                })}
             </div>
 
-            {/* Selected Strategy Detail */}
-            <div className="bg-gradient-to-r from-f1-gray-900 to-f1-gray-800 rounded-xl p-6 mb-8 text-white">
-                <h3 className="text-xl font-bold mb-4">{strategy.name} - Stint Breakdown</h3>
-                <div className="grid md:grid-cols-4 gap-4">
-                    {strategy.stints.map((stint, i) => {
-                        const compound = COMPOUNDS.find(c => c.id === stint.compound)!
-                        const stintLength = stint.endLap - stint.startLap + 1
-                        return (
-                            <div key={i} className="bg-black/30 rounded-lg p-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-6 h-6 rounded-full" style={{ backgroundColor: compound.color, border: stint.compound === 'hard' ? '2px solid #ccc' : 'none' }} />
-                                    <span className="font-bold">Stint {i + 1}</span>
-                                </div>
-                                <div className="text-2xl font-bold">{stintLength} laps</div>
-                                <div className="text-sm opacity-75">Laps {stint.startLap} → {stint.endLap}</div>
-                                <div className="text-xs mt-2" style={{ color: compound.color }}>{compound.name}</div>
-                            </div>
-                        )
-                    })}
-                </div>
+            {/* Key Insight */}
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 mb-8">
+                <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-orange-600" />
+                    Strategy Recommendation for {team.name} at {race.name}
+                </h3>
+                <p className="text-f1-gray-700">
+                    {selectedStrategy === optimalStrategy ? (
+                        <>
+                            <strong>{strategy.name}</strong> is the optimal choice for this race.
+                            {team.tireMgmt >= 8.5
+                                ? ` ${team.name}'s excellent tire management (${team.tireMgmt}/10) makes this sustainable.`
+                                : ` ${team.name} may need to be careful with tire wear during the stint.`
+                            }
+                        </>
+                    ) : (
+                        <>
+                            Consider switching to <strong>{optimalStrategy.replace('-', ' ')}</strong> which is usually optimal at {race.name}.
+                            Your selected {strategy.name} is {strategyTimes.find(s => s.id === selectedStrategy)?.estimatedTime! > fastestTime
+                                ? `${(strategyTimes.find(s => s.id === selectedStrategy)?.estimatedTime! - fastestTime).toFixed(1)}s slower`
+                                : 'still competitive'
+                            } for this race/team combination.
+                        </>
+                    )}
+                </p>
             </div>
 
             {/* Tire Compounds Legend */}
@@ -238,19 +389,6 @@ export default function StrategyPage() {
                         </div>
                     ))}
                 </div>
-            </div>
-
-            {/* Key Insight */}
-            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 mb-8">
-                <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-orange-600" />
-                    Strategy Insight
-                </h3>
-                <p className="text-f1-gray-700">
-                    {selectedStrategy === 'one-stop' && 'The 1-stop strategy minimizes time lost in the pit lane but requires excellent tire management. Best suited for tracks with low degradation like Monaco or Hungary.'}
-                    {selectedStrategy === 'two-stop' && 'The 2-stop strategy offers the best balance between fresh tire pace and pit stop time loss. Most commonly used strategy in modern F1.'}
-                    {selectedStrategy === 'three-stop' && 'The 3-stop strategy maximizes pace with fresh tires but loses significant time to extra pit stops. Only viable at high-degradation circuits or when significantly faster than rivals.'}
-                </p>
             </div>
 
             {/* Links */}
