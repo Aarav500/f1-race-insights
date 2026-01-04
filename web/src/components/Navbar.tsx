@@ -33,30 +33,32 @@ export default function Navbar() {
         {
             title: 'Driver Analysis',
             links: [
+                { href: '/driver-dna', label: 'Driver DNA Profile', icon: '🧬' },
                 { href: '/quali-predictor', label: 'Qualifying Predictor', icon: '🏁' },
                 { href: '/sector-analysis', label: 'Sector Analysis', icon: '🗺️' },
                 { href: '/race-vs-quali', label: 'Race vs Quali Pace', icon: '📊' },
-                { href: '/driver-dna', label: 'Driver DNA Profile', icon: '🧬' },
                 { href: '/constructor-tracker', label: 'Constructor Tracker', icon: '🏭' },
             ]
         },
         {
-            title: 'Research Features',
+            title: 'Beyond F1 (Advanced)',
             links: [
-                { href: '/strategy-chat', label: 'AI Strategy Chat', icon: '🤖' },
-                { href: '/telemetry', label: 'Live Telemetry', icon: '📡' },
-                { href: '/rl-strategy', label: 'RL Strategy Agent', icon: '🧠' },
+                { href: '/bayesian', label: 'Bayesian Race Engine', icon: '🧠' },
+                { href: '/incident-heatmap', label: 'Incident Heatmap', icon: '🔥' },
+                { href: '/rl-strategy', label: 'RL Strategy Agent', icon: '🤖' },
                 { href: '/counterfactual', label: 'What-If Simulator', icon: '🔀' },
+                { href: '/strategy-chat', label: 'AI Strategy Chat', icon: '💬' },
             ]
         },
         {
             title: 'More Features',
             links: [
                 { href: '/live', label: 'Live Dashboard', icon: '🔴' },
+                { href: '/telemetry', label: 'Live Telemetry', icon: '📡' },
                 { href: '/fantasy', label: 'Fantasy F1', icon: '🏆' },
                 { href: '/replay', label: 'Race Replay', icon: '⏪' },
                 { href: '/explainer', label: 'SHAP Explainer', icon: '🔮' },
-                { href: '/tracks', label: 'Track Profiles', icon: '🏁' },
+                { href: '/tracks', label: 'Track Profiles', icon: '🏟️' },
             ]
         },
     ]
