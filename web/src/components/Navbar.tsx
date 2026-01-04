@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X, Flag, ChevronDown, ExternalLink } from 'lucide-react'
+import LiveIndicator from './LiveIndicator'
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
@@ -10,6 +11,7 @@ export default function Navbar() {
 
     // Clean 4-item main nav
     const mainLinks = [
+        { href: '/live', label: 'Live', highlight: false, hasIndicator: true },
         { href: '/simulator', label: 'Simulator', highlight: true },
         { href: '/championship', label: 'Championship' },
         { href: '/strategy', label: 'Strategy' },
@@ -73,6 +75,7 @@ export default function Navbar() {
 
                     {/* Desktop Navigation - Clean 4 items */}
                     <div className="hidden md:flex items-center space-x-1">
+                        <LiveIndicator />
                         {mainLinks.map((link) => (
                             <Link
                                 key={link.href}
