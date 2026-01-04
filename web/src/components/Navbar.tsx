@@ -2,63 +2,75 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, Flag, ChevronDown, ExternalLink } from 'lucide-react'
+import { Menu, X, Flag, ChevronDown, ExternalLink, Cpu, Brain, BarChart3, Activity, Layers, Target, Zap, Database, GitBranch, TrendingUp, Sparkles } from 'lucide-react'
 import LiveIndicator from './LiveIndicator'
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
     const [featuresOpen, setFeaturesOpen] = useState(false)
+    const [techOpen, setTechOpen] = useState(false)
 
-    // Clean 4-item main nav
+    // Clean main nav with Technical section
     const mainLinks = [
         { href: '/live', label: 'Live', highlight: false, hasIndicator: true },
         { href: '/simulator', label: 'Simulator', highlight: true },
         { href: '/championship', label: 'Championship' },
-        { href: '/strategy', label: 'Strategy' },
     ]
 
-    // Organized feature categories - now with advanced features
+    // Technical/ML Features - NOW PROMINENT
+    const technicalLinks = [
+        { href: '/architecture', label: 'Model Architecture', desc: 'All 8 ML models', icon: Cpu, color: 'text-purple-400' },
+        { href: '/ml-analytics', label: 'ML Analytics', desc: 'Bayesian Elo, drift', icon: TrendingUp, color: 'text-blue-400' },
+        { href: '/technical', label: 'Infrastructure', desc: 'Pipeline, registry', icon: Database, color: 'text-green-400' },
+        { href: '/ensemble', label: 'Ensemble Stacking', desc: 'Model pyramid', icon: Layers, color: 'text-pink-400' },
+        { href: '/monitoring', label: 'Live Monitoring', desc: 'Real-time metrics', icon: Activity, color: 'text-orange-400' },
+        { href: '/causal', label: 'Causal Inference', desc: 'What-if analysis', icon: GitBranch, color: 'text-yellow-400' },
+        { href: '/explainer', label: 'SHAP Explainer', desc: 'Feature importance', icon: Brain, color: 'text-red-400' },
+        { href: '/backtest', label: 'Backtest Results', desc: 'Historical accuracy', icon: BarChart3, color: 'text-cyan-400' },
+    ]
+
+    // Organized feature categories
     const featureCategories = [
         {
-            title: 'Engineering Tools',
+            title: 'Race Engineering',
             links: [
-                { href: '/undercut', label: 'Undercut Calculator', icon: '⏱️' },
+                { href: '/strategy', label: 'Pit Strategy', icon: '⏱️' },
+                { href: '/undercut', label: 'Undercut Calculator', icon: '🔧' },
                 { href: '/tire-deg', label: 'Tire Degradation', icon: '🛞' },
                 { href: '/safety-car', label: 'Safety Car Model', icon: '🚗' },
                 { href: '/gap-predictor', label: 'Gap Evolution', icon: '📈' },
                 { href: '/fuel-optimizer', label: 'Fuel Optimizer', icon: '⛽' },
-                { href: '/drs-analysis', label: 'DRS Analyzer', icon: '⚡' },
             ]
         },
         {
             title: 'Driver Analysis',
             links: [
                 { href: '/driver-dna', label: 'Driver DNA Profile', icon: '🧬' },
-                { href: '/quali-predictor', label: 'Qualifying Predictor', icon: '🏁' },
+                { href: '/quali-predictor', label: 'Quali Predictor', icon: '🏁' },
                 { href: '/sector-analysis', label: 'Sector Analysis', icon: '🗺️' },
-                { href: '/race-vs-quali', label: 'Race vs Quali Pace', icon: '📊' },
-                { href: '/constructor-tracker', label: 'Constructor Tracker', icon: '🏭' },
+                { href: '/race-vs-quali', label: 'Race vs Quali', icon: '📊' },
+                { href: '/head-to-head', label: 'Head to Head', icon: '⚔️' },
+                { href: '/compare', label: 'Driver Compare', icon: '🔄' },
             ]
         },
         {
-            title: 'Beyond F1 (Advanced)',
+            title: 'Simulation',
             links: [
-                { href: '/bayesian', label: 'Bayesian Race Engine', icon: '🧠' },
-                { href: '/incident-heatmap', label: 'Incident Heatmap', icon: '🔥' },
+                { href: '/simulator', label: 'Season Simulator', icon: '🎮' },
+                { href: '/counterfactual', label: 'What-If Lab', icon: '🔀' },
+                { href: '/bayesian', label: 'Bayesian Engine', icon: '🧠' },
                 { href: '/rl-strategy', label: 'RL Strategy Agent', icon: '🤖' },
-                { href: '/counterfactual', label: 'What-If Simulator', icon: '🔀' },
                 { href: '/strategy-chat', label: 'AI Strategy Chat', icon: '💬' },
             ]
         },
         {
-            title: 'More Features',
+            title: 'Data & Tracks',
             links: [
-                { href: '/live', label: 'Live Dashboard', icon: '🔴' },
                 { href: '/telemetry', label: 'Live Telemetry', icon: '📡' },
+                { href: '/tracks', label: 'Track Profiles', icon: '🏟️' },
+                { href: '/constructors', label: 'Constructors', icon: '🏭' },
                 { href: '/fantasy', label: 'Fantasy F1', icon: '🏆' },
                 { href: '/replay', label: 'Race Replay', icon: '⏪' },
-                { href: '/explainer', label: 'SHAP Explainer', icon: '🔮' },
-                { href: '/tracks', label: 'Track Profiles', icon: '🏟️' },
             ]
         },
     ]
@@ -75,7 +87,7 @@ export default function Navbar() {
                         <span className="hidden sm:inline">F1 Race Insights</span>
                     </Link>
 
-                    {/* Desktop Navigation - Clean 4 items */}
+                    {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-1">
                         <LiveIndicator />
                         {mainLinks.map((link) => (
@@ -91,10 +103,50 @@ export default function Navbar() {
                             </Link>
                         ))}
 
+                        {/* TECHNICAL MEGA MENU - NOW PROMINENT */}
+                        <div className="relative">
+                            <button
+                                onClick={() => { setTechOpen(!techOpen); setFeaturesOpen(false) }}
+                                className={`flex items-center gap-1 px-4 py-2 rounded-lg transition font-medium ${techOpen ? 'bg-purple-600' : 'bg-purple-600/20 hover:bg-purple-600/40'}`}
+                            >
+                                <Sparkles className="w-4 h-4 text-yellow-400" />
+                                Technical
+                                <ChevronDown className={`w-4 h-4 transition ${techOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {techOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setTechOpen(false)} />
+                                    <div className="absolute right-0 mt-2 w-[500px] bg-gradient-to-br from-f1-gray-900 to-f1-black text-white rounded-xl shadow-2xl p-4 z-50 border border-purple-500/30">
+                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-purple-500/20">
+                                            <Sparkles className="w-5 h-5 text-yellow-400" />
+                                            <span className="font-bold text-lg">Technical Features</span>
+                                            <span className="text-xs bg-purple-500/30 px-2 py-0.5 rounded-full text-purple-300">Beyond F1 Tools</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {technicalLinks.map((link) => (
+                                                <Link
+                                                    key={link.href}
+                                                    href={link.href}
+                                                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-white/10 transition group"
+                                                    onClick={() => setTechOpen(false)}
+                                                >
+                                                    <link.icon className={`w-5 h-5 ${link.color} mt-0.5 group-hover:scale-110 transition`} />
+                                                    <div>
+                                                        <div className="font-medium">{link.label}</div>
+                                                        <div className="text-xs text-f1-gray-400">{link.desc}</div>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                         {/* Features Mega Menu */}
                         <div className="relative">
                             <button
-                                onClick={() => setFeaturesOpen(!featuresOpen)}
+                                onClick={() => { setFeaturesOpen(!featuresOpen); setTechOpen(false) }}
                                 className="flex items-center gap-1 px-4 py-2 rounded-lg hover:bg-white/10 transition font-medium"
                             >
                                 Features <ChevronDown className={`w-4 h-4 transition ${featuresOpen ? 'rotate-180' : ''}`} />
@@ -102,7 +154,7 @@ export default function Navbar() {
                             {featuresOpen && (
                                 <>
                                     <div className="fixed inset-0 z-40" onClick={() => setFeaturesOpen(false)} />
-                                    <div className="absolute right-0 mt-2 w-[600px] bg-white text-f1-black rounded-xl shadow-2xl p-4 z-50 grid grid-cols-2 gap-4">
+                                    <div className="absolute right-0 mt-2 w-[650px] bg-white text-f1-black rounded-xl shadow-2xl p-4 z-50 grid grid-cols-2 gap-4">
                                         {featureCategories.map((cat) => (
                                             <div key={cat.title}>
                                                 <div className="text-xs font-bold text-f1-gray-500 uppercase tracking-wider mb-2">{cat.title}</div>
@@ -161,6 +213,28 @@ export default function Navbar() {
                                 {link.label}
                             </Link>
                         ))}
+
+                        {/* Mobile Technical Section - Prominent */}
+                        <div className="mt-4 p-3 bg-purple-900/30 rounded-lg border border-purple-500/30">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Sparkles className="w-4 h-4 text-yellow-400" />
+                                <span className="font-bold text-purple-300">Technical Features</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                {technicalLinks.slice(0, 6).map((link) => (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        className="flex items-center gap-2 py-2 px-2 rounded hover:bg-white/10 transition text-sm"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <link.icon className={`w-4 h-4 ${link.color}`} />
+                                        <span className="truncate">{link.label}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
                         {featureCategories.map((cat) => (
                             <div key={cat.title} className="mt-4">
                                 <div className="text-xs text-f1-gray-400 uppercase px-4 mb-1">{cat.title}</div>

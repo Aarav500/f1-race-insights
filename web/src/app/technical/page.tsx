@@ -491,33 +491,71 @@ export default function TechnicalPage() {
                             </div>
                         </div>
 
-                        <div className="relative h-48 bg-f1-gray-700/50 rounded-lg p-4">
-                            <div className="absolute left-2 top-4 text-xs text-gray-400">200ms</div>
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">100ms</div>
-                            <div className="absolute left-2 bottom-4 text-xs text-gray-400">0ms</div>
+                        <div className="relative h-64 bg-f1-gray-700/50 rounded-lg overflow-hidden">
+                            {/* Y-Axis */}
+                            <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between py-4 text-xs text-gray-400 text-right pr-2">
+                                <span>200ms</span>
+                                <span>150ms</span>
+                                <span>100ms</span>
+                                <span>50ms</span>
+                                <span>0ms</span>
+                            </div>
 
-                            <svg className="absolute left-12 right-4 top-4 bottom-8" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                <polyline
-                                    fill="rgba(239, 68, 68, 0.2)"
-                                    stroke="#EF4444"
-                                    strokeWidth="1"
-                                    points={`0,100 ${LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 100},${100 - d.p99 / 2}`).join(' ')} 100,100`}
-                                />
-                                <polyline
-                                    fill="rgba(234, 179, 8, 0.2)"
-                                    stroke="#EAB308"
-                                    strokeWidth="1"
-                                    points={`0,100 ${LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 100},${100 - d.p95 / 2}`).join(' ')} 100,100`}
-                                />
-                                <polyline
-                                    fill="none"
-                                    stroke="#22C55E"
-                                    strokeWidth="2"
-                                    points={LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 100},${100 - d.p50 / 2}`).join(' ')}
-                                />
-                            </svg>
+                            {/* Grid Lines */}
+                            <div className="absolute left-12 right-4 top-4 bottom-8">
+                                {[0, 25, 50, 75, 100].map(pct => (
+                                    <div key={pct} className="absolute left-0 right-0 border-t border-dashed border-gray-600/50" style={{ top: `${pct}%` }} />
+                                ))}
+                            </div>
 
-                            <div className="absolute bottom-1 left-12 right-4 flex justify-between text-xs text-gray-400">
+                            {/* Chart Area */}
+                            <div className="absolute left-12 right-4 top-4 bottom-8">
+                                <svg className="w-full h-full" viewBox="0 0 700 200" preserveAspectRatio="none">
+                                    {/* P99 Area */}
+                                    <polygon
+                                        fill="rgba(239, 68, 68, 0.15)"
+                                        points={`0,200 ${LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 700},${200 - d.p99}`).join(' ')} 700,200`}
+                                    />
+                                    <polyline
+                                        fill="none"
+                                        stroke="#EF4444"
+                                        strokeWidth="3"
+                                        points={LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 700},${200 - d.p99}`).join(' ')}
+                                    />
+
+                                    {/* P95 Area */}
+                                    <polygon
+                                        fill="rgba(234, 179, 8, 0.15)"
+                                        points={`0,200 ${LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 700},${200 - d.p95}`).join(' ')} 700,200`}
+                                    />
+                                    <polyline
+                                        fill="none"
+                                        stroke="#EAB308"
+                                        strokeWidth="3"
+                                        points={LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 700},${200 - d.p95}`).join(' ')}
+                                    />
+
+                                    {/* P50 Line */}
+                                    <polyline
+                                        fill="none"
+                                        stroke="#22C55E"
+                                        strokeWidth="4"
+                                        points={LATENCY_HISTORY.map((d, i) => `${(i / (LATENCY_HISTORY.length - 1)) * 700},${200 - d.p50}`).join(' ')}
+                                    />
+
+                                    {/* Data points */}
+                                    {LATENCY_HISTORY.map((d, i) => (
+                                        <g key={d.time}>
+                                            <circle cx={(i / (LATENCY_HISTORY.length - 1)) * 700} cy={200 - d.p50} r="6" fill="#22C55E" />
+                                            <circle cx={(i / (LATENCY_HISTORY.length - 1)) * 700} cy={200 - d.p95} r="5" fill="#EAB308" />
+                                            <circle cx={(i / (LATENCY_HISTORY.length - 1)) * 700} cy={200 - d.p99} r="4" fill="#EF4444" />
+                                        </g>
+                                    ))}
+                                </svg>
+                            </div>
+
+                            {/* X-Axis Labels */}
+                            <div className="absolute bottom-0 left-12 right-4 h-8 flex justify-between items-center text-xs text-gray-400">
                                 {LATENCY_HISTORY.map(d => <span key={d.time}>{d.time}</span>)}
                             </div>
                         </div>

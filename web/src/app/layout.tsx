@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import QuickAccessPanel from '@/components/QuickAccessPanel'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -57,6 +58,7 @@ export default function RootLayout({
                     </main>
                     <Footer />
                 </div>
+                <QuickAccessPanel />
             </body>
         </html>
     )
