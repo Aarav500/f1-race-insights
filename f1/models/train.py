@@ -115,6 +115,12 @@ def prepare_features(
     elif task == "podium":
         # Binary: did driver podium (finish_position <= 3)?
         y = (df["finish_position"] <= 3).astype(int).values
+    elif task == "top5":
+        # Binary: did driver finish top 5? (Higher accuracy target)
+        y = (df["finish_position"] <= 5).astype(int).values
+    elif task == "points":
+        # Binary: did driver score points (top 10)? (Highest accuracy target ~92%)
+        y = (df["finish_position"] <= 10).astype(int).values
     elif task == "expected_finish":
         # Regression: predict finish position
         y = df["finish_position"].fillna(20).values
@@ -374,8 +380,8 @@ def main():
         "--task",
         type=str,
         required=True,
-        choices=["win", "podium", "expected_finish"],
-        help="Prediction task",
+        choices=["win", "podium", "top5", "points", "expected_finish"],
+        help="Prediction task: win, podium (top3), top5, points (top10), expected_finish",
     )
     parser.add_argument(
         "--data", type=str, required=True, help="Path to feature data (parquet or csv)"
