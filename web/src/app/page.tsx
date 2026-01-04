@@ -224,7 +224,7 @@ export default function HomePage() {
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold text-f1-black mb-4">Explore Features</h2>
-                        <p className="text-f1-gray-600">24 interactive tools for F1 analysis and prediction</p>
+                        <p className="text-f1-gray-600">35+ interactive tools for F1 analysis and prediction</p>
                     </div>
 
                     {/* Primary Features - Large cards */}
@@ -260,26 +260,26 @@ export default function HomePage() {
                     {/* Secondary Features - Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
                         {[
-                            // Advanced Analytics
-                            { href: '/live', icon: Activity, label: 'Live Dashboard', desc: 'Real-time race updates' },
-                            { href: '/fantasy', icon: Trophy, label: 'Fantasy F1', desc: 'ML team builder' },
-                            { href: '/replay', icon: Rewind, label: 'Race Replay', desc: 'What-if scenarios' },
-                            { href: '/uncertainty', icon: BarChart3, label: 'Uncertainty Viz', desc: 'Confidence intervals' },
-                            // ML Insights
-                            { href: '/ml-analytics', icon: Brain, label: 'ML Analytics', desc: 'Model performance' },
-                            { href: '/driver-compare', icon: Users, label: 'Driver Compare', desc: 'Head-to-head stats' },
-                            { href: '/compare', icon: GitBranch, label: 'Compare Models', desc: '8 ML models' },
-                            { href: '/explainer', icon: Cpu, label: 'SHAP Explainer', desc: 'Interpretability' },
-                            // Race Intelligence
-                            { href: '/report', icon: FileText, label: 'Race Reports', desc: 'AI analysis' },
-                            { href: '/ticker', icon: Activity, label: '2026 Ticker', desc: 'Race countdown' },
+                            // Engineering Tools (NEW)
+                            { href: '/undercut', icon: Activity, label: 'Undercut Calculator', desc: 'Pit strategy decisions' },
+                            { href: '/tire-deg', icon: Thermometer, label: 'Tire Degradation', desc: 'Compound analysis' },
+                            { href: '/safety-car', icon: Zap, label: 'Safety Car Model', desc: 'SC/VSC probability' },
+                            { href: '/gap-predictor', icon: LineChart, label: 'Gap Evolution', desc: 'Battle forecasting' },
+                            // Driver Analysis (NEW)
+                            { href: '/quali-predictor', icon: Target, label: 'Quali Predictor', desc: 'Q1/Q2/Q3 knockouts' },
+                            { href: '/sector-analysis', icon: BarChart3, label: 'Sector Analysis', desc: 'Driver strengths' },
+                            { href: '/driver-dna', icon: Brain, label: 'Driver DNA', desc: 'Style profiling' },
+                            { href: '/race-vs-quali', icon: Users, label: 'Race vs Quali', desc: 'Sat/Sun performance' },
+                            // Research Features (NEW)
+                            { href: '/strategy-chat', icon: Cpu, label: 'AI Strategy Chat', desc: 'Virtual engineer' },
+                            { href: '/telemetry', icon: Activity, label: 'Live Telemetry', desc: 'Real-time data' },
+                            { href: '/rl-strategy', icon: Brain, label: 'RL Strategy Agent', desc: 'Q-learning demo' },
+                            { href: '/counterfactual', icon: GitBranch, label: 'What-If Simulator', desc: 'Alt timelines' },
+                            // More Tools (NEW)
+                            { href: '/fuel-optimizer', icon: Thermometer, label: 'Fuel Optimizer', desc: 'Weight vs pace' },
+                            { href: '/drs-analysis', icon: Zap, label: 'DRS Analyzer', desc: 'Overtake probability' },
+                            { href: '/constructor-tracker', icon: Layers, label: 'Team Tracker', desc: 'Upgrade timeline' },
                             { href: '/tracks', icon: Target, label: 'Track Profiles', desc: '24 circuits' },
-                            { href: '/weather', icon: Thermometer, label: 'Weather Impact', desc: 'Conditions effect' },
-                            // Technical
-                            { href: '/architecture', icon: Layers, label: 'Neural Network', desc: 'Architecture viz' },
-                            { href: '/technical', icon: Database, label: 'Infrastructure', desc: 'System design' },
-                            { href: '/share', icon: Zap, label: 'Share Cards', desc: 'Export insights' },
-                            { href: '/settings', icon: Cpu, label: 'Settings', desc: 'Preferences' },
                         ].map(f => (
                             <Link key={f.href} href={f.href} className="group bg-white rounded-xl p-4 hover:shadow-lg transition border border-f1-gray-200">
                                 <f.icon className="w-6 h-6 text-f1-red mb-2 group-hover:scale-110 transition" />
@@ -320,9 +320,9 @@ export default function HomePage() {
                 <div className="container mx-auto px-4">
                     <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto text-center">
                         <div>
-                            <div className="text-4xl font-bold text-f1-red mb-2">24+</div>
+                            <div className="text-4xl font-bold text-f1-red mb-2">35+</div>
                             <div className="text-white font-medium">Interactive Features</div>
-                            <div className="text-f1-gray-500 text-sm">Prediction to Simulation</div>
+                            <div className="text-f1-gray-500 text-sm">Engineering-grade tools</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold text-yellow-400 mb-2">15K+</div>

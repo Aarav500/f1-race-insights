@@ -18,40 +18,43 @@ export default function Navbar() {
     // Organized feature categories - now with advanced features
     const featureCategories = [
         {
-            title: 'Advanced Analytics',
+            title: 'Engineering Tools',
+            links: [
+                { href: '/undercut', label: 'Undercut Calculator', icon: '⏱️' },
+                { href: '/tire-deg', label: 'Tire Degradation', icon: '🛞' },
+                { href: '/safety-car', label: 'Safety Car Model', icon: '🚗' },
+                { href: '/gap-predictor', label: 'Gap Evolution', icon: '📈' },
+                { href: '/fuel-optimizer', label: 'Fuel Optimizer', icon: '⛽' },
+                { href: '/drs-analysis', label: 'DRS Analyzer', icon: '⚡' },
+            ]
+        },
+        {
+            title: 'Driver Analysis',
+            links: [
+                { href: '/quali-predictor', label: 'Qualifying Predictor', icon: '🏁' },
+                { href: '/sector-analysis', label: 'Sector Analysis', icon: '🗺️' },
+                { href: '/race-vs-quali', label: 'Race vs Quali Pace', icon: '📊' },
+                { href: '/driver-dna', label: 'Driver DNA Profile', icon: '🧬' },
+                { href: '/constructor-tracker', label: 'Constructor Tracker', icon: '🏭' },
+            ]
+        },
+        {
+            title: 'Research Features',
+            links: [
+                { href: '/strategy-chat', label: 'AI Strategy Chat', icon: '🤖' },
+                { href: '/telemetry', label: 'Live Telemetry', icon: '📡' },
+                { href: '/rl-strategy', label: 'RL Strategy Agent', icon: '🧠' },
+                { href: '/counterfactual', label: 'What-If Simulator', icon: '🔀' },
+            ]
+        },
+        {
+            title: 'More Features',
             links: [
                 { href: '/live', label: 'Live Dashboard', icon: '🔴' },
                 { href: '/fantasy', label: 'Fantasy F1', icon: '🏆' },
                 { href: '/replay', label: 'Race Replay', icon: '⏪' },
-                { href: '/uncertainty', label: 'Uncertainty Viz', icon: '📊' },
-                { href: '/report', label: 'Race Reports', icon: '📝' },
-            ]
-        },
-        {
-            title: 'ML Insights',
-            links: [
-                { href: '/ml-analytics', label: 'ML Analytics', icon: '🧠' },
-                { href: '/driver-compare', label: 'Driver Compare', icon: '👥' },
-                { href: '/compare', label: 'Compare Models', icon: '📊' },
                 { href: '/explainer', label: 'SHAP Explainer', icon: '🔮' },
-            ]
-        },
-        {
-            title: 'Race Intelligence',
-            links: [
-                { href: '/ticker', label: '2026 Ticker', icon: '⏱️' },
                 { href: '/tracks', label: 'Track Profiles', icon: '🏁' },
-                { href: '/weather', label: 'Weather Impact', icon: '🌧️' },
-                { href: '/share', label: 'Share Cards', icon: '📤' },
-            ]
-        },
-        {
-            title: 'Technical',
-            links: [
-                { href: '/technical', label: 'Infrastructure', icon: '🏗️' },
-                { href: '/architecture', label: 'Neural Network', icon: '⚙️' },
-                { href: '/playground', label: 'API Playground', icon: '🔧' },
-                { href: '/settings', label: 'Settings', icon: '⚙️' },
             ]
         },
     ]
