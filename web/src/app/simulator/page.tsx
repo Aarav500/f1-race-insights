@@ -109,12 +109,18 @@ const DRIVERS_2024 = [
     { id: 'LAW', name: 'Lawson', team: 'Red Bull', color: '#1E41FF', basePoints: 0, pace: 8.0, consistency: 7.8, wetSkill: 7.8, tireManagement: 7.5, racecraft: 7.8, reliability: 0.90 },
 ]
 
-// ============ TEAM PERFORMANCE DATA ============
-const TEAMS = {
+// ============ TEAM PERFORMANCE DATA (ALL 10 TEAMS) ============
+const TEAMS: Record<string, { carPace: number; pitSpeed: number; strategy: number; aero: number; power: number }> = {
     'Red Bull': { carPace: 9.5, pitSpeed: 2.1, strategy: 9.2, aero: 9.5, power: 9.2 },
     'McLaren': { carPace: 9.3, pitSpeed: 2.0, strategy: 9.0, aero: 9.3, power: 9.0 },
-    'Ferrari': { carPace: 8.8, pitSpeed: 2.5, strategy: 7.5, aero: 8.8, power: 9.0 },
-    'Mercedes': { carPace: 8.2, pitSpeed: 2.3, strategy: 8.8, aero: 8.2, power: 8.5 },
+    'Ferrari': { carPace: 9.0, pitSpeed: 2.5, strategy: 7.5, aero: 8.8, power: 9.2 },
+    'Mercedes': { carPace: 8.5, pitSpeed: 2.3, strategy: 8.8, aero: 8.2, power: 8.5 },
+    'Aston Martin': { carPace: 7.8, pitSpeed: 2.4, strategy: 8.0, aero: 7.5, power: 8.0 },
+    'Haas': { carPace: 7.0, pitSpeed: 2.6, strategy: 7.2, aero: 6.8, power: 7.5 },
+    'Sauber': { carPace: 6.8, pitSpeed: 2.5, strategy: 7.0, aero: 6.5, power: 7.0 },
+    'RB': { carPace: 7.5, pitSpeed: 2.3, strategy: 7.8, aero: 7.2, power: 7.8 },
+    'Williams': { carPace: 7.2, pitSpeed: 2.5, strategy: 7.5, aero: 7.0, power: 7.2 },
+    'Alpine': { carPace: 7.0, pitSpeed: 2.4, strategy: 7.3, aero: 6.8, power: 7.5 },
 }
 
 // ============ COUNTERFACTUAL SCENARIOS ============
