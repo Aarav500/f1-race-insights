@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, Flag, ChevronDown, ExternalLink, Cpu, Brain, BarChart3, Activity, Layers, Target, Zap, Database, GitBranch, TrendingUp, Sparkles } from 'lucide-react'
+import { Menu, X, Flag, ChevronDown, ExternalLink, Cpu, Brain, BarChart3, Activity, Layers, Target, Zap, Database, GitBranch, TrendingUp, Sparkles, HelpCircle, BookOpen } from 'lucide-react'
 import LiveIndicator from './LiveIndicator'
 
 export default function Navbar() {
@@ -10,8 +10,9 @@ export default function Navbar() {
     const [featuresOpen, setFeaturesOpen] = useState(false)
     const [techOpen, setTechOpen] = useState(false)
 
-    // Clean main nav with Technical section
+    // Clean main nav with Technical section - Getting Started FIRST
     const mainLinks = [
+        { href: '/getting-started', label: '📚 Getting Started', highlight: true, isNew: true },
         { href: '/live', label: 'Live', highlight: false, hasIndicator: true },
         { href: '/simulator', label: 'Simulator', highlight: true },
         { href: '/championship', label: 'Championship' },
