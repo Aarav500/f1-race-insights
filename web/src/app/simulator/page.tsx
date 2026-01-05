@@ -64,6 +64,33 @@ const RACES_2025 = [
     { id: 'abu25', name: 'Abu Dhabi GP', circuit: 'Yas Marina', temp: 27, laps: 58, scProb: 0.28, degradation: 1.0, drsZones: 2 },
 ]
 
+// ============ FULL 2026 SEASON RACE CALENDAR (NEW REGULATIONS) ============
+const RACES_2026 = [
+    { id: 'aus26', name: 'Australia GP', circuit: 'Melbourne', temp: 25, laps: 58, scProb: 0.40, degradation: 0.9, drsZones: 4 },
+    { id: 'chn26', name: 'China GP', circuit: 'Shanghai', temp: 23, laps: 56, scProb: 0.25, degradation: 0.9, drsZones: 2 },
+    { id: 'jpn26', name: 'Japan GP', circuit: 'Suzuka', temp: 21, laps: 53, scProb: 0.35, degradation: 1.0, drsZones: 2 },
+    { id: 'bah26', name: 'Bahrain GP', circuit: 'Bahrain', temp: 30, laps: 57, scProb: 0.30, degradation: 1.1, drsZones: 3 },
+    { id: 'sau26', name: 'Saudi Arabia GP', circuit: 'Jeddah', temp: 32, laps: 50, scProb: 0.50, degradation: 0.7, drsZones: 3 },
+    { id: 'mia26', name: 'Miami GP', circuit: 'Miami', temp: 34, laps: 57, scProb: 0.35, degradation: 1.2, drsZones: 3 },
+    { id: 'mon26', name: 'Monaco GP', circuit: 'Monaco', temp: 24, laps: 78, scProb: 0.55, degradation: 0.4, drsZones: 1 },
+    { id: 'spa26', name: 'Spain GP', circuit: 'Madrid', temp: 30, laps: 60, scProb: 0.20, degradation: 1.0, drsZones: 3 },
+    { id: 'can26', name: 'Canada GP', circuit: 'Montreal', temp: 22, laps: 70, scProb: 0.50, degradation: 0.8, drsZones: 3 },
+    { id: 'aut26', name: 'Austria GP', circuit: 'Spielberg', temp: 20, laps: 71, scProb: 0.32, degradation: 0.7, drsZones: 3 },
+    { id: 'gbr26', name: 'British GP', circuit: 'Silverstone', temp: 18, laps: 52, scProb: 0.36, degradation: 1.2, drsZones: 2 },
+    { id: 'hun26', name: 'Hungary GP', circuit: 'Budapest', temp: 34, laps: 70, scProb: 0.22, degradation: 1.3, drsZones: 2 },
+    { id: 'bel26', name: 'Belgium GP', circuit: 'Spa', temp: 18, laps: 44, scProb: 0.40, degradation: 0.7, drsZones: 2 },
+    { id: 'ned26', name: 'Netherlands GP', circuit: 'Zandvoort', temp: 20, laps: 72, scProb: 0.26, degradation: 1.0, drsZones: 1 },
+    { id: 'ita26', name: 'Italy GP', circuit: 'Monza', temp: 28, laps: 53, scProb: 0.26, degradation: 0.8, drsZones: 2 },
+    { id: 'aze26', name: 'Azerbaijan GP', circuit: 'Baku', temp: 26, laps: 51, scProb: 0.46, degradation: 0.6, drsZones: 2 },
+    { id: 'sin26', name: 'Singapore GP', circuit: 'Marina Bay', temp: 32, laps: 62, scProb: 0.60, degradation: 1.3, drsZones: 3 },
+    { id: 'usa26', name: 'USA GP', circuit: 'COTA', temp: 30, laps: 56, scProb: 0.32, degradation: 0.9, drsZones: 2 },
+    { id: 'mex26', name: 'Mexico GP', circuit: 'Mexico City', temp: 24, laps: 71, scProb: 0.36, degradation: 1.1, drsZones: 3 },
+    { id: 'bra26', name: 'Brazil GP', circuit: 'Interlagos', temp: 28, laps: 71, scProb: 0.50, degradation: 1.0, drsZones: 2 },
+    { id: 'lv26', name: 'Las Vegas GP', circuit: 'Las Vegas', temp: 14, laps: 50, scProb: 0.32, degradation: 0.6, drsZones: 2 },
+    { id: 'qat26', name: 'Qatar GP', circuit: 'Lusail', temp: 30, laps: 57, scProb: 0.16, degradation: 1.4, drsZones: 1 },
+    { id: 'abu26', name: 'Abu Dhabi GP', circuit: 'Yas Marina', temp: 28, laps: 58, scProb: 0.26, degradation: 0.9, drsZones: 2 },
+]
+
 // ============ DRIVER DATA WITH F1-LEVEL ATTRIBUTES ============
 const DRIVERS_2024 = [
     { id: 'VER', name: 'Verstappen', team: 'Red Bull', color: '#1E41FF', basePoints: 0, pace: 9.8, consistency: 9.5, wetSkill: 9.2, tireManagement: 9.0, racecraft: 9.8, reliability: 0.95 },
@@ -72,8 +99,14 @@ const DRIVERS_2024 = [
     { id: 'PIA', name: 'Piastri', team: 'McLaren', color: '#FF8700', basePoints: 0, pace: 8.8, consistency: 8.8, wetSkill: 8.2, tireManagement: 8.8, racecraft: 8.2, reliability: 0.93 },
     { id: 'SAI', name: 'Sainz', team: 'Ferrari', color: '#DC0000', basePoints: 0, pace: 8.6, consistency: 8.5, wetSkill: 8.0, tireManagement: 8.5, racecraft: 8.5, reliability: 0.90 },
     { id: 'RUS', name: 'Russell', team: 'Mercedes', color: '#00D2BE', basePoints: 0, pace: 8.5, consistency: 8.8, wetSkill: 8.5, tireManagement: 8.2, racecraft: 8.0, reliability: 0.91 },
-    { id: 'HAM', name: 'Hamilton', team: 'Mercedes', color: '#00D2BE', basePoints: 0, pace: 8.8, consistency: 9.0, wetSkill: 9.5, tireManagement: 9.2, racecraft: 9.5, reliability: 0.94 },
+    { id: 'HAM', name: 'Hamilton', team: 'Ferrari', color: '#DC0000', basePoints: 0, pace: 8.8, consistency: 9.0, wetSkill: 9.5, tireManagement: 9.2, racecraft: 9.5, reliability: 0.94 },
     { id: 'PER', name: 'Perez', team: 'Red Bull', color: '#1E41FF', basePoints: 0, pace: 7.8, consistency: 7.0, wetSkill: 8.0, tireManagement: 8.5, racecraft: 8.0, reliability: 0.85 },
+    { id: 'ALO', name: 'Alonso', team: 'Aston Martin', color: '#006F62', basePoints: 0, pace: 8.4, consistency: 9.0, wetSkill: 8.8, tireManagement: 9.0, racecraft: 9.2, reliability: 0.91 },
+    { id: 'ANT', name: 'Antonelli', team: 'Mercedes', color: '#00D2BE', basePoints: 0, pace: 8.2, consistency: 7.5, wetSkill: 7.8, tireManagement: 7.5, racecraft: 7.5, reliability: 0.88 },
+    { id: 'BEA', name: 'Bearman', team: 'Haas', color: '#FFFFFF', basePoints: 0, pace: 7.8, consistency: 7.5, wetSkill: 7.5, tireManagement: 7.5, racecraft: 7.2, reliability: 0.90 },
+    { id: 'BOR', name: 'Bortoleto', team: 'Sauber', color: '#52E252', basePoints: 0, pace: 7.6, consistency: 7.2, wetSkill: 7.5, tireManagement: 7.2, racecraft: 7.0, reliability: 0.89 },
+    { id: 'HAD', name: 'Hadjar', team: 'RB', color: '#6692FF', basePoints: 0, pace: 7.8, consistency: 7.2, wetSkill: 7.8, tireManagement: 7.2, racecraft: 7.5, reliability: 0.88 },
+    { id: 'LAW', name: 'Lawson', team: 'Red Bull', color: '#1E41FF', basePoints: 0, pace: 8.0, consistency: 7.8, wetSkill: 7.8, tireManagement: 7.5, racecraft: 7.8, reliability: 0.90 },
 ]
 
 // ============ TEAM PERFORMANCE DATA ============
@@ -94,6 +127,13 @@ interface Counterfactual {
 }
 
 const COUNTERFACTUALS: Counterfactual[] = [
+    {
+        id: 'baseline',
+        title: '📊 Baseline (Actual Performance)',
+        description: 'Real-world driver and team performance levels',
+        impact: 'No changes - actual 2025 baseline',
+        changes: []
+    },
     {
         id: 'ferrari_strategy',
         title: '🔧 If Ferrari Had Better Strategy',
@@ -134,10 +174,81 @@ const COUNTERFACTUALS: Counterfactual[] = [
             { driver: 'SAI', attribute: 'reliability', delta: 0.08 },
         ]
     },
+    {
+        id: 'hamilton_ferrari',
+        title: '🔴 Hamilton Ferrari Peak',
+        description: 'What if Hamilton instantly adapted to Ferrari?',
+        impact: 'Hamilton challenges for WDC',
+        changes: [
+            { driver: 'HAM', attribute: 'pace', delta: 0.5 },
+            { driver: 'HAM', attribute: 'consistency', delta: 0.5 },
+        ]
+    },
+    {
+        id: 'verstappen_dominant',
+        title: '👑 Verstappen 2023 Dominance',
+        description: 'What if Verstappen returned to 2023 form?',
+        impact: 'Verstappen wins by 150+ pts',
+        changes: [
+            { driver: 'VER', attribute: 'pace', delta: 0.3 },
+            { driver: 'VER', attribute: 'consistency', delta: 0.5 },
+        ]
+    },
+    {
+        id: 'redbull_decline',
+        title: '📉 Red Bull Struggles',
+        description: 'What if Red Bull continued to decline?',
+        impact: 'Red Bull P3 in WCC',
+        changes: [
+            { driver: 'VER', attribute: 'pace', delta: -0.5 },
+            { driver: 'LAW', attribute: 'pace', delta: -0.3 },
+        ]
+    },
+    {
+        id: 'rookie_surge',
+        title: '⭐ Rookies Overperform',
+        description: 'What if all rookies exceeded expectations?',
+        impact: 'Antonelli & Bortoleto podiums',
+        changes: [
+            { driver: 'ANT', attribute: 'pace', delta: 1.0 },
+            { driver: 'BEA', attribute: 'pace', delta: 0.8 },
+            { driver: 'BOR', attribute: 'pace', delta: 0.8 },
+            { driver: 'HAD', attribute: 'pace', delta: 0.8 },
+        ]
+    },
+    {
+        id: 'rain_chaos',
+        title: '🌧️ Wet Weather Season',
+        description: 'What if 50% of races had wet conditions?',
+        impact: 'Hamilton & Verstappen benefit',
+        changes: [
+            { driver: 'HAM', attribute: 'wetSkill', delta: 0.5 },
+            { driver: 'VER', attribute: 'wetSkill', delta: 0.5 },
+        ]
+    },
+    {
+        id: 'alonso_wins',
+        title: '🏆 Alonso Last Hurrah',
+        description: 'What if Aston Martin nailed 2026 regs?',
+        impact: 'Alonso fights for championship',
+        changes: [
+            { driver: 'ALO', attribute: 'pace', delta: 1.2 },
+        ]
+    },
+    {
+        id: 'piastri_breakout',
+        title: '🌟 Piastri Breakout Season',
+        description: 'What if Piastri matched Norris consistently?',
+        impact: 'McLaren 1-2 in championship',
+        changes: [
+            { driver: 'PIA', attribute: 'pace', delta: 0.5 },
+            { driver: 'PIA', attribute: 'consistency', delta: 1.0 },
+        ]
+    },
 ]
 
 export default function SimulatorPage() {
-    const [season, setSeason] = useState<'2024' | '2025'>('2025')
+    const [season, setSeason] = useState<'2024' | '2025' | '2026'>('2025')
     const [drivers, setDrivers] = useState([...DRIVERS_2024])
     const [races, setRaces] = useState(RACES_2025)
     const [completedRaces, setCompletedRaces] = useState<number>(0)
@@ -156,7 +267,7 @@ export default function SimulatorPage() {
 
     // Initialize standings
     useEffect(() => {
-        const newRaces = season === '2024' ? RACES_2024 : RACES_2025
+        const newRaces = season === '2024' ? RACES_2024 : season === '2025' ? RACES_2025 : RACES_2026
         setRaces(newRaces)
         resetSimulation()
     }, [season])
@@ -319,185 +430,223 @@ export default function SimulatorPage() {
     const getDriverData = (id: string) => DRIVERS_2024.find(d => d.id === id)!
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Header */}
-            <div className="text-center mb-6">
-                <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
-                    <Shuffle className="w-10 h-10 text-purple-600" />
-                    F1-Level Season Simulator
-                </h1>
-                <p className="text-f1-gray-600">
-                    Full {races.length}-race season simulation with temperature, tire degradation, safety cars, and strategic counterfactuals
-                </p>
-            </div>
-
-            {/* Season & Counterfactual Selectors */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-                <div className="bg-white rounded-lg shadow p-4">
-                    <label className="block text-sm font-medium mb-2">Season</label>
-                    <div className="flex gap-2">
-                        <button onClick={() => setSeason('2024')} className={`flex-1 py-2 rounded-lg font-bold ${season === '2024' ? 'bg-blue-600 text-white' : 'bg-f1-gray-100'}`}>
-                            2024 Season
-                        </button>
-                        <button onClick={() => setSeason('2025')} className={`flex-1 py-2 rounded-lg font-bold ${season === '2025' ? 'bg-orange-500 text-white' : 'bg-f1-gray-100'}`}>
-                            2025 Season ⭐
-                        </button>
-                    </div>
-                </div>
-                <div className="bg-white rounded-lg shadow p-4">
-                    <label className="block text-sm font-medium mb-2">What-If Scenario</label>
-                    <select
-                        value={selectedCounterfactual || ''}
-                        onChange={e => { setSelectedCounterfactual(e.target.value || null); resetSimulation() }}
-                        className="w-full border rounded-lg p-2"
-                    >
-                        <option value="">Baseline (Actual Performance)</option>
-                        {COUNTERFACTUALS.map(cf => (
-                            <option key={cf.id} value={cf.id}>{cf.title}</option>
-                        ))}
-                    </select>
-                    {selectedCounterfactual && (
-                        <div className="mt-2 text-sm text-purple-700 bg-purple-50 p-2 rounded">
-                            {COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)?.description}
-                            <br /><strong>Expected: {COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)?.impact}</strong>
+        <div className="min-h-screen bg-gradient-to-b from-f1-gray-100 to-white">
+            {/* Header with F1 Logo */}
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+                <div className="container mx-auto">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-f1-red rounded-lg flex items-center justify-center">
+                            <Flag className="w-6 h-6 text-white" />
                         </div>
-                    )}
+                        <h1 className="text-3xl font-bold flex items-center gap-3">
+                            <Shuffle className="w-8 h-8" />
+                            F1-Level Season Simulator
+                        </h1>
+                    </div>
+                    <p className="text-white/80">
+                        Full {races.length}-race season simulation with temperature, tire degradation, safety cars, and strategic counterfactuals
+                    </p>
                 </div>
             </div>
 
-            {/* Simulation Settings */}
-            <div className="bg-f1-gray-100 rounded-lg p-4 mb-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 text-sm">
-                        <Settings2 className="w-4 h-4" />
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={simSettings.weatherVariance} onChange={e => setSimSettings({ ...simSettings, weatherVariance: e.target.checked })} />
-                            <CloudRain className="w-4 h-4" /> Weather
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={simSettings.safetyCars} onChange={e => setSimSettings({ ...simSettings, safetyCars: e.target.checked })} />
-                            <AlertTriangle className="w-4 h-4" /> Safety Cars
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={simSettings.reliabilityDNFs} onChange={e => setSimSettings({ ...simSettings, reliabilityDNFs: e.target.checked })} />
-                            <Zap className="w-4 h-4" /> DNFs
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={simSettings.tempEffects} onChange={e => setSimSettings({ ...simSettings, tempEffects: e.target.checked })} />
-                            <Thermometer className="w-4 h-4" /> Temp Effects
-                        </label>
-                    </div>
+            {/* Page Description */}
+            <div className="bg-purple-900/20 border-b border-purple-500/30">
+                <div className="container mx-auto px-4 py-3">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm">Speed:</span>
-                        <select value={speed} onChange={e => setSpeed(parseInt(e.target.value))} className="border rounded px-2 py-1">
-                            <option value={800}>Slow</option>
-                            <option value={300}>Normal</option>
-                            <option value={100}>Fast</option>
-                            <option value={20}>Instant</option>
-                        </select>
+                        <Target className="w-5 h-5 text-purple-600" />
+                        <span className="text-purple-800 text-sm">
+                            <strong>What this does:</strong> Simulates full F1 seasons using ML models. Features 12 what-if scenarios, 10,000 Monte Carlo simulations, weather effects, safety cars, and driver reliability. Compare how different factors would change championship outcomes.
+                        </span>
                     </div>
                 </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
-                <button onClick={() => setIsRunning(!isRunning)} disabled={completedRaces >= races.length} className="bg-f1-red text-white px-5 py-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-50">
-                    {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    {isRunning ? 'Pause' : 'Run All'}
-                </button>
-                <button onClick={simulateRace} disabled={isRunning || completedRaces >= races.length} className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50">
-                    <Flag className="w-4 h-4" /> Next Race
-                </button>
-                <button onClick={runMonteCarlo} className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition flex items-center gap-2">
-                    <Target className="w-4 h-4" /> 1000 Monte Carlo
-                </button>
-                <button onClick={resetSimulation} className="bg-f1-gray-600 text-white px-5 py-2 rounded-lg hover:bg-f1-gray-500 transition flex items-center gap-2">
-                    <RotateCcw className="w-4 h-4" /> Reset
-                </button>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="bg-f1-gray-200 rounded-full h-3 mb-6">
-                <div className="bg-f1-red h-3 rounded-full transition-all" style={{ width: `${(completedRaces / races.length) * 100}%` }} />
-            </div>
-            <div className="text-center text-sm text-f1-gray-500 mb-6">
-                Round {completedRaces} / {races.length} • {completedRaces >= races.length ? '🏁 Season Complete' : races[completedRaces]?.name}
-            </div>
-
-            {/* Monte Carlo Results */}
-            {Object.keys(monteCarloResults).length > 0 && (
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-5 mb-6">
-                    <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                        WDC Probability ({selectedCounterfactual ? 'Counterfactual' : 'Baseline'})
-                    </h3>
-                    <div className="space-y-2">
-                        {Object.entries(monteCarloResults).sort(([, a], [, b]) => b - a).slice(0, 5).map(([id, prob]) => {
-                            const d = getDriverData(id)
-                            return (
-                                <div key={id} className="flex items-center gap-3">
-                                    <div className="w-20 font-bold">{d.name}</div>
-                                    <div className="flex-1 h-5 bg-white rounded-full overflow-hidden">
-                                        <div className="h-full rounded-full" style={{ width: `${prob}%`, backgroundColor: d.color }} />
-                                    </div>
-                                    <div className="w-14 text-right font-bold">{prob.toFixed(1)}%</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Standings & Race Log Grid */}
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {/* Current Standings */}
-                <div className="bg-white rounded-lg shadow p-5">
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-yellow-500" /> Championship Standings
-                    </h3>
-                    <div className="space-y-2">
-                        {(standings.length > 0 ? standings : DRIVERS_2024.map(d => ({ id: d.id, points: 0 }))).map((s, i) => {
-                            const d = getDriverData(s.id)
-                            return (
-                                <div key={s.id} className="flex items-center gap-2 p-2 rounded hover:bg-f1-gray-50">
-                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${i === 0 ? 'bg-yellow-400 text-yellow-900' : 'bg-f1-gray-100'}`}>{i + 1}</div>
-                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
-                                    <div className="flex-1 font-bold text-sm">{d.name}</div>
-                                    <div className="text-xs text-f1-gray-500">{d.team}</div>
-                                    <div className="font-mono font-bold">{s.points}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
-
-                {/* Race Log */}
-                <div className="bg-white rounded-lg shadow p-5">
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                        <Flag className="w-5 h-5 text-green-600" /> Race Log
-                    </h3>
-                    {raceLog.length === 0 ? (
-                        <div className="text-center text-f1-gray-400 py-8">Run simulation to see race results</div>
-                    ) : (
-                        <div className="space-y-2 max-h-72 overflow-y-auto">
-                            {[...raceLog].reverse().slice(0, 8).map((log, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm border-b pb-2">
-                                    <span>{log.weather}</span>
-                                    <span className="font-bold flex-1">{log.race}</span>
-                                    {log.sc && <span className="text-yellow-600 text-xs">🚗 SC</span>}
-                                    <span>🥇{log.top3[0]} 🥈{log.top3[1]} 🥉{log.top3[2]}</span>
-                                </div>
-                            ))}
+            <div className="container mx-auto px-4 py-6">
+                {/* Season & Counterfactual Selectors */}
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                    <div className="bg-white rounded-xl shadow-lg p-4">
+                        <label className="block text-sm font-medium mb-2">Season</label>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setSeason('2024')}
+                                className={`flex-1 py-3 rounded-lg font-bold transition ${season === '2024' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-f1-gray-100 hover:bg-f1-gray-200'}`}
+                            >
+                                2024 Season
+                            </button>
+                            <button
+                                onClick={() => setSeason('2025')}
+                                className={`flex-1 py-3 rounded-lg font-bold transition ${season === '2025' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'bg-f1-gray-100 hover:bg-f1-gray-200'}`}
+                            >
+                                2025 Season ⭐
+                            </button>
+                            <button
+                                onClick={() => setSeason('2026')}
+                                className={`flex-1 py-3 rounded-lg font-bold transition ${season === '2026' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30' : 'bg-f1-gray-100 hover:bg-f1-gray-200'}`}
+                            >
+                                2026 Season 🚀
+                            </button>
                         </div>
-                    )}
+                        {season === '2026' && (
+                            <div className="mt-2 text-xs text-purple-600 bg-purple-50 p-2 rounded">
+                                ⚡ New regulations: Active aero, 50% electric power unit, smaller cars, Hamilton at Ferrari!
+                            </div>
+                        )}
+                    </div>
+                    <div className="bg-white rounded-xl shadow-lg p-4">
+                        <label className="block text-sm font-medium mb-2">What-If Scenario ({COUNTERFACTUALS.length} available)</label>
+                        <select
+                            value={selectedCounterfactual || 'baseline'}
+                            onChange={e => { setSelectedCounterfactual(e.target.value === 'baseline' ? null : e.target.value); resetSimulation() }}
+                            className="w-full border border-f1-gray-200 rounded-lg p-3 bg-white shadow-inner focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                        >
+                            {COUNTERFACTUALS.map(cf => (
+                                <option key={cf.id} value={cf.id}>{cf.title}</option>
+                            ))}
+                        </select>
+                        {selectedCounterfactual && (
+                            <div className="mt-2 text-sm text-purple-700 bg-purple-50 p-3 rounded-lg border border-purple-200">
+                                <div>{COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)?.description}</div>
+                                <div className="font-bold mt-1">📈 Expected: {COUNTERFACTUALS.find(c => c.id === selectedCounterfactual)?.impact}</div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
 
-            {/* Links */}
-            <div className="flex gap-4 justify-center">
-                <Link href="/championship" className="bg-f1-gray-900 text-white px-5 py-2 rounded-lg hover:bg-f1-gray-700 transition">Championship</Link>
-                <Link href="/strategy" className="border border-f1-gray-300 px-5 py-2 rounded-lg hover:bg-f1-gray-50 transition">Pit Strategy</Link>
+                {/* Simulation Settings */}
+                <div className="bg-f1-gray-100 rounded-lg p-4 mb-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 text-sm">
+                            <Settings2 className="w-4 h-4" />
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={simSettings.weatherVariance} onChange={e => setSimSettings({ ...simSettings, weatherVariance: e.target.checked })} />
+                                <CloudRain className="w-4 h-4" /> Weather
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={simSettings.safetyCars} onChange={e => setSimSettings({ ...simSettings, safetyCars: e.target.checked })} />
+                                <AlertTriangle className="w-4 h-4" /> Safety Cars
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={simSettings.reliabilityDNFs} onChange={e => setSimSettings({ ...simSettings, reliabilityDNFs: e.target.checked })} />
+                                <Zap className="w-4 h-4" /> DNFs
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={simSettings.tempEffects} onChange={e => setSimSettings({ ...simSettings, tempEffects: e.target.checked })} />
+                                <Thermometer className="w-4 h-4" /> Temp Effects
+                            </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm">Speed:</span>
+                            <select value={speed} onChange={e => setSpeed(parseInt(e.target.value))} className="border rounded px-2 py-1">
+                                <option value={800}>Slow</option>
+                                <option value={300}>Normal</option>
+                                <option value={100}>Fast</option>
+                                <option value={20}>Instant</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Controls */}
+                <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+                    <button onClick={() => setIsRunning(!isRunning)} disabled={completedRaces >= races.length} className="bg-f1-red text-white px-5 py-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-50">
+                        {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                        {isRunning ? 'Pause' : 'Run All'}
+                    </button>
+                    <button onClick={simulateRace} disabled={isRunning || completedRaces >= races.length} className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50">
+                        <Flag className="w-4 h-4" /> Next Race
+                    </button>
+                    <button onClick={runMonteCarlo} className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition flex items-center gap-2">
+                        <Target className="w-4 h-4" /> 1000 Monte Carlo
+                    </button>
+                    <button onClick={resetSimulation} className="bg-f1-gray-600 text-white px-5 py-2 rounded-lg hover:bg-f1-gray-500 transition flex items-center gap-2">
+                        <RotateCcw className="w-4 h-4" /> Reset
+                    </button>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="bg-f1-gray-200 rounded-full h-3 mb-6">
+                    <div className="bg-f1-red h-3 rounded-full transition-all" style={{ width: `${(completedRaces / races.length) * 100}%` }} />
+                </div>
+                <div className="text-center text-sm text-f1-gray-500 mb-6">
+                    Round {completedRaces} / {races.length} • {completedRaces >= races.length ? '🏁 Season Complete' : races[completedRaces]?.name}
+                </div>
+
+                {/* Monte Carlo Results */}
+                {Object.keys(monteCarloResults).length > 0 && (
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-5 mb-6">
+                        <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                            <Trophy className="w-5 h-5 text-yellow-500" />
+                            WDC Probability ({selectedCounterfactual ? 'Counterfactual' : 'Baseline'})
+                        </h3>
+                        <div className="space-y-2">
+                            {Object.entries(monteCarloResults).sort(([, a], [, b]) => b - a).slice(0, 5).map(([id, prob]) => {
+                                const d = getDriverData(id)
+                                return (
+                                    <div key={id} className="flex items-center gap-3">
+                                        <div className="w-20 font-bold">{d.name}</div>
+                                        <div className="flex-1 h-5 bg-white rounded-full overflow-hidden">
+                                            <div className="h-full rounded-full" style={{ width: `${prob}%`, backgroundColor: d.color }} />
+                                        </div>
+                                        <div className="w-14 text-right font-bold">{prob.toFixed(1)}%</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Standings & Race Log Grid */}
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    {/* Current Standings */}
+                    <div className="bg-white rounded-lg shadow p-5">
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Trophy className="w-5 h-5 text-yellow-500" /> Championship Standings
+                        </h3>
+                        <div className="space-y-2">
+                            {(standings.length > 0 ? standings : DRIVERS_2024.map(d => ({ id: d.id, points: 0 }))).map((s, i) => {
+                                const d = getDriverData(s.id)
+                                return (
+                                    <div key={s.id} className="flex items-center gap-2 p-2 rounded hover:bg-f1-gray-50">
+                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${i === 0 ? 'bg-yellow-400 text-yellow-900' : 'bg-f1-gray-100'}`}>{i + 1}</div>
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
+                                        <div className="flex-1 font-bold text-sm">{d.name}</div>
+                                        <div className="text-xs text-f1-gray-500">{d.team}</div>
+                                        <div className="font-mono font-bold">{s.points}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Race Log */}
+                    <div className="bg-white rounded-lg shadow p-5">
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Flag className="w-5 h-5 text-green-600" /> Race Log
+                        </h3>
+                        {raceLog.length === 0 ? (
+                            <div className="text-center text-f1-gray-400 py-8">Run simulation to see race results</div>
+                        ) : (
+                            <div className="space-y-2 max-h-72 overflow-y-auto">
+                                {[...raceLog].reverse().slice(0, 8).map((log, i) => (
+                                    <div key={i} className="flex items-center gap-2 text-sm border-b pb-2">
+                                        <span>{log.weather}</span>
+                                        <span className="font-bold flex-1">{log.race}</span>
+                                        {log.sc && <span className="text-yellow-600 text-xs">🚗 SC</span>}
+                                        <span>🥇{log.top3[0]} 🥈{log.top3[1]} 🥉{log.top3[2]}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Links */}
+                <div className="flex gap-4 justify-center">
+                    <Link href="/championship" className="bg-f1-gray-900 text-white px-5 py-2 rounded-lg hover:bg-f1-gray-700 transition">Championship</Link>
+                    <Link href="/strategy" className="border border-f1-gray-300 px-5 py-2 rounded-lg hover:bg-f1-gray-50 transition">Pit Strategy</Link>
+                </div>
             </div>
         </div>
     )
 }
+
