@@ -1,11 +1,11 @@
 'use client'
 
-// Get API base URL from environment or use localhost for development
+// Get API base URL - uses relative path for production (nginx proxies /api/ to FastAPI)
+// In development, use NEXT_PUBLIC_API_BASE_URL environment variable
 const getApiBaseUrl = () => {
     if (typeof window !== 'undefined') {
-        // In browser, use the same host but port 8000 for API
-        const host = window.location.hostname
-        return `http://${host}:8000`
+        // In production, use same origin (nginx will proxy /api/ to FastAPI)
+        return window.location.origin
     }
     return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
 }

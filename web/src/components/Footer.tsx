@@ -49,7 +49,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             <li>
                                 <a
-                                    href="http://localhost:8000/docs"
+                                    href={typeof window !== 'undefined' ? `${window.location.origin}/api/` : '/api/'}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-f1-gray-400 hover:text-white transition"

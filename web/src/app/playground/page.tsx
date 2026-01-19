@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Terminal, Play, Copy, Check, ChevronDown, ExternalLink, Code } from 'lucide-react'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://34.204.193.47:8000'
+// API base URL - determined client-side to support same-origin requests through nginx proxy
 
 const ENDPOINTS = [
     {
@@ -93,6 +93,12 @@ export default function PlaygroundPage() {
     const [response, setResponse] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [copied, setCopied] = useState(false)
+    const [apiBase, setApiBase] = useState('')
+
+    // Set API base URL client-side (uses same origin for nginx proxy)
+    useEffect(() => {
+        setApiBase(window.location.origin)
+    }, [])
 
     const buildUrl = () => {
         let url = selectedEndpoint.path
@@ -114,7 +120,7 @@ export default function PlaygroundPage() {
             url += '?' + qs
         }
 
-        return API_BASE + url
+        return apiBase + url
     }
 
     const runRequest = async () => {
@@ -158,7 +164,7 @@ export default function PlaygroundPage() {
                     Interactive API explorer - test endpoints in your browser
                 </p>
                 <a
-                    href={`${API_BASE}/docs`}
+                    href={`${apiBase}/docs`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-blue-600 hover:underline mt-2"
@@ -297,7 +303,7 @@ export default function PlaygroundPage() {
                     Model Architecture
                 </Link>
                 <a
-                    href={`${API_BASE}/docs`}
+                    href={`${apiBase}/docs`}
                     target="_blank"
                     className="border border-f1-gray-300 px-6 py-3 rounded-lg hover:bg-f1-gray-50 transition flex items-center gap-2"
                 >
