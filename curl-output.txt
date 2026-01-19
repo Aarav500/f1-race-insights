@@ -1,0 +1,25 @@
+﻿Public IP:
+
+Public DNS:
+
+=== Testing localhost:3000 ===
+HTTP/1.1 200 OK
+Vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding
+x-nextjs-cache: HIT
+X-Powered-By: Next.js
+Cache-Control: s-maxage=31536000, stale-while-revalidate
+ETag: "j616dlz8s3q73"
+Content-Type: text/html; charset=utf-8
+Content-Length: 34112
+Date: Wed, 31 Dec 2025 04:43:48 GMT
+Connection: keep-alive
+
+=== Testing localhost:8000 ===
+HTTP/1.1 405 Method Not Allowed
+date: Wed, 31 Dec 2025 04:43:47 GMT
+server: uvicorn
+allow: GET
+content-length: 31
+content-type: application/json
+
+

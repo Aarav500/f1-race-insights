@@ -1,0 +1,16 @@
+﻿Error: An unsupported type was passed to use(): [object Object]
+    at Object.use (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:40426)
+    at t.use (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:109308)
+    at f (/app/.next/server/app/race/[raceId]/page.js:1:3236)
+    at nj (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:46252)
+    at nM (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47572)
+    at nL (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64547)
+    at nI (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47011)
+    at nM (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:47718)
+    at nM (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:61547)
+    at nL (/app/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:12:64547) {
+  digest: '2160836452'
+}
+BEWARE: your OS is not officially supported by Playwright; installing dependencies for ubuntu24.04-x64 as a fallback.
+sh: line 1: apt-get: command not found
+failed to run commands: exit status 1

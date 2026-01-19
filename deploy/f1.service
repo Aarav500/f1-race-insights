@@ -1,0 +1,48 @@
+[Unit]
+Description=F1 Race Insights - Docker Compose Application
+Documentation=https://github.com/your-org/f1-race-insights
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/f1-race-insights/deploy
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+# Load environment variables from .env.prod
+EnvironmentFile=/opt/f1-race-insights/deploy/.env.prod
+
+# Start command - bring up all services
+ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+# Stop command - gracefully stop all services
+ExecStop=/usr/bin/docker compose -f docker-compose.prod.yml down
+
+# Reload command - pull latest images and restart
+ExecReload=/usr/bin/docker compose -f docker-compose.prod.yml pull
+ExecReload=/usr/bin/docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+# Restart behavior
+Restart=on-failure
+RestartSec=10s
+TimeoutStartSec=300
+TimeoutStopSec=120
+
+# Security and resource limits
+# Run as root (required for Docker)
+User=root
+Group=root
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=f1-race-insights
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

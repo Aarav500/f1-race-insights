@@ -1,0 +1,40 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Comment": "Build and deploy frontend with API URL baked in",
+    "Parameters": {
+        "commands": [
+            "set -euo pipefail",
+            "echo '=== Deploying F1 App with Frontend Rebuild ==='",
+            "cd /opt/f1-race-insights",
+            "git fetch origin main",
+            "git reset --hard origin/main",
+            "echo '=== Current Commit ==='",
+            "git log -1 --oneline",
+            "echo ''",
+            "echo '=== Stopping containers ==='",
+            "docker compose down",
+            "echo ''",
+            "echo '=== Building frontend locally with API URL ==='",
+            "docker compose build --no-cache web",
+            "echo ''",
+            "echo '=== Starting all services ==='",
+            "docker compose up -d",
+            "echo ''",
+            "echo '=== Waiting for services to start ==='",
+            "sleep 45",
+            "echo ''",
+            "echo '=== Checking container status ==='",
+            "docker compose ps",
+            "echo ''",
+            "echo '=== Deployment Complete ==='",
+            "echo 'Frontend: http://35.171.159.247:3000'",
+            "echo 'Backend: http://35.171.159.247:8000'",
+            "echo ''",
+            "echo '=== Testing frontend API call (should now use port 8000) ==='",
+            "echo 'Check browser console - API calls should go to port 8000'"
+        ]
+    }
+}

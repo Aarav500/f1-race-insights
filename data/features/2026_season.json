@@ -1,0 +1,290 @@
+{
+    "season": 2026,
+    "regulation_changes": {
+        "power_unit": {
+            "description": "New hybrid power unit formula with 50% electrical power",
+            "mguk_power_kw": 350,
+            "ice_power_kw": 350,
+            "total_power_hp": 940,
+            "fuel": "100% sustainable",
+            "battery_kwh": 8.5,
+            "mgu_h": "removed"
+        },
+        "aerodynamics": {
+            "description": "Active aerodynamics introduced for first time since 1998",
+            "active_front_wing": true,
+            "active_rear_wing": true,
+            "drs_retained": false,
+            "ground_effect_reduced": true,
+            "overall_downforce_reduction_pct": 30
+        },
+        "chassis": {
+            "description": "Smaller, more nimble cars for closer racing",
+            "weight_kg": 768,
+            "weight_reduction_kg": 30,
+            "wheelbase_mm_reduction": 200,
+            "width_mm": 2000
+        },
+        "safety": {
+            "wheel_tethers": "enhanced",
+            "halo_mk2": true,
+            "crash_structure": "updated"
+        }
+    },
+    "races": [
+        {
+            "race_id": "2026_01",
+            "name": "Bahrain Grand Prix",
+            "round": 1,
+            "country": "Bahrain",
+            "track": "Bahrain International Circuit",
+            "date": "2026-03-01"
+        },
+        {
+            "race_id": "2026_02",
+            "name": "Saudi Arabian Grand Prix",
+            "round": 2,
+            "country": "Saudi Arabia",
+            "track": "Jeddah Corniche Circuit",
+            "date": "2026-03-08"
+        },
+        {
+            "race_id": "2026_03",
+            "name": "Australian Grand Prix",
+            "round": 3,
+            "country": "Australia",
+            "track": "Albert Park Circuit",
+            "date": "2026-03-22"
+        },
+        {
+            "race_id": "2026_04",
+            "name": "Japanese Grand Prix",
+            "round": 4,
+            "country": "Japan",
+            "track": "Suzuka Circuit",
+            "date": "2026-04-05"
+        },
+        {
+            "race_id": "2026_05",
+            "name": "Chinese Grand Prix",
+            "round": 5,
+            "country": "China",
+            "track": "Shanghai International Circuit",
+            "date": "2026-04-19"
+        },
+        {
+            "race_id": "2026_06",
+            "name": "Miami Grand Prix",
+            "round": 6,
+            "country": "USA",
+            "track": "Miami International Autodrome",
+            "date": "2026-05-03"
+        },
+        {
+            "race_id": "2026_07",
+            "name": "Emilia Romagna Grand Prix",
+            "round": 7,
+            "country": "Italy",
+            "track": "Autodromo Enzo e Dino Ferrari",
+            "date": "2026-05-17"
+        },
+        {
+            "race_id": "2026_08",
+            "name": "Monaco Grand Prix",
+            "round": 8,
+            "country": "Monaco",
+            "track": "Circuit de Monaco",
+            "date": "2026-05-24"
+        },
+        {
+            "race_id": "2026_09",
+            "name": "Spanish Grand Prix",
+            "round": 9,
+            "country": "Spain",
+            "track": "Circuit de Barcelona-Catalunya",
+            "date": "2026-05-31"
+        },
+        {
+            "race_id": "2026_10",
+            "name": "Canadian Grand Prix",
+            "round": 10,
+            "country": "Canada",
+            "track": "Circuit Gilles Villeneuve",
+            "date": "2026-06-14"
+        },
+        {
+            "race_id": "2026_11",
+            "name": "Austrian Grand Prix",
+            "round": 11,
+            "country": "Austria",
+            "track": "Red Bull Ring",
+            "date": "2026-06-28"
+        },
+        {
+            "race_id": "2026_12",
+            "name": "British Grand Prix",
+            "round": 12,
+            "country": "UK",
+            "track": "Silverstone Circuit",
+            "date": "2026-07-05"
+        },
+        {
+            "race_id": "2026_13",
+            "name": "Belgian Grand Prix",
+            "round": 13,
+            "country": "Belgium",
+            "track": "Circuit de Spa-Francorchamps",
+            "date": "2026-07-26"
+        },
+        {
+            "race_id": "2026_14",
+            "name": "Hungarian Grand Prix",
+            "round": 14,
+            "country": "Hungary",
+            "track": "Hungaroring",
+            "date": "2026-08-02"
+        },
+        {
+            "race_id": "2026_15",
+            "name": "Dutch Grand Prix",
+            "round": 15,
+            "country": "Netherlands",
+            "track": "Circuit Zandvoort",
+            "date": "2026-08-30"
+        },
+        {
+            "race_id": "2026_16",
+            "name": "Italian Grand Prix",
+            "round": 16,
+            "country": "Italy",
+            "track": "Autodromo Nazionale Monza",
+            "date": "2026-09-06"
+        },
+        {
+            "race_id": "2026_17",
+            "name": "Azerbaijan Grand Prix",
+            "round": 17,
+            "country": "Azerbaijan",
+            "track": "Baku City Circuit",
+            "date": "2026-09-20"
+        },
+        {
+            "race_id": "2026_18",
+            "name": "Singapore Grand Prix",
+            "round": 18,
+            "country": "Singapore",
+            "track": "Marina Bay Street Circuit",
+            "date": "2026-10-04"
+        },
+        {
+            "race_id": "2026_19",
+            "name": "United States Grand Prix",
+            "round": 19,
+            "country": "USA",
+            "track": "Circuit of the Americas",
+            "date": "2026-10-18"
+        },
+        {
+            "race_id": "2026_20",
+            "name": "Mexican Grand Prix",
+            "round": 20,
+            "country": "Mexico",
+            "track": "Autódromo Hermanos Rodríguez",
+            "date": "2026-10-25"
+        },
+        {
+            "race_id": "2026_21",
+            "name": "São Paulo Grand Prix",
+            "round": 21,
+            "country": "Brazil",
+            "track": "Autódromo José Carlos Pace",
+            "date": "2026-11-08"
+        },
+        {
+            "race_id": "2026_22",
+            "name": "Las Vegas Grand Prix",
+            "round": 22,
+            "country": "USA",
+            "track": "Las Vegas Street Circuit",
+            "date": "2026-11-21"
+        },
+        {
+            "race_id": "2026_23",
+            "name": "Qatar Grand Prix",
+            "round": 23,
+            "country": "Qatar",
+            "track": "Lusail International Circuit",
+            "date": "2026-11-29"
+        },
+        {
+            "race_id": "2026_24",
+            "name": "Abu Dhabi Grand Prix",
+            "round": 24,
+            "country": "UAE",
+            "track": "Yas Marina Circuit",
+            "date": "2026-12-06"
+        }
+    ],
+    "team_readiness": {
+        "Red Bull Racing": {
+            "regulation_score": 8.5,
+            "power_unit_partner": "Ford",
+            "historical_adaptation": "Strong (2014, 2022)",
+            "prediction_advantage": 0.05
+        },
+        "Scuderia Ferrari": {
+            "regulation_score": 9.0,
+            "power_unit_partner": "Ferrari (in-house)",
+            "historical_adaptation": "Mixed (2017 success, 2022 reliability)",
+            "prediction_advantage": 0.08
+        },
+        "Mercedes-AMG Petronas": {
+            "regulation_score": 8.0,
+            "power_unit_partner": "Mercedes (in-house)",
+            "historical_adaptation": "Strong (2014 dominant, 2022 struggled)",
+            "prediction_advantage": 0.02
+        },
+        "McLaren": {
+            "regulation_score": 7.5,
+            "power_unit_partner": "Mercedes",
+            "historical_adaptation": "Improving (2023-2024 rise)",
+            "prediction_advantage": -0.02
+        },
+        "Aston Martin": {
+            "regulation_score": 8.0,
+            "power_unit_partner": "Honda",
+            "historical_adaptation": "Unknown (new partnership)",
+            "prediction_advantage": 0.03
+        },
+        "Alpine": {
+            "regulation_score": 7.0,
+            "power_unit_partner": "Renault (in-house)",
+            "historical_adaptation": "Poor recent form",
+            "prediction_advantage": -0.05
+        },
+        "Williams": {
+            "regulation_score": 7.0,
+            "power_unit_partner": "Mercedes",
+            "historical_adaptation": "Rebuilding",
+            "prediction_advantage": -0.03
+        },
+        "Haas": {
+            "regulation_score": 6.5,
+            "power_unit_partner": "Ferrari",
+            "historical_adaptation": "Budget constrained",
+            "prediction_advantage": -0.08
+        },
+        "RB": {
+            "regulation_score": 7.5,
+            "power_unit_partner": "Honda/Red Bull Powertrains",
+            "historical_adaptation": "Sister team synergy",
+            "prediction_advantage": 0.0
+        },
+        "Stake F1 (Sauber/Audi)": {
+            "regulation_score": 8.5,
+            "power_unit_partner": "Audi (new from 2026)",
+            "historical_adaptation": "Major investment, factory backing",
+            "prediction_advantage": 0.06
+        }
+    }
+}

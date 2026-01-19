@@ -1,0 +1,21 @@
+{
+  "model_name": "rf",
+  "task": "win",
+  "features": [
+    "quali_position",
+    "driver_last5_avg_finish",
+    "driver_last5_win_rate",
+    "driver_last5_podium_rate",
+    "team_last5_avg_finish",
+    "quali_delta"
+  ],
+  "num_features": 6,
+  "window": 5,
+  "seed": 42,
+  "timestamp": "2026-01-02T10:59:29.280885",
+  "metrics": {
+    "accuracy": 0.9883177570093458,
+    "log_loss": 0.04776451140136037,
+    "roc_auc": 0.9945141065830722
+  }
+}

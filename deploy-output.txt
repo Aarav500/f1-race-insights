@@ -1,0 +1,16 @@
+﻿=== Pulling latest code from main ===
+HEAD is now at c34793d fix: Update API base URL to use EC2 public IP for browser access
+c34793dbe1d67c6d61cf187dbd5d1adfe1a6ab63
+
+=== Restarting containers with updated config ===
+
+=== Container status ===
+NAME                   IMAGE                                          COMMAND                  SERVICE   CREATED         STATUS                                     PORTS
+f1-race-insights-api   ghcr.io/aarav500/f1-race-insights/api:latest   "uvicorn api.main:apà"   api       13 hours ago    Up 13 hours (healthy)                      0.0.0.0:8000->8000/tcp, :::8000->8000/tcp
+f1-race-insights-web   ghcr.io/aarav500/f1-race-insights/web:latest   "docker-entrypoint.sà"   web       3 seconds ago   Up Less than a second (health: starting)   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp
+
+=== Checking environment variable ===
+NEXT_PUBLIC_API_BASE_URL=http://35.171.159.247:8000
+
+Γ£à Deployment complete!
+

@@ -1,0 +1,153 @@
+version: '3.8'
+
+# Production Docker Compose Configuration for EC2 Deployment
+# Uses pre-built images from container registry (e.g., AWS ECR, Docker Hub)
+
+services:
+  # Nginx Reverse Proxy (routes traffic to web and api services)
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: f1-nginx
+    ports:
+      - "80:80"
+    volumes:
+      # Use simplified nginx.conf for basic routing
+      - ./nginx-simple.conf:/etc/nginx/nginx.conf:ro
+      # Optional: Add SSL certificates later
+      # - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - web
+    restart: always
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "nginx", "-t" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Service (FastAPI backend)
+  api:
+    # Replace with your actual image from ECR/Docker Hub
+    # Example: 123456789012.dkr.ecr.us-east-1.amazonaws.com/f1-api:latest
+    image: ${DOCKER_REGISTRY}/f1-api:${API_IMAGE_TAG:-latest}
+    container_name: f1-api-prod
+    expose:
+      - "8000"
+    env_file:
+      - .env.prod
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ENV=production
+      - DATA_DIR=/app/data
+      - MODEL_DIR=/app/models
+      - CACHE_DIR=/app/data/cache
+      - FASTF1_CACHE=/app/data/fastf1_cache
+      - REPORTS_DIR=/app/reports
+    volumes:
+      # Persistent data volumes (not mounting source code in production)
+      - fastf1-cache:/app/data/fastf1_cache
+      - data-cache:/app/data/cache
+      - reports:/app/reports
+      - models:/app/models
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: always
+    networks:
+      - f1-network
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  # Web Service (Next.js frontend)
+  web:
+    # Replace with your actual image from ECR/Docker Hub
+    # Example: 123456789012.dkr.ecr.us-east-1.amazonaws.com/f1-web:latest
+    image: ${DOCKER_REGISTRY}/f1-web:${WEB_IMAGE_TAG:-latest}
+    container_name: f1-web-prod
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: always
+    depends_on:
+      - api
+    networks:
+      - f1-network
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+  # Optional: PostgreSQL Database
+  # Uncomment if you want to run database in Docker (not recommended for production)
+  # For production, use managed database service (RDS, etc.)
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: f1-db-prod
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: always
+  #   networks:
+  #     - f1-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '1.0'
+  #         memory: 1G
+
+  # Named volumes for persistent data
+volumes:
+  # postgres-data:
+  #   name: f1-postgres-data-prod
+  fastf1-cache:
+    name: f1-fastf1-cache-prod
+  data-cache:
+    name: f1-data-cache-prod
+  reports:
+    name: f1-reports-prod
+  models:
+    name: f1-models-prod
+
+# Network for service communication
+networks:
+  f1-network:
+    name: f1-network-prod
+    driver: bridge

@@ -1,0 +1,319 @@
+{
+    "season": 2025,
+    "races": [
+        {
+            "race_id": "2025_01",
+            "name": "Bahrain Grand Prix",
+            "round": 1,
+            "country": "Bahrain",
+            "track": "Bahrain International Circuit",
+            "date": "2025-03-02"
+        },
+        {
+            "race_id": "2025_02",
+            "name": "Saudi Arabian Grand Prix",
+            "round": 2,
+            "country": "Saudi Arabia",
+            "track": "Jeddah Corniche Circuit",
+            "date": "2025-03-09"
+        },
+        {
+            "race_id": "2025_03",
+            "name": "Australian Grand Prix",
+            "round": 3,
+            "country": "Australia",
+            "track": "Albert Park Circuit",
+            "date": "2025-03-23"
+        },
+        {
+            "race_id": "2025_04",
+            "name": "Japanese Grand Prix",
+            "round": 4,
+            "country": "Japan",
+            "track": "Suzuka Circuit",
+            "date": "2025-04-06"
+        },
+        {
+            "race_id": "2025_05",
+            "name": "Chinese Grand Prix",
+            "round": 5,
+            "country": "China",
+            "track": "Shanghai International Circuit",
+            "date": "2025-04-20"
+        },
+        {
+            "race_id": "2025_06",
+            "name": "Miami Grand Prix",
+            "round": 6,
+            "country": "USA",
+            "track": "Miami International Autodrome",
+            "date": "2025-05-04"
+        },
+        {
+            "race_id": "2025_07",
+            "name": "Emilia Romagna Grand Prix",
+            "round": 7,
+            "country": "Italy",
+            "track": "Autodromo Enzo e Dino Ferrari",
+            "date": "2025-05-18"
+        },
+        {
+            "race_id": "2025_08",
+            "name": "Monaco Grand Prix",
+            "round": 8,
+            "country": "Monaco",
+            "track": "Circuit de Monaco",
+            "date": "2025-05-25"
+        },
+        {
+            "race_id": "2025_09",
+            "name": "Spanish Grand Prix",
+            "round": 9,
+            "country": "Spain",
+            "track": "Circuit de Barcelona-Catalunya",
+            "date": "2025-06-01"
+        },
+        {
+            "race_id": "2025_10",
+            "name": "Canadian Grand Prix",
+            "round": 10,
+            "country": "Canada",
+            "track": "Circuit Gilles Villeneuve",
+            "date": "2025-06-15"
+        },
+        {
+            "race_id": "2025_11",
+            "name": "Austrian Grand Prix",
+            "round": 11,
+            "country": "Austria",
+            "track": "Red Bull Ring",
+            "date": "2025-06-29"
+        },
+        {
+            "race_id": "2025_12",
+            "name": "British Grand Prix",
+            "round": 12,
+            "country": "UK",
+            "track": "Silverstone Circuit",
+            "date": "2025-07-06"
+        },
+        {
+            "race_id": "2025_13",
+            "name": "Belgian Grand Prix",
+            "round": 13,
+            "country": "Belgium",
+            "track": "Circuit de Spa-Francorchamps",
+            "date": "2025-07-27"
+        },
+        {
+            "race_id": "2025_14",
+            "name": "Hungarian Grand Prix",
+            "round": 14,
+            "country": "Hungary",
+            "track": "Hungaroring",
+            "date": "2025-08-03"
+        },
+        {
+            "race_id": "2025_15",
+            "name": "Dutch Grand Prix",
+            "round": 15,
+            "country": "Netherlands",
+            "track": "Circuit Zandvoort",
+            "date": "2025-08-31"
+        },
+        {
+            "race_id": "2025_16",
+            "name": "Italian Grand Prix",
+            "round": 16,
+            "country": "Italy",
+            "track": "Autodromo Nazionale Monza",
+            "date": "2025-09-07"
+        },
+        {
+            "race_id": "2025_17",
+            "name": "Azerbaijan Grand Prix",
+            "round": 17,
+            "country": "Azerbaijan",
+            "track": "Baku City Circuit",
+            "date": "2025-09-21"
+        },
+        {
+            "race_id": "2025_18",
+            "name": "Singapore Grand Prix",
+            "round": 18,
+            "country": "Singapore",
+            "track": "Marina Bay Street Circuit",
+            "date": "2025-10-05"
+        },
+        {
+            "race_id": "2025_19",
+            "name": "United States Grand Prix",
+            "round": 19,
+            "country": "USA",
+            "track": "Circuit of the Americas",
+            "date": "2025-10-19"
+        },
+        {
+            "race_id": "2025_20",
+            "name": "Mexican Grand Prix",
+            "round": 20,
+            "country": "Mexico",
+            "track": "Autódromo Hermanos Rodríguez",
+            "date": "2025-10-26"
+        },
+        {
+            "race_id": "2025_21",
+            "name": "São Paulo Grand Prix",
+            "round": 21,
+            "country": "Brazil",
+            "track": "Autódromo José Carlos Pace",
+            "date": "2025-11-09"
+        },
+        {
+            "race_id": "2025_22",
+            "name": "Las Vegas Grand Prix",
+            "round": 22,
+            "country": "USA",
+            "track": "Las Vegas Street Circuit",
+            "date": "2025-11-22"
+        },
+        {
+            "race_id": "2025_23",
+            "name": "Qatar Grand Prix",
+            "round": 23,
+            "country": "Qatar",
+            "track": "Lusail International Circuit",
+            "date": "2025-11-30"
+        },
+        {
+            "race_id": "2025_24",
+            "name": "Abu Dhabi Grand Prix",
+            "round": 24,
+            "country": "UAE",
+            "track": "Yas Marina Circuit",
+            "date": "2025-12-07"
+        }
+    ],
+    "drivers": [
+        {
+            "id": "VER",
+            "name": "Max Verstappen",
+            "team": "Red Bull Racing",
+            "number": 1
+        },
+        {
+            "id": "LAW",
+            "name": "Liam Lawson",
+            "team": "Red Bull Racing",
+            "number": 30
+        },
+        {
+            "id": "HAM",
+            "name": "Lewis Hamilton",
+            "team": "Scuderia Ferrari",
+            "number": 44
+        },
+        {
+            "id": "LEC",
+            "name": "Charles Leclerc",
+            "team": "Scuderia Ferrari",
+            "number": 16
+        },
+        {
+            "id": "RUS",
+            "name": "George Russell",
+            "team": "Mercedes-AMG Petronas",
+            "number": 63
+        },
+        {
+            "id": "ANT",
+            "name": "Andrea Kimi Antonelli",
+            "team": "Mercedes-AMG Petronas",
+            "number": 12
+        },
+        {
+            "id": "NOR",
+            "name": "Lando Norris",
+            "team": "McLaren",
+            "number": 4
+        },
+        {
+            "id": "PIA",
+            "name": "Oscar Piastri",
+            "team": "McLaren",
+            "number": 81
+        },
+        {
+            "id": "ALO",
+            "name": "Fernando Alonso",
+            "team": "Aston Martin",
+            "number": 14
+        },
+        {
+            "id": "STR",
+            "name": "Lance Stroll",
+            "team": "Aston Martin",
+            "number": 18
+        },
+        {
+            "id": "GAS",
+            "name": "Pierre Gasly",
+            "team": "Alpine",
+            "number": 10
+        },
+        {
+            "id": "DOO",
+            "name": "Jack Doohan",
+            "team": "Alpine",
+            "number": 5
+        },
+        {
+            "id": "ALB",
+            "name": "Alex Albon",
+            "team": "Williams",
+            "number": 23
+        },
+        {
+            "id": "SAI",
+            "name": "Carlos Sainz Jr.",
+            "team": "Williams",
+            "number": 55
+        },
+        {
+            "id": "OCO",
+            "name": "Esteban Ocon",
+            "team": "Haas",
+            "number": 31
+        },
+        {
+            "id": "BEA",
+            "name": "Oliver Bearman",
+            "team": "Haas",
+            "number": 87
+        },
+        {
+            "id": "TSU",
+            "name": "Yuki Tsunoda",
+            "team": "RB",
+            "number": 22
+        },
+        {
+            "id": "HAD",
+            "name": "Isack Hadjar",
+            "team": "RB",
+            "number": 6
+        },
+        {
+            "id": "HUL",
+            "name": "Nico Hülkenberg",
+            "team": "Stake F1 (Sauber)",
+            "number": 27
+        },
+        {
+            "id": "BOR",
+            "name": "Gabriel Bortoleto",
+            "team": "Stake F1 (Sauber)",
+            "number": 7
+        }
+    ]
+}

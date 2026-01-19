@@ -1,0 +1,103 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type Checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Data & Models
+# Exclude large cache directories
+/data/cache/
+/data/fastf1_cache/
+/data/raw/
+# Include data/features/ for predictions (features.parquet)
+!/data/features/
+
+# Exclude temporary model files but INCLUDE trained models
+# Note: models/*.joblib files need to be tracked for deployment
+*.pkl
+*.h5
+*.hdf5
+*.pth
+*.pt
+*.onnx
+
+# FastF1 Cache
+fastf1_cache/
+
+# Logs
+*.log
+logs/
+metrics/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Optuna
+.optuna/
+optuna.db
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

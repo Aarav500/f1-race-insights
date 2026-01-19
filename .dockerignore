@@ -1,0 +1,136 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs and editors - EXPANDED
+.vscode/
+.idea/
+.jbeval/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Data directories - include features for predictions
+# But exclude large cache directories
+data/cache/
+data/fastf1_cache/
+data/raw/
+# Include features directory (needed for predictions)
+!data/features/
+
+# Models directory (should contain trained models)
+# Note: Models need to be included if they exist
+models/*.log
+# Include reports directory for backtest results
+!reports/
+reports/*.log
+metrics/
+debug_reports/
+
+# Heavy model files in OTHER directories (not models/)
+# Keep .parquet in data/features/ and .pkl/.joblib in models/
+
+# Web/Node.js (for multi-service projects)
+web/node_modules/
+web/.next/
+web/.DS_Store
+web/tsconfig.tsbuildinfo
+node_modules/
+.next/
+
+# Git - ensure it's excluded
+.git/
+.gitignore
+.gitattributes
+
+# Testing - EXPANDED
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+*.coverage
+tests/fixtures/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker
+docker-compose.yml
+Dockerfile*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs - EXPANDED
+*.log
+logs/
+backtest_fail.log
+final_test.log
+full_test.log
+pytest_final.txt
+pytest_results.log
+test_error.log
+test_output.log
+
+# Temporary files - EXPANDED
+tmp/
+temp/
+*.tmp
+
+# Deployment artifacts - NEW
+deploy/
+*.ps1
+*.sh
+diagnostic*.sh
+ssm-*.ps1
+check-ec2-disk.json
+command-id.txt
+curl-command-id.txt
+curl-output.txt
+curl-results.json
+deploy-input.json
+deploy-output.txt
+diagnostic-output.txt
+ec2-disk-check.txt
+ip-command-id.txt
+params.json
+ssm-diagnostic.ps1
+ssm-output.json
+ssm-params.json
+ssm-response.json
+step*.sh
+step*-input.json
+step*-output.txt
+step*-error.txt
+step*-stdout.txt
+step*-stderr.txt
+verify-input.json
+verify-output.txt
+
+# Other build artifacts - NEW
+FINAL_REPORT.md
+CONTRIBUTING.md
+PROJECT_RULES.md
+Makefile

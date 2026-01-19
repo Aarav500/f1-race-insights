@@ -1,0 +1,21 @@
+{
+  "model_name": "xgb",
+  "task": "win",
+  "features": [
+    "quali_position",
+    "driver_last5_avg_finish",
+    "driver_last5_win_rate",
+    "driver_last5_podium_rate",
+    "team_last5_avg_finish",
+    "quali_delta"
+  ],
+  "num_features": 6,
+  "window": 5,
+  "seed": 42,
+  "timestamp": "2026-01-02T10:59:12.305632",
+  "metrics": {
+    "accuracy": 0.9813084112149533,
+    "log_loss": 0.05450856231655157,
+    "roc_auc": 0.9919390953873714
+  }
+}

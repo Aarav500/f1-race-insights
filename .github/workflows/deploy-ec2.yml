@@ -1,0 +1,405 @@
+name: Deploy to EC2
+
+# Deploy the application to EC2 instance via AWS SSM
+# Triggers after images are published to GHCR or manually
+on:
+  workflow_dispatch:  # Allow manual trigger
+  workflow_run:
+    workflows: ["Publish Docker Images"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    # Only run if the publish workflow succeeded (or if manually triggered)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Debug environment
+        shell: bash
+        run: |
+          echo "=== Environment Debug Info ==="
+          echo "User: $(whoami)"
+          echo "User ID: $(id)"
+          echo "Current directory: $(pwd)"
+          echo "HOME: ${HOME}"
+          echo "Listing HOME directory:"
+          ls -la "${HOME}" || echo "Cannot list HOME"
+          echo "Listing /home:"
+          ls -la /home || echo "Cannot list /home"
+          echo "Disk usage:"
+          df -h
+
+      - name: Free disk space
+        shell: bash
+        run: |
+          echo "=== Disk usage before cleanup ==="
+          df -h
+          echo ""
+          
+          echo "=== Removing unnecessary packages and tools ===" 
+          # Remove large packages that we don't need for deployment
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          
+          echo "=== Cleaning up Docker resources ==="
+          docker system prune -af || true
+          docker builder prune -af || true
+          docker volume prune -f || true
+          
+          echo "=== Cleaning up APT cache ==="
+          sudo apt-get clean || true
+          
+          echo "=== Final disk usage ==="
+          df -h
+          echo ""
+          echo "Available space on root:"
+          df -h / | grep -v Filesystem
+
+      # Python setup and dependencies not needed since CI gate is skipped
+      # CI Gate already runs in the publish workflow, skip here to save time and disk space
+      # - name: Set up Python 3.11
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.11'
+      #     cache: 'pip'
+      #     cache-dependency-path: 'requirements.txt'
+      # 
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+      # 
+      # - name: Run CI Gate
+      #   run: bash scripts/ci_gate.sh
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: SSM Preflight Check
+        shell: bash
+        run: |
+          echo "=== SSM Preflight Check ==="
+          echo "Verifying EC2 instance is SSM-managed..."
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          echo ""
+          
+          # Query SSM for this specific instance
+          INSTANCE_INFO=$(aws ssm describe-instance-information \
+            --filters "Key=InstanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --output json)
+          
+          # Check if instance was found
+          INSTANCE_COUNT=$(echo "$INSTANCE_INFO" | jq '.InstanceInformationList | length')
+          
+          if [ "$INSTANCE_COUNT" -eq 0 ]; then
+            echo "❌ ERROR: Instance ${{ secrets.EC2_INSTANCE_ID }} is not registered with SSM"
+            echo ""
+            echo "Possible causes:"
+            echo "  1. SSM Agent is not installed or not running on the EC2 instance"
+            echo "  2. EC2 instance does not have an IAM instance profile with SSM permissions"
+            echo "     Required policy: AmazonSSMManagedInstanceCore"
+            echo "  3. Instance is in a private subnet without VPC endpoints for SSM"
+            echo "     Required endpoints: ssm, ec2messages, ssmmessages"
+            echo "  4. Instance ID is incorrect"
+            echo ""
+            echo "To fix:"
+            echo "  - Attach IAM role with AmazonSSMManagedInstanceCore policy to EC2 instance"
+            echo "  - Ensure SSM Agent is running: sudo systemctl status amazon-ssm-agent"
+            echo "  - Wait a few minutes for instance to register with SSM"
+            exit 1
+          fi
+          
+          # Extract instance details
+          PING_STATUS=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PingStatus')
+          PLATFORM_TYPE=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PlatformType')
+          PLATFORM_NAME=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PlatformName')
+          PLATFORM_VERSION=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].PlatformVersion')
+          AGENT_VERSION=$(echo "$INSTANCE_INFO" | jq -r '.InstanceInformationList[0].AgentVersion')
+          
+          echo "✅ Instance found in SSM"
+          echo "   Platform: $PLATFORM_TYPE - $PLATFORM_NAME $PLATFORM_VERSION"
+          echo "   SSM Agent Version: $AGENT_VERSION"
+          echo "   Ping Status: $PING_STATUS"
+          echo ""
+          
+          # Verify instance is online
+          if [ "$PING_STATUS" != "Online" ]; then
+            echo "❌ ERROR: Instance ping status is '$PING_STATUS' (expected 'Online')"
+            echo ""
+            echo "The instance is registered with SSM but not responding to pings."
+            echo "This usually means:"
+            echo "  - SSM Agent is stopped or crashed"
+            echo "  - Instance is stopped/stopping/terminated"
+            echo "  - Network connectivity issues preventing SSM communication"
+            echo ""
+            exit 1
+          fi
+          
+          echo "✅ SSM preflight check passed - instance is online and ready"
+
+      - name: Deploy via SSM Send-Command
+        shell: bash
+        run: |
+          echo "=== Deploying via AWS SSM ==="
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          echo ""
+          
+          # Send command to EC2 instance
+          COMMAND_OUTPUT=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy f1-race-insights from GitHub Actions" \
+            --parameters 'commands=[
+              "set -euo pipefail",
+              "export GHCR_USERNAME='\''${{ secrets.GHCR_USERNAME }}'\''",
+              "export GHCR_TOKEN='\''${{ secrets.GHCR_TOKEN }}'\''",
+              "echo \"=== Diagnostics ===\"",
+              "whoami",
+              "uname -a",
+              "ls -la /opt /home 2>/dev/null || true",
+              "echo \"\"",
+              "echo \"=== STEP 1: Complete VM Cleanup ===\"",
+              "echo \"Stopping all running containers...\"",
+              "sudo docker compose down --remove-orphans 2>/dev/null || true",
+              "sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true",
+              "echo \"Removing all containers...\"",
+              "sudo docker rm -f $(sudo docker ps -aq) 2>/dev/null || true",
+              "echo \"Removing all images...\"",
+              "sudo docker rmi -f $(sudo docker images -aq) 2>/dev/null || true",
+              "echo \"Removing all volumes...\"",
+              "sudo docker volume rm -f $(sudo docker volume ls -q) 2>/dev/null || true",
+              "echo \"Removing all networks (except defaults)...\"",
+              "sudo docker network prune -f 2>/dev/null || true",
+              "echo \"Clearing Docker build cache...\"",
+              "sudo docker builder prune -af 2>/dev/null || true",
+              "echo \"Clearing system cache and logs...\"",
+              "sudo journalctl --vacuum-time=1d 2>/dev/null || true",
+              "sudo rm -rf /tmp/* 2>/dev/null || true",
+              "echo \"--- Disk space after cleanup ---\"",
+              "df -h",
+              "echo \"✅ VM cleanup complete!\"",
+              "echo \"\"",
+              "echo \"=== Checking for git ===\"",
+              "if ! command -v git >/dev/null 2>&1; then echo \"git not found, installing...\"; if command -v dnf >/dev/null 2>&1; then sudo dnf install -y git; elif command -v apt-get >/dev/null 2>&1; then sudo apt-get update && sudo apt-get install -y git; else echo \"ERROR: Unknown package manager\"; exit 1; fi; fi",
+              "git --version",
+              "echo \"\"",
+              "echo \"=== Checking for Docker ===\"",
+              "if ! command -v docker >/dev/null 2>&1; then echo \"Docker not found, installing...\"; sudo dnf install -y docker; sudo systemctl enable docker; sudo systemctl start docker; else echo \"Docker already installed\"; fi",
+              "docker --version",
+              "echo \"\"",
+              "echo \"=== Checking for Docker Compose ===\"",
+              "if ! docker compose version >/dev/null 2>&1; then echo \"Docker Compose not found, installing...\"; sudo mkdir -p /usr/local/lib/docker/cli-plugins; sudo curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose; sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose; else echo \"Docker Compose already installed\"; fi",
+              "docker compose version",
+              "echo \"\"",
+              "echo \"=== Setting up Docker permissions ===\"",
+              "sudo usermod -aG docker ec2-user || true",
+              "echo \"User groups: $(groups)\"",
+              "echo \"\"",
+              "echo \"=== Searching for existing repo checkout ===\"",
+              "SEARCH_ROOTS=(/opt /home /srv /var/www)",
+              "REPO_DIR=\"\"",
+              "for r in \"${SEARCH_ROOTS[@]}\"; do if [ -d \"$r\" ]; then d=\"$(find \"$r\" -maxdepth 4 -type d -name .git 2>/dev/null | head -n 1 | xargs -r dirname || true)\"; if [ -n \"$d\" ]; then REPO_DIR=\"$d\"; break; fi; fi; done",
+              "echo \"\"",
+              "if [ -z \"$REPO_DIR\" ]; then REPO_DIR=\"/opt/f1-race-insights\"; echo \"No checkout found; cloning into $REPO_DIR\"; sudo mkdir -p /opt; if [ ! -d \"$REPO_DIR/.git\" ]; then sudo rm -rf \"$REPO_DIR\"; sudo git clone --depth 1 https://github.com/Aarav500/f1-race-insights.git \"$REPO_DIR\"; fi; else echo \"Found existing checkout at $REPO_DIR\"; fi",
+              "echo \"\"",
+              "echo \"=== Updating repository ===\"",
+              "cd \"$REPO_DIR\"",
+              "echo \"Current directory: $(pwd)\"",
+              "sudo git fetch origin main",
+              "sudo git reset --hard origin/main",
+              "echo \"git HEAD: $(git rev-parse HEAD)\"",
+              "echo \"\"",
+              "echo \"=== Logging in to GHCR ===\"",
+              "if [ -n \"$GHCR_USERNAME\" ] && [ -n \"$GHCR_TOKEN\" ]; then echo \"GHCR credentials provided, logging in...\"; echo \"$GHCR_TOKEN\" | sudo docker login ghcr.io -u \"$GHCR_USERNAME\" --password-stdin; else echo \"GHCR credentials not provided, skipping login (assuming public images)\"; fi",
+              "echo \"\"",
+              "echo \"=== Pre-deployment Diagnostics ===\"",
+              "echo \"--- Disk Space Before Cleanup ---\"",
+              "df -h",
+              "echo \"\"",
+              "echo \"--- Docker Disk Usage ---\"",
+              "sudo docker system df || true",
+              "echo \"\"",
+              "echo \"=== Cleaning up Docker resources ===\"",
+              "echo \"Removing unused images...\"",
+              "sudo docker image prune -a -f || true",
+              "echo \"Removing dangling volumes...\"",
+              "sudo docker volume prune -f || true",
+              "echo \"Removing stopped containers...\"",
+              "sudo docker container prune -f || true",
+              "echo \"\"",
+              "echo \"--- Disk Space After Cleanup ---\"",
+              "df -h",
+              "echo \"\"",
+              "AVAILABLE_GB=$(df -BG / | awk '\''NR==2 {print $4}'\'' | sed '\''s/G//'\'')",
+              "echo \"Available disk space: ${AVAILABLE_GB}GB\"",
+              "if [ \"$AVAILABLE_GB\" -lt 5 ]; then echo \"⚠️  WARNING: Less than 5GB available, deployment may fail\"; fi",
+              "echo \"\"",
+              "echo \"=== Pulling images with retry logic ===\"",
+              "PULL_ATTEMPTS=0",
+              "MAX_PULL_ATTEMPTS=3",
+              "PULL_SUCCESS=false",
+              "while [ $PULL_ATTEMPTS -lt $MAX_PULL_ATTEMPTS ]; do",
+              "  PULL_ATTEMPTS=$((PULL_ATTEMPTS + 1))",
+              "  echo \"Attempt $PULL_ATTEMPTS/$MAX_PULL_ATTEMPTS: Pulling Docker images...\"",
+              "  if timeout 600 sudo docker compose pull; then",
+              "    echo \"✅ Images pulled successfully\"",
+              "    PULL_SUCCESS=true",
+              "    break",
+              "  else",
+              "    EXIT_CODE=$?",
+              "    echo \"❌ Pull attempt $PULL_ATTEMPTS failed with exit code $EXIT_CODE\"",
+              "    if [ $PULL_ATTEMPTS -lt $MAX_PULL_ATTEMPTS ]; then",
+              "      BACKOFF=$((PULL_ATTEMPTS * 10))",
+              "      echo \"Waiting ${BACKOFF}s before retry...\"",
+              "      sleep $BACKOFF",
+              "    fi",
+              "  fi",
+              "done",
+              "echo \"\"",
+              "if [ \"$PULL_SUCCESS\" = false ]; then",
+              "  echo \"❌ ERROR: Failed to pull images after $MAX_PULL_ATTEMPTS attempts\"",
+              "  echo \"\"",
+              "  echo \"--- Final Diagnostics ---\"",
+              "  df -h",
+              "  sudo docker system df || true",
+              "  sudo journalctl -u docker --no-pager -n 50 || true",
+              "  exit 1",
+              "fi",
+              "echo \"=== Starting services ===\"",
+              "sudo docker compose up -d --remove-orphans",
+              "echo \"\"",
+              "echo \"=== Services status ===\"",
+              "sudo docker compose ps",
+              "echo \"\"",
+              "echo \"=== Configuring Nginx for aarav-shah.com ===\"",
+              "if ! command -v nginx >/dev/null 2>&1; then echo \"Installing Nginx...\"; sudo dnf install -y nginx; fi",
+              "sudo systemctl enable --now nginx",
+              "if [ -f /opt/f1-race-insights/deploy/fix_nginx.sh ]; then echo \"Running Nginx config script...\"; sudo bash /opt/f1-race-insights/deploy/fix_nginx.sh; else echo \"Nginx config script not found, skipping\"; fi",
+              "echo \"\"",
+              "echo \"✅ Deployment complete!\""
+            ]' \
+            --output json)
+          
+          # Extract command ID
+          COMMAND_ID=$(echo "$COMMAND_OUTPUT" | jq -r '.Command.CommandId')
+          
+          if [ -z "$COMMAND_ID" ] || [ "$COMMAND_ID" = "null" ]; then
+            echo "❌ ERROR: Failed to send SSM command"
+            echo "Response:"
+            echo "$COMMAND_OUTPUT"
+            exit 1
+          fi
+          
+          echo "✅ SSM command sent successfully"
+          echo "   Command ID: $COMMAND_ID"
+          echo ""
+          
+          # Save command ID for next step
+          echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
+
+      - name: Poll SSM Command Status
+        shell: bash
+        run: |
+          echo "=== Polling SSM Command Status ==="
+          echo "Command ID: $COMMAND_ID"
+          echo "Instance ID: ${{ secrets.EC2_INSTANCE_ID }}"
+          echo ""
+          echo "This may take several minutes while:"
+          echo "  - Git fetches the latest code"
+          echo "  - Docker pulls the latest images"
+          echo "  - Docker Compose restarts services"
+          echo ""
+          
+          # Terminal states
+          TERMINAL_STATES=("Success" "Failed" "TimedOut" "Cancelled")
+          # Non-terminal states: Pending, InProgress, Delayed
+          
+          # Poll for up to 60 iterations (60 x 10s = 10 minutes)
+          MAX_POLLS=60
+          POLL_INTERVAL=10
+          POLL_COUNT=0
+          
+          while [ $POLL_COUNT -lt $MAX_POLLS ]; do
+            POLL_COUNT=$((POLL_COUNT + 1))
+            
+            # Get command invocation details
+            INVOCATION_OUTPUT=$(aws ssm list-command-invocations \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --output json)
+            
+            # Extract status
+            STATUS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].Status')
+            
+            echo "[Poll $POLL_COUNT/$MAX_POLLS] Current Status: $STATUS"
+            
+            # Check if we've reached a terminal state
+            IS_TERMINAL=false
+            for terminal_state in "${TERMINAL_STATES[@]}"; do
+              if [ "$STATUS" = "$terminal_state" ]; then
+                IS_TERMINAL=true
+                break
+              fi
+            done
+            
+            if [ "$IS_TERMINAL" = true ]; then
+              echo ""
+              echo "=== Terminal state reached: $STATUS ==="
+              echo ""
+              
+              if [ "$STATUS" = "Success" ]; then
+                echo "✅ Deployment completed successfully!"
+                echo ""
+                echo "=== Command Output ==="
+                echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
+                echo ""
+                exit 0
+              else
+                echo "❌ ERROR: Deployment failed with status: $STATUS"
+                echo ""
+                STATUS_DETAILS=$(echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].StatusDetails // "N/A"')
+                echo "Status Details: $STATUS_DETAILS"
+                echo ""
+                echo "=== Command Standard Output ==="
+                echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // "No output available"'
+                echo ""
+                echo "=== Command Standard Error ==="
+                echo "$INVOCATION_OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorContent // "No error output available"'
+                echo ""
+                exit 1
+              fi
+            fi
+            
+            # Non-terminal state (Pending, InProgress, or Delayed) - continue polling
+            if [ $POLL_COUNT -lt $MAX_POLLS ]; then
+              sleep $POLL_INTERVAL
+            fi
+          done
+          
+          # If we've exhausted all polls without reaching a terminal state
+          echo ""
+          echo "❌ ERROR: Polling timeout reached after $((MAX_POLLS * POLL_INTERVAL)) seconds"
+          echo "Last known status: $STATUS"
+          echo ""
+          echo "The command is still in a non-terminal state. This may indicate:"
+          echo "  - The deployment is taking longer than expected"
+          echo "  - The EC2 instance is experiencing performance issues"
+          echo "  - There may be a hung process on the instance"
+          echo ""
+          exit 1

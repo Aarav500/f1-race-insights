@@ -1,0 +1,36 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Comment": "Deploy fixed frontend with correct API URL",
+    "Parameters": {
+        "commands": [
+            "set -euo pipefail",
+            "echo '=== Deploying F1 App Fix ==='",
+            "cd /opt/f1-race-insights",
+            "git fetch origin main",
+            "git reset --hard origin/main",
+            "echo '=== Current Commit ==='",
+            "git log -1 --oneline",
+            "echo ''",
+            "echo '=== Rebuilding containers with new environment ==='",
+            "docker compose down",
+            "docker compose pull",
+            "docker compose up -d --build",
+            "echo ''",
+            "echo '=== Waiting for services to start ==='",
+            "sleep 30",
+            "echo ''",
+            "echo '=== Checking container status ==='",
+            "docker compose ps",
+            "echo ''",
+            "echo '=== Testing API endpoint ==='",
+            "curl -s http://localhost:8000/meta/seasons || echo 'API test failed'",
+            "echo ''",
+            "echo '=== Deployment complete ==='",
+            "echo 'Frontend: http://35.171.159.247:3000'",
+            "echo 'Backend: http://35.171.159.247:8000'"
+        ]
+    }
+}

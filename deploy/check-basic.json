@@ -1,0 +1,25 @@
+{
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "DocumentName": "AWS-RunShellScript",
+    "Parameters": {
+        "commands": [
+            "set -euo pipefail",
+            "cd /opt/f1-race-insights",
+            "",
+            "echo '=== docker status ==='",
+            "docker ps --format 'table {{.Names}}||{{.Image}}||{{.Ports}}||{{.Status}}'",
+            "",
+            "echo '=== local curls ==='",
+            "curl -sS -I http://127.0.0.1:3000/ 2>&1 | head -n 10 || echo 'curl web failed'",
+            "curl -sS -I http://127.0.0.1:8000/docs 2>&1 | head -n 10 || echo 'curl api failed'",
+            "",
+            "echo '=== web logs (last 100) ==='",
+            "docker logs --tail 100 f1-race-insights-web 2>&1 | head -n 100 || echo 'web logs failed'",
+            "",
+            "echo '=== api logs (last 100) ==='",
+            "docker logs --tail 100 f1-race-insights-api 2>&1 | head -n 100 || echo 'api logs failed'"
+        ]
+    }
+}

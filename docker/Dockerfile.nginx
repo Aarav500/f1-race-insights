@@ -1,0 +1,65 @@
+# Nginx + Next.js Production Dockerfile
+# This Dockerfile installs and configures nginx alongside Next.js
+
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
+WORKDIR /app
+COPY web/package.json web/package-lock.json ./web/
+WORKDIR /app/web
+RUN npm ci
+
+# Stage 2: Builder
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/web ./web
+COPY web/ ./web/
+
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
+WORKDIR /app/web
+RUN npm run build
+
+# Stage 3: Production with Nginx
+FROM nginx:alpine AS runner
+
+# Install Node.js and supervisor to run both nginx and Next.js
+RUN apk add --no-cache nodejs npm supervisor
+
+WORKDIR /app
+
+# Copy nginx configuration
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# Copy built application from builder stage
+COPY --from=builder /app/web/public ./public
+COPY --from=builder /app/web/.next/standalone ./
+COPY --from=builder /app/web/.next/static ./.next/static
+COPY --from=builder /app/web/package*.json ./
+
+# Install production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Create supervisor config
+RUN mkdir -p /etc/supervisor.d
+COPY docker/supervisord.conf /etc/supervisor.d/supervisord.ini
+
+# Create non-root user for Next.js
+RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
+
+# Set permissions
+RUN chown -R nextjs:nodejs /app && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
+# Expose ports
+EXPOSE 80 3000
+
+# Health check on nginx port 80
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD wget -q --spider http://localhost:80/ || exit 1
+
+# Start supervisor which manages both nginx and nextjs
+CMD ["supervisord", "-c", "/etc/supervisor.d/supervisord.ini", "-n"]

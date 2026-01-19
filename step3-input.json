@@ -1,0 +1,16 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Parameters": {
+        "commands": [
+            "cd /opt/f1-race-insights",
+            "echo '=== Web Container Logs (last 300 lines) ==='",
+            "docker logs --tail 300 f1-race-insights-web || true",
+            "echo ''",
+            "echo '=== API Container Logs (last 300 lines) ==='",
+            "docker logs --tail 300 f1-race-insights-api || true"
+        ]
+    }
+}

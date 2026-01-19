@@ -1,0 +1,23 @@
+{
+    "DocumentName": "AWS-RunShellScript",
+    "InstanceIds": [
+        "i-00245e14610ccfa77"
+    ],
+    "Parameters": {
+        "commands": [
+            "echo '=== Waiting for web container to be healthy ==='",
+            "sleep 10",
+            "docker ps --filter name=f1-race-insights-web --format '{{.Status}}'",
+            "echo ''",
+            "echo '=== Testing internal endpoints ==='",
+            "curl -sS -I http://127.0.0.1:3000/ | head -n5",
+            "curl -sS -I http://127.0.0.1:8000/docs | head -n5",
+            "echo ''",
+            "echo '=== Testing public endpoints from EC2 ==='",
+            "curl -sS -I http://35.171.159.247:3000/ | head -n5 || echo 'Public web endpoint failed'",
+            "curl -sS -I http://35.171.159.247:8000/docs | head -n5 || echo 'Public API endpoint failed'",
+            "echo ''",
+            "echo '✅ Verification complete!'"
+        ]
+    }
+}

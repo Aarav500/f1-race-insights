@@ -1,0 +1,96 @@
+{
+  "run_timestamp": "2026-01-02T11:03:38.367660",
+  "config": {
+    "data_path": "data\\features\\features.parquet",
+    "task": "win",
+    "min_train_races": 10,
+    "models": [
+      "xgb",
+      "lgbm",
+      "cat",
+      "lr",
+      "rf",
+      "elo",
+      "quali_freq"
+    ]
+  },
+  "results": {
+    "xgb": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.9829334735499605,
+        "logloss": 0.08064393867766961,
+        "brier": 0.024349617840981167,
+        "ece": 0.016249726825976113
+      },
+      "error": null
+    },
+    "lgbm": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.9750015382808174,
+        "logloss": 0.10296607827522852,
+        "brier": 0.027763105859199395,
+        "ece": 0.021575668228017972
+      },
+      "error": null
+    },
+    "cat": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.9847682230339373,
+        "logloss": 0.06973044092741974,
+        "brier": 0.020723869523032862,
+        "ece": 0.011608113185962497
+      },
+      "error": null
+    },
+    "lr": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.9874252535366475,
+        "logloss": 0.06013047140309004,
+        "brier": 0.018903827713415488,
+        "ece": 0.008504002322958002
+      },
+      "error": null
+    },
+    "rf": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.9848521292603387,
+        "logloss": 0.06815725655491221,
+        "brier": 0.02102882399171116,
+        "ece": 0.009987631263904125
+      },
+      "error": null
+    },
+    "elo": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.44017765745003384,
+        "logloss": 0.2024466419747833,
+        "brier": 0.0478626628230985,
+        "ece": 0.0
+      },
+      "error": null
+    },
+    "quali_freq": {
+      "n_test_samples": 1940,
+      "n_test_races": 97,
+      "metrics": {
+        "auc": 0.9805952867075756,
+        "logloss": 0.07490693632870747,
+        "brier": 0.018112086125797875,
+        "ece": 0.006430029574926062
+      },
+      "error": null
+    }
+  }
+}

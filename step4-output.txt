@@ -1,0 +1,52 @@
+﻿=== Docker Compose Environment Configuration ===
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
+      CACHE_DIR: /app/data/cache
+      DATA_DIR: /app/data
+      FASTF1_CACHE: /app/data/fastf1_cache
+      LOG_LEVEL: info
+      MODEL_DIR: /app/models
+      S3_BUCKET: ""
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/health')
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 5s
+    image: ghcr.io/aarav500/f1-race-insights/api:latest
+    networks:
+--
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://api:8000
+      NODE_ENV: production
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - require('http').get('http://localhost:3000/', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 10s
+    image: ghcr.io/aarav500/f1-race-insights/web:latest
+    networks:
+      f1-network: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+
+NEXT_PUBLIC_API_BASE_URL=http://api:8000
+NODE_ENV=production
+
+=== API Container CORS Configuration ===
+
+=== Test inter-container connectivity ===
+

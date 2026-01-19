@@ -1,0 +1,9 @@
+﻿=== Web Root ===
+200
+=== API Docs ===
+200
+=== API Endpoints ===
+/ - 200
+/health - 200
+/openapi.json - 200
+

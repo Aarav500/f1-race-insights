@@ -1,0 +1,43 @@
+﻿{
+    "CommandInvocations": [
+        {
+            "CommandId": "b0949d8d-6e33-4fdf-8352-794731d6916c",
+            "InstanceId": "i-00245e14610ccfa77",
+            "InstanceName": "ip-172-31-77-28.ec2.internal",
+            "Comment": "Curl localhost tests",
+            "DocumentName": "AWS-RunShellScript",
+            "DocumentVersion": "$DEFAULT",
+            "RequestedDateTime": "2025-12-30T20:43:47.987000-08:00",
+            "Status": "Success",
+            "StatusDetails": "Success",
+            "StandardOutputUrl": "",
+            "StandardErrorUrl": "",
+            "CommandPlugins": [
+                {
+                    "Name": "aws:runShellScript",
+                    "Status": "Success",
+                    "StatusDetails": "Success",
+                    "ResponseCode": 0,
+                    "ResponseStartDateTime": "2025-12-30T20:43:48.145000-08:00",
+                    "ResponseFinishDateTime": "2025-12-30T20:43:48.204000-08:00",
+                    "Output": "Public IP:\n\nPublic DNS:\n\n=== Testing localhost:3000 ===\nHTTP/1.1 200 OK\r\nVary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding\r\nx-nextjs-cache: HIT\r\nX-Powered-By: Next.js\r\nCache-Control: s-maxage=31536000, stale-while-revalidate\r\nETag: \"j616dlz8s3q73\"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 34112\r\nDate: Wed, 31 Dec 2025 04:43:48 GMT\r\nConnection: keep-alive\r\n\n=== Testing localhost:8000 ===\nHTTP/1.1 405 Method Not Allowed\r\ndate: Wed, 31 Dec 2025 04:43:47 GMT\r\nserver: uvicorn\r\nallow: GET\r\ncontent-length: 31\r\ncontent-type: application/json\r\n\r\n",
+                    "StandardOutputUrl": "",
+                    "StandardErrorUrl": "",
+                    "OutputS3Region": "us-east-1",
+                    "OutputS3BucketName": "",
+                    "OutputS3KeyPrefix": ""
+                }
+            ],
+            "ServiceRole": "",
+            "NotificationConfig": {
+                "NotificationArn": "",
+                "NotificationEvents": [],
+                "NotificationType": ""
+            },
+            "CloudWatchOutputConfig": {
+                "CloudWatchLogGroupName": "",
+                "CloudWatchOutputEnabled": false
+            }
+        }
+    ]
+}
