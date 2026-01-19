@@ -126,4 +126,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=min
           build-args: |
-            NEXT_PUBLIC_API_BASE_URL=http://34.204.193.47:8000
+            NEXT_PUBLIC_API_BASE_URL=

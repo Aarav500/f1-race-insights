@@ -287,12 +287,16 @@ jobs:
               "echo \"=== Services status ===\"",
               "sudo docker compose ps",
               "echo \"\"",
-              "echo \"=== Configuring Nginx for aarav-shah.com ===\"",
+              "echo \"=== Configuring Nginx for f1.aarav-shah.com ===\"",
               "if ! command -v nginx >/dev/null 2>&1; then echo \"Installing Nginx...\"; sudo dnf install -y nginx; fi",
               "sudo systemctl enable --now nginx",
-              "if [ -f /opt/f1-race-insights/deploy/fix_nginx.sh ]; then echo \"Running Nginx config script...\"; sudo bash /opt/f1-race-insights/deploy/fix_nginx.sh; else echo \"Nginx config script not found, skipping\"; fi",
+              "echo \"Deploying nginx config for f1.aarav-shah.com...\"",
+              "echo \"server { listen 80; server_name f1.aarav-shah.com; location / { proxy_pass http://127.0.0.1:3000/; proxy_http_version 1.1; proxy_set_header Host \\$host; proxy_set_header X-Real-IP \\$remote_addr; proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto \\$scheme; proxy_set_header Upgrade \\$http_upgrade; proxy_set_header Connection upgrade; } location /api/ { proxy_pass http://127.0.0.1:8000/; proxy_http_version 1.1; proxy_set_header Host \\$host; proxy_set_header X-Real-IP \\$remote_addr; } }\" | sudo tee /etc/nginx/conf.d/f1.aarav-shah.conf",
+              "sudo rm -f /etc/nginx/conf.d/aarav-shah.conf 2>/dev/null || true",
+              "if sudo nginx -t; then sudo systemctl reload nginx; echo \"Nginx configured for f1.aarav-shah.com\"; else echo \"Nginx config test failed\"; fi",
               "echo \"\"",
-              "echo \"✅ Deployment complete!\""
+              "echo \"Deployment complete!\"",
+              "echo \"Site available at: https://f1.aarav-shah.com\""
             ]' \
             --output json)
           
