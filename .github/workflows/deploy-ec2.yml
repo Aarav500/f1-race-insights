@@ -267,8 +267,12 @@ jobs:
               "sleep 2",
               "curl -s -o /dev/null -w \"Proxy test: %{http_code}\" http://localhost/ || true",
               "echo \"\"",
+              "echo \"=== Setting up SSL with Certbot ===\"",
+              "if ! command -v certbot >/dev/null 2>&1; then echo \"Installing Certbot...\"; sudo dnf install -y certbot python3-certbot-nginx; fi",
+              "sudo certbot --nginx -d f1.aarav-shah.com --non-interactive --agree-tos --email aarav@aarav-shah.com --redirect || echo \"Certbot failed, continuing without SSL\"",
+              "echo \"\"",
               "echo \"Deployment complete!\"",
-              "echo \"Site: http://f1.aarav-shah.com\""
+              "echo \"Site: https://f1.aarav-shah.com\""
             ]' \
             --output json)
           
