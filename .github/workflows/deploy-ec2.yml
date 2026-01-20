@@ -261,11 +261,17 @@ jobs:
               "echo \"\"",
               "echo \"=== Configuring Nginx for f1.aarav-shah.com ===\"",
               "if ! command -v nginx >/dev/null 2>&1; then echo \"Installing Nginx...\"; sudo dnf install -y nginx; fi",
-              "sudo systemctl enable --now nginx",
-              "if [ -f /opt/f1-race-insights/deploy/fix_nginx.sh ]; then echo \"Running Nginx config script...\"; sudo bash /opt/f1-race-insights/deploy/fix_nginx.sh; else echo \"Nginx config script not found, creating config manually...\"; echo '\''server { listen 80; server_name f1.aarav-shah.com; location / { proxy_pass http://127.0.0.1:3000/; proxy_http_version 1.1; } }'\'' | sudo tee /etc/nginx/conf.d/f1.aarav-shah.conf; sudo nginx -t && sudo systemctl reload nginx; fi",
+              "sudo systemctl enable nginx",
+              "echo \"Removing old nginx configs...\"",
+              "sudo rm -f /etc/nginx/conf.d/*.conf",
+              "echo \"Creating nginx config...\"",
+              "echo 'server { listen 80; server_name f1.aarav-shah.com; location / { proxy_pass http://127.0.0.1:3000/; proxy_http_version 1.1; proxy_set_header Host $host; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection upgrade; } location /api/ { proxy_pass http://127.0.0.1:8000/; } }' | sudo tee /etc/nginx/conf.d/f1.aarav-shah.conf",
+              "sudo nginx -t && sudo systemctl restart nginx",
+              "sleep 2",
+              "curl -s -o /dev/null -w 'Proxy test: %{http_code}' http://localhost/ || true",
               "echo \"\"",
               "echo \"Deployment complete!\"",
-              "echo \"Site available at: https://f1.aarav-shah.com\""
+              "echo \"Site: http://f1.aarav-shah.com\""
             ]' \
             --output json)
           
